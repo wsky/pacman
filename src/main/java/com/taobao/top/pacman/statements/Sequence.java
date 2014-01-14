@@ -1,13 +1,54 @@
 package com.taobao.top.pacman.statements;
 
-import com.taobao.top.pacman.NativeActivity;
-import com.taobao.top.pacman.NativeActivityContext;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.taobao.top.pacman.*;
 
 public class Sequence extends NativeActivity {
+	private List<Activity> activities;
+	private CompletionCallback onChildComplete;
+	private Variable lastIndexHint;
+
+	public Sequence() {
+		super();
+		this.lastIndexHint = new Variable();
+		this.onChildComplete = new CompletionCallback() {
+			@Override
+			public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+				InternalExecute(context, completedInstance);
+			}
+		};
+	}
+
+	public List<Activity> getActivities() {
+		if (this.activities == null)
+			this.activities = new ArrayList<Activity>();
+		return this.activities;
+	}
 
 	@Override
 	protected void execute(NativeActivityContext context) {
-		// TODO Auto-generated method stub
+		if (this.activities != null && this.activities.size() > 0)
+			context.scheduleActivity(this.activities.get(0), this.onChildComplete);
+	}
+
+	private void InternalExecute(NativeActivityContext context, ActivityInstance completedInstance)
+	{
+		int completedInstanceIndex = (Integer) this.lastIndexHint.get(context);
+
+		if (completedInstanceIndex >= this.activities.size() ||
+				this.activities.get(completedInstanceIndex) != completedInstance.getActivity())
+			completedInstanceIndex = this.activities.indexOf(completedInstance.getActivity());
+
+		int nextChildIndex = completedInstanceIndex + 1;
+
+		if (nextChildIndex == this.activities.size())
+			return;
+
+		Activity nextChild = this.activities.get(nextChildIndex);
+		context.scheduleActivity(nextChild, this.onChildComplete);
+		this.lastIndexHint.set(context, nextChildIndex);
 	}
 
 }

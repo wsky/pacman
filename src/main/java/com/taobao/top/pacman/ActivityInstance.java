@@ -27,4 +27,9 @@ public class ActivityInstance {
 		
 	}
 
+	public Activity getActivity() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
