@@ -11,7 +11,7 @@ public class FindMyPhone extends NativeActivity {
 
 	public FindMyPhone() {
 		If _if = new If();
-		_if.Condition = new InArgument();
+		_if.Condition = new InArgument(true);
 		_if.Then = new WriteLine();
 		_if.Else = new WriteLine();
 	}

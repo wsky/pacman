@@ -20,4 +20,25 @@ public class ActivityContext {
 		this.reinitialize(null, null);
 	}
 
+	public Object get(OutArgument outArgument) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void set(OutArgument outArgument, Object value) {
+		// TODO Auto-generated method stub
+	}
+
+	public Object get(InArgument inArgument) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void set(InArgument inArgument, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	// TODO design DataContext holding values
+
 }

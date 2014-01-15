@@ -2,14 +2,14 @@ package com.taobao.top.pacman;
 
 public class Variable {
 
-	public Object get(NativeActivityContext context) {
+	public Object get(ActivityContext context) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public void set(NativeActivityContext context, Object value) {
+	public void set(ActivityContext context, Object value) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

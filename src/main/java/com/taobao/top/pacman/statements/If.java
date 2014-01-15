@@ -1,14 +1,15 @@
 package com.taobao.top.pacman.statements;
 
-import com.taobao.top.pacman.Activity;
-import com.taobao.top.pacman.InArgument;
-import com.taobao.top.pacman.NativeActivity;
-import com.taobao.top.pacman.NativeActivityContext;
+import com.taobao.top.pacman.*;
 
 public class If extends NativeActivity {
 	public InArgument Condition;
 	public Activity Then;
 	public Activity Else;
+
+	public If() {
+		super();
+	}
 
 	@Override
 	protected void execute(NativeActivityContext context) {

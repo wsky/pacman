@@ -9,10 +9,12 @@ public class Parallel extends NativeActivity {
 	private List<Activity> branches;
 	private Variable hasCompleted;
 	private CompletionCallback onConditionComplete;
+	private CompletionCallback onBranchComplete;
 
 	public ActivityWithResult CompletionCondition;
 
 	public Parallel() {
+		super();
 		this.hasCompleted = new Variable();
 	}
 
@@ -24,29 +26,34 @@ public class Parallel extends NativeActivity {
 
 	@Override
 	protected final void execute(NativeActivityContext context) {
-		if (this.branches != null && this.branches.size() > 0)
-			for (int i = this.branches.size() - 1; i >= 0; i--)
-				context.scheduleActivity(this.branches.get(i), new CompletionCallback() {
+		if (this.branches != null && this.branches.size() > 0) {
+			if (this.onBranchComplete == null) {
+				this.onBranchComplete = new CompletionCallback() {
 					@Override
 					public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
 						onBranchComplete(context, completedInstance);
 					}
-				});
+				};
+			}
+			// sequence schedule
+			for (int i = this.branches.size() - 1; i >= 0; i--)
+				context.scheduleActivity(this.branches.get(i), this.onBranchComplete);
+		}
 	}
 
 	protected void onHasCompleted(NativeActivityContext context, ActivityInstance completedInstance) {
 	}
 
-	private void onBranchComplete(NativeActivityContext context, ActivityInstance completedInstance)
-	{
+	private void onBranchComplete(NativeActivityContext context, ActivityInstance completedInstance) {
 		if (this.CompletionCondition != null && !(Boolean) this.hasCompleted.get(context)) {
-			if (this.onConditionComplete == null)
+			if (this.onConditionComplete == null) {
 				this.onConditionComplete = new CompletionCallback() {
 					@Override
 					public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
 						onConditionComplete(context, completedInstance);
 					}
 				};
+			}
 			context.scheduleActivity(this.CompletionCondition, this.onConditionComplete);
 		}
 	}

@@ -7,18 +7,13 @@ import com.taobao.top.pacman.*;
 
 public class Sequence extends NativeActivity {
 	private List<Activity> activities;
-	private CompletionCallback onChildComplete;
 	private Variable lastIndexHint;
+	private CompletionCallback onChildComplete;
 
 	public Sequence() {
 		super();
 		this.lastIndexHint = new Variable();
-		this.onChildComplete = new CompletionCallback() {
-			@Override
-			public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
-				InternalExecute(context, completedInstance);
-			}
-		};
+
 	}
 
 	public List<Activity> getActivities() {
@@ -30,11 +25,10 @@ public class Sequence extends NativeActivity {
 	@Override
 	protected void execute(NativeActivityContext context) {
 		if (this.activities != null && this.activities.size() > 0)
-			context.scheduleActivity(this.activities.get(0), this.onChildComplete);
+			context.scheduleActivity(this.activities.get(0), this.onChildComplete());
 	}
 
-	private void InternalExecute(NativeActivityContext context, ActivityInstance completedInstance)
-	{
+	private void InternalExecute(NativeActivityContext context, ActivityInstance completedInstance) {
 		int completedInstanceIndex = (Integer) this.lastIndexHint.get(context);
 
 		if (completedInstanceIndex >= this.activities.size() ||
@@ -47,8 +41,19 @@ public class Sequence extends NativeActivity {
 			return;
 
 		Activity nextChild = this.activities.get(nextChildIndex);
-		context.scheduleActivity(nextChild, this.onChildComplete);
+		context.scheduleActivity(nextChild, this.onChildComplete());
 		this.lastIndexHint.set(context, nextChildIndex);
 	}
 
+	private CompletionCallback onChildComplete() {
+		if (this.onChildComplete == null) {
+			this.onChildComplete = new CompletionCallback() {
+				@Override
+				public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+					InternalExecute(context, completedInstance);
+				}
+			};
+		}
+		return this.onChildComplete;
+	}
 }
