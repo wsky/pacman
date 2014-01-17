@@ -1,5 +1,7 @@
 package com.taobao.top.pacman;
 
+import com.taobao.top.pacman.runtime.LocationEnvironment;
+
 public class ActivityInstance {
 
 	public boolean isCancellationRequested() {
@@ -9,7 +11,7 @@ public class ActivityInstance {
 
 	public void beginCancel(NativeActivityContext nativeActivityContext) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public Iterable<ActivityInstance> getChildren() {
@@ -24,11 +26,15 @@ public class ActivityInstance {
 
 	public void cancelChildren(NativeActivityContext nativeActivityContext) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public Activity getActivity() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected LocationEnvironment getEnvironment() {
 		return null;
 	}
 

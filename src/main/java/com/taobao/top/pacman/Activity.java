@@ -11,7 +11,7 @@ public class Activity {
 
 	// private Activity runtimeImplementation;
 	private List<Activity> runtimeChildren;
-	private List<Argument> runtimeArguments;
+	private List<RuntimeArgument> runtimeArguments;
 	private List<Variable> runtimeVariables;
 
 	public String getDisplayName() {
@@ -36,9 +36,9 @@ public class Activity {
 		this.runtimeChildren.add(child);
 	}
 
-	protected void addArgument(Argument argument) {
+	protected void addArgument(RuntimeArgument argument) {
 		if (this.runtimeArguments == null)
-			this.runtimeArguments = new ArrayList<Argument>();
+			this.runtimeArguments = new ArrayList<RuntimeArgument>();
 		this.runtimeArguments.add(argument);
 	}
 
@@ -55,5 +55,9 @@ public class Activity {
 	}
 
 	protected void internalCancel(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	}
+
+	protected void cacheMeta() {
+		// TODO default dynamic scan and prepare
 	}
 }

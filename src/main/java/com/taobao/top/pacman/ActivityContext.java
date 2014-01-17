@@ -1,5 +1,7 @@
 package com.taobao.top.pacman;
 
+import com.taobao.top.pacman.runtime.LocationEnvironment;
+
 public class ActivityContext {
 	protected ActivityInstance currentInstance;
 	protected ActivityExecutor executor;
@@ -20,25 +22,39 @@ public class ActivityContext {
 		this.reinitialize(null, null);
 	}
 
-	public Object get(OutArgument outArgument) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Activity getActivity() {
+		return this.currentInstance.getActivity();
 	}
 
-	public void set(OutArgument outArgument, Object value) {
-		// TODO Auto-generated method stub
+	protected LocationEnvironment getEnvironment() {
+		return this.currentInstance.getEnvironment();
 	}
 
-	public Object get(InArgument inArgument) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Location getLocation(LocationReference locationReference) {
+		return this.getEnvironment().getLocation(locationReference.getId());
 	}
 
-	public void set(InArgument inArgument, Object value) {
-		// TODO Auto-generated method stub
-		
+	protected Object getValue(LocationReference locationReference) {
+		return this.getLocation(locationReference).getValue();
 	}
 
-	// TODO design DataContext holding values
+	protected void setValue(LocationReference locationReference, Object value) {
+		this.getLocation(locationReference).setValue(value);
+	}
 
+	public Object get(Argument argument) {
+		return this.getValue(argument.getRuntimeArgument());
+	}
+
+	public void set(Argument argument, Object value) {
+		this.setValue(argument.getRuntimeArgument(), value);
+	}
+
+	public Object get(Variable variable) {
+		return this.getValue(variable);
+	}
+
+	public void set(Variable variable, Object value) {
+		this.setValue(variable, value);
+	}
 }
