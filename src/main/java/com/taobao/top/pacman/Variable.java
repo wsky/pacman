@@ -45,4 +45,9 @@ public class Variable extends LocationReference {
 	public void set(ActivityContext context, Object value) {
 		context.setValue(this, value);
 	}
+
+	public void initializeRelationship(Activity parent) {
+		if (this.expression != null)
+			this.expression.initializeRelationship(parent);
+	}
 }

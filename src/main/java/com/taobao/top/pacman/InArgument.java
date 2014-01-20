@@ -5,8 +5,6 @@ import com.taobao.top.pacman.expressions.Literal;
 import com.taobao.top.pacman.expressions.VariableValue;
 
 public class InArgument extends Argument {
-	private ActivityWithResult expression;
-
 	public InArgument(Object constValue) {
 		this(new Literal(constValue));
 	}
@@ -20,11 +18,7 @@ public class InArgument extends Argument {
 	}
 
 	public InArgument(ActivityWithResult expression) {
-		this.expression = expression;
-	}
-
-	public ActivityWithResult getExpression() {
-		return this.expression;
+		this.setExpression(expression);
 	}
 
 	public Object get(ActivityContext context) {

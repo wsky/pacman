@@ -31,4 +31,10 @@ public class RuntimeArgument extends LocationReference {
 	public enum ArgumentDirection {
 		In, Out
 	}
+
+	public void initializeRelationship(Activity parent) {
+		if (this.boundArgument != null &&
+				this.boundArgument.getExpression() != null)
+			this.boundArgument.getExpression().initializeRelationship(parent);
+	}
 }

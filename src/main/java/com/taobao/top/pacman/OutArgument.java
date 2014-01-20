@@ -1,6 +1,7 @@
 package com.taobao.top.pacman;
 
 public class OutArgument extends Argument {
+	//FIXME impl VariableReference
 	private Variable variable;
 
 	public OutArgument() {

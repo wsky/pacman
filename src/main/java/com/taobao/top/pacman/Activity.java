@@ -8,15 +8,15 @@ import com.taobao.top.pacman.runtime.BookmarkManager;
 public abstract class Activity {
 	private int id;
 	private String displayName;
-
-	
+	private Activity root;
 	private Activity parent;
-	// TODO dynamic
-	// private Activity runtimeImplementation;
 
 	private List<Activity> children;
 	private List<RuntimeArgument> runtimeArguments;
 	private List<Variable> variables;
+
+	private LocationReferenceEnvironment publicEnvironment;
+	private LocationReferenceEnvironment privateEnvironment;
 
 	public String getDisplayName() {
 		return displayName;
@@ -33,7 +33,15 @@ public abstract class Activity {
 	protected int getId() {
 		return this.id;
 	}
-	
+
+	protected Activity getRoot() {
+		return root;
+	}
+
+	protected void setRoot(Activity root) {
+		this.root = root;
+	}
+
 	protected Activity getParent() {
 		return parent;
 	}
@@ -42,7 +50,7 @@ public abstract class Activity {
 		this.parent = parent;
 	}
 
-	protected Iterable<Activity> getChildren() {
+	protected List<Activity> getChildren() {
 		return this.children;
 	}
 
@@ -56,7 +64,7 @@ public abstract class Activity {
 		this.children.add(child);
 	}
 
-	protected Iterable<RuntimeArgument> getRuntimeArguments() {
+	protected List<RuntimeArgument> getRuntimeArguments() {
 		return this.runtimeArguments;
 	}
 
@@ -70,7 +78,7 @@ public abstract class Activity {
 		this.runtimeArguments.add(argument);
 	}
 
-	protected Iterable<Variable> getVariables() {
+	protected List<Variable> getVariables() {
 		return this.variables;
 	}
 
@@ -84,10 +92,39 @@ public abstract class Activity {
 		this.variables.add(variable);
 	}
 
-	protected void cacheMetadata(ActivityMetadata metadata) {
-		// TODO default dynamic scan and prepare
+	protected LocationReferenceEnvironment getPublicEnvironment() {
+		return publicEnvironment;
 	}
-	
+
+	protected void setPublicEnvironment(LocationReferenceEnvironment publicEnvironment) {
+		this.publicEnvironment = publicEnvironment;
+	}
+
+	protected LocationReferenceEnvironment getPrivateEnvironment() {
+		return privateEnvironment;
+	}
+
+	protected void setPrivateEnvironment(LocationReferenceEnvironment privateEnvironment) {
+		this.privateEnvironment = privateEnvironment;
+	}
+
+	protected void initializeAsRoot() {
+		this.parent = null;
+		this.root = this;
+	}
+
+	protected LocationReferenceEnvironment getParentEnvironment() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected void initializeRelationship(Activity parent) {
+	}
+
+	protected void internalCacheMetadata() {
+		this.cacheMetadata(new ActivityMetadata(this));
+	}
+
 	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
 	}
 
@@ -95,5 +132,9 @@ public abstract class Activity {
 	}
 
 	protected void internalCancel(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	}
+
+	protected void cacheMetadata(ActivityMetadata metadata) {
+		// TODO default dynamic scan and prepare
 	}
 }
