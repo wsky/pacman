@@ -114,11 +114,17 @@ public abstract class Activity {
 	}
 
 	protected LocationReferenceEnvironment getParentEnvironment() {
-		// TODO Auto-generated method stub
+
+		// TODO get parent env in act
+		if (this.parent == null)
+			// FIXME get host env
+			return new ActivityLocationReferenceEnvironment(null);
+
 		return null;
 	}
 
 	protected void initializeRelationship(Activity parent) {
+
 	}
 
 	protected void internalCacheMetadata() {
