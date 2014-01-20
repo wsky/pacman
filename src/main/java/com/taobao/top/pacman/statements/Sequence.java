@@ -23,6 +23,13 @@ public class Sequence extends NativeActivity {
 	}
 
 	@Override
+	protected void cacheMetadata(ActivityMetadata metadata) {
+		for (Activity activity : this.getActivities())
+			metadata.addChild(activity);
+		metadata.addVariable(this.lastIndexHint);
+	}
+
+	@Override
 	protected void execute(NativeActivityContext context) {
 		if (this.activities != null && this.activities.size() > 0)
 			context.scheduleActivity(this.activities.get(0), this.onChildComplete());

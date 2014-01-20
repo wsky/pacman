@@ -1,6 +1,7 @@
 package com.taobao.top.pacman.statements;
 
 import com.taobao.top.pacman.*;
+import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 
 public class While extends NativeActivity {
 	private CompletionCallback onBodyComplete;
@@ -16,6 +17,13 @@ public class While extends NativeActivity {
 				onBodyComplete(context, completedInstance);
 			}
 		};
+	}
+
+	@Override
+	protected void cacheMetadata(ActivityMetadata metadata) {
+		metadata.bindAndAddArgument(this.Condition,
+				new RuntimeArgument("Condition", Boolean.class, ArgumentDirection.In));
+		metadata.addChild(this.Body);
 	}
 
 	@Override

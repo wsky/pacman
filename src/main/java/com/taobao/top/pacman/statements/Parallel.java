@@ -25,6 +25,15 @@ public class Parallel extends NativeActivity {
 	}
 
 	@Override
+	protected void cacheMetadata(ActivityMetadata metadata) {
+		for (Activity branch : this.getBranches())
+			metadata.addChild(branch);
+		if (this.CompletionCondition != null)
+			metadata.addChild(this.CompletionCondition);
+		metadata.addVariable(this.hasCompleted);
+	}
+
+	@Override
 	protected final void execute(NativeActivityContext context) {
 		if (this.branches != null && this.branches.size() > 0) {
 			if (this.onBranchComplete == null) {
