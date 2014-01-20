@@ -4,6 +4,13 @@ public class Location {
 	private Class<?> type;
 	private Object value;
 
+	public Location() {
+	}
+
+	public Location(Object value) {
+		this.value = value;
+	}
+
 	public Class<?> getType() {
 		return type;
 	}

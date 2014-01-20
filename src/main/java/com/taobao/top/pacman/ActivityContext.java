@@ -1,6 +1,5 @@
 package com.taobao.top.pacman;
 
-import com.taobao.top.pacman.runtime.LocationEnvironment;
 
 public class ActivityContext {
 	protected ActivityInstance currentInstance;

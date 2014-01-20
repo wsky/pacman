@@ -5,14 +5,18 @@ import java.util.List;
 
 import com.taobao.top.pacman.runtime.BookmarkManager;
 
-public class Activity {
+public abstract class Activity {
 	private int id;
 	private String displayName;
 
+	
+	private Activity parent;
+	// TODO dynamic
 	// private Activity runtimeImplementation;
-	private List<Activity> runtimeChildren;
+
+	private List<Activity> children;
 	private List<RuntimeArgument> runtimeArguments;
-	private List<Variable> runtimeVariables;
+	private List<Variable> variables;
 
 	public String getDisplayName() {
 		return displayName;
@@ -29,11 +33,35 @@ public class Activity {
 	protected int getId() {
 		return this.id;
 	}
+	
+	protected Activity getParent() {
+		return parent;
+	}
+
+	protected void setParent(Activity parent) {
+		this.parent = parent;
+	}
+
+	protected Iterable<Activity> getChildren() {
+		return this.children;
+	}
+
+	protected void setChildren(List<Activity> children) {
+		this.children = children;
+	}
 
 	protected void addChild(Activity child) {
-		if (this.runtimeChildren == null)
-			this.runtimeChildren = new ArrayList<Activity>();
-		this.runtimeChildren.add(child);
+		if (this.children == null)
+			this.children = new ArrayList<Activity>();
+		this.children.add(child);
+	}
+
+	protected Iterable<RuntimeArgument> getRuntimeArguments() {
+		return this.runtimeArguments;
+	}
+
+	protected void setRuntimeArguments(List<RuntimeArgument> runtimeArguments) {
+		this.runtimeArguments = runtimeArguments;
 	}
 
 	protected void addArgument(RuntimeArgument argument) {
@@ -42,12 +70,24 @@ public class Activity {
 		this.runtimeArguments.add(argument);
 	}
 
-	protected void addVariable(Variable variable) {
-		if (this.runtimeVariables == null)
-			this.runtimeVariables = new ArrayList<Variable>();
-		this.runtimeVariables.add(variable);
+	protected Iterable<Variable> getVariables() {
+		return this.variables;
 	}
 
+	protected void setVariables(List<Variable> variables) {
+		this.variables = variables;
+	}
+
+	protected void addVariable(Variable variable) {
+		if (this.variables == null)
+			this.variables = new ArrayList<Variable>();
+		this.variables.add(variable);
+	}
+
+	protected void cacheMetadata(ActivityMetadata metadata) {
+		// TODO default dynamic scan and prepare
+	}
+	
 	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
 	}
 
@@ -55,9 +95,5 @@ public class Activity {
 	}
 
 	protected void internalCancel(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
-	}
-
-	protected void cacheMeta() {
-		// TODO default dynamic scan and prepare
 	}
 }
