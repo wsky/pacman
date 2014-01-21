@@ -27,7 +27,22 @@ public class ActivityLocationReferenceEnvironment extends LocationReferenceEnvir
 
 	@Override
 	public LocationReference getLocationReference(String name) {
-		// TODO get from current or parent
+		LocationReference locationReference = this.getLocationReference(this, name);
+		if (locationReference != null)
+			return locationReference;
+
+		LocationReferenceEnvironment currentEnvironment = this.getParent();
+		while (currentEnvironment != null &&
+				currentEnvironment instanceof ActivityLocationReferenceEnvironment) {
+			locationReference = this.getLocationReference(
+					(ActivityLocationReferenceEnvironment) currentEnvironment, name);
+			if (locationReference != null)
+				return locationReference;
+			currentEnvironment = currentEnvironment.getParent();
+		}
+
+		// TODO maybe have some other environment
+
 		return null;
 	}
 
@@ -39,5 +54,9 @@ public class ActivityLocationReferenceEnvironment extends LocationReferenceEnvir
 	public void declare(LocationReference locationReference, Activity owner) {
 		// TODO check duplicate name
 		this.getDeclarations().put(locationReference.getName(), locationReference);
+	}
+
+	private LocationReference getLocationReference(ActivityLocationReferenceEnvironment environment, String name) {
+		return environment.declarations != null ? environment.declarations.get(name) : null;
 	}
 }
