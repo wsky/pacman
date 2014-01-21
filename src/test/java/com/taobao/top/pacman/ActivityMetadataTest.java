@@ -13,17 +13,19 @@ public class ActivityMetadataTest {
 	@Test
 	public void cache_metadata_test() {
 		Activity activity = new Activity() {
-			private InArgument in = new InArgument(true);
-			private OutArgument out = new OutArgument();
-			private Variable var = new Variable("var");
-			private Activity child = new If();
+			public InArgument in = new InArgument(true);
+			public OutArgument out = new OutArgument();
+			public Variable var = new Variable("var");
+			public Activity child = new If();
+			private Variable inner = new Variable("inner");
 
 			@Override
 			protected void cacheMetadata(ActivityMetadata metadata) {
 				super.cacheMetadata(metadata);
 				metadata.bindAndAddArgument(this.in, new RuntimeArgument("in", Integer.class, ArgumentDirection.In));
 				metadata.bindAndAddArgument(this.out, new RuntimeArgument("out", Integer.class, ArgumentDirection.Out));
-				metadata.addVariable(this.var);
+				metadata.addRuntimeVariable(this.var);
+				metadata.addImplementationVariable(this.inner);
 				metadata.addChild(this.child);
 			}
 		};
@@ -31,8 +33,10 @@ public class ActivityMetadataTest {
 		Iterator<RuntimeArgument> iterator = activity.getRuntimeArguments().iterator();
 		assertEquals("in", iterator.next().getName());
 		assertEquals("out", iterator.next().getName());
-		assertEquals("var", activity.getVariables().iterator().next().getName());
+		assertEquals("var", activity.getRuntimeVariables().iterator().next().getName());
+		assertEquals("inner", activity.getImplementationVariables().iterator().next().getName());
 		assertEquals(If.class, activity.getChildren().iterator().next().getClass());
 
+		// TODO check releationship/locationReferenceEnvironment
 	}
 }

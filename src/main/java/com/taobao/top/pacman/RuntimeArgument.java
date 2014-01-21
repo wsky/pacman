@@ -4,6 +4,7 @@ public class RuntimeArgument extends LocationReference {
 	private String name;
 	private ArgumentDirection direction;
 	private Argument boundArgument;
+	private Activity owner;
 
 	public RuntimeArgument(String name, Class<?> type, ArgumentDirection direction) {
 		this.name = name;
@@ -28,13 +29,18 @@ public class RuntimeArgument extends LocationReference {
 		return this.boundArgument;
 	}
 
-	public enum ArgumentDirection {
-		In, Out
+	public Activity getOwner() {
+		return this.owner;
 	}
 
 	public void initializeRelationship(Activity parent) {
+		this.owner = parent;
 		if (this.boundArgument != null &&
 				this.boundArgument.getExpression() != null)
-			this.boundArgument.getExpression().initializeRelationship(parent);
+			this.boundArgument.getExpression().initializeRelationship(parent, RelationshipType.ArgumentExpression);
+	}
+
+	public enum ArgumentDirection {
+		In, Out
 	}
 }

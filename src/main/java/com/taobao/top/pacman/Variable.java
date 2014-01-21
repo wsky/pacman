@@ -5,7 +5,9 @@ import com.taobao.top.pacman.expressions.Literal;
 
 public class Variable extends LocationReference {
 	private String name;
-	private ActivityWithResult expression;
+	private ActivityWithResult _default;
+	private boolean isPublic;
+	private Activity owner;
 
 	public Variable() {
 	}
@@ -17,7 +19,7 @@ public class Variable extends LocationReference {
 
 	public Variable(String name, Object constValue) {
 		this(name);
-		this.expression = new Literal(constValue);
+		this._default = new Literal(constValue);
 	}
 
 	public Variable(Function<ActivityContext, Object> expression) {
@@ -26,7 +28,7 @@ public class Variable extends LocationReference {
 
 	public Variable(String name, Function<ActivityContext, Object> expression) {
 		this(name);
-		this.expression = new FunctionValue(expression);
+		this._default = new FunctionValue(expression);
 	}
 
 	@Override
@@ -34,8 +36,23 @@ public class Variable extends LocationReference {
 		return this.name;
 	}
 
-	protected ActivityWithResult getExpression() {
-		return this.expression;
+	protected ActivityWithResult getDefault() {
+		return this._default;
+	}
+
+	protected boolean isPublic() {
+		return isPublic;
+	}
+
+	protected Activity getOwner() {
+		return this.owner;
+	}
+
+	public void initializeRelationship(Activity parent, boolean isPublic) {
+		this.owner = parent;
+		this.isPublic = isPublic;
+		if (this._default != null)
+			this._default.initializeRelationship(parent, RelationshipType.VariableDefault);
 	}
 
 	public Object get(ActivityContext context) {
@@ -44,10 +61,5 @@ public class Variable extends LocationReference {
 
 	public void set(ActivityContext context, Object value) {
 		context.setValue(this, value);
-	}
-
-	public void initializeRelationship(Activity parent) {
-		if (this.expression != null)
-			this.expression.initializeRelationship(parent);
 	}
 }

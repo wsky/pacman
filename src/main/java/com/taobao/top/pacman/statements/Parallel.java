@@ -30,7 +30,7 @@ public class Parallel extends NativeActivity {
 			metadata.addChild(branch);
 		if (this.CompletionCondition != null)
 			metadata.addChild(this.CompletionCondition);
-		metadata.addVariable(this.hasCompleted);
+		metadata.addRuntimeVariable(this.hasCompleted);
 	}
 
 	@Override

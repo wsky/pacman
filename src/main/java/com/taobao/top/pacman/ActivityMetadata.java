@@ -18,12 +18,17 @@ public class ActivityMetadata {
 
 	public void addArgument(RuntimeArgument argument) {
 		if (argument != null)
-			this.activity.addArgument(argument);
+			this.activity.addRuntimeArgument(argument);
 	}
 
-	public void addVariable(Variable variable) {
+	public void addRuntimeVariable(Variable variable) {
 		if (variable != null)
-			this.activity.addVariable(variable);
+			this.activity.addRuntimeVariable(variable);
+	}
+
+	public void addImplementationVariable(Variable variable) {
+		if (variable != null)
+			this.activity.addImplementationVariable(variable);
 	}
 
 	public void addChild(Activity child) {
