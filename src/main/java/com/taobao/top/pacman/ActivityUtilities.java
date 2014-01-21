@@ -25,16 +25,30 @@ public class ActivityUtilities {
 
 	private static void processActivity(Activity activity) {
 		activity.internalCacheMetadata();
+		processChildren(activity, activity.getChildren());
 
 		ActivityLocationReferenceEnvironment implementationEnvironment = null;
 		ActivityLocationReferenceEnvironment publicEnvironment = null;
 		AtomicInteger environmentId = new AtomicInteger(0);
 
-		processChildren(activity, activity.getChildren());
-		publicEnvironment = processArguments(activity, activity.getRuntimeArguments(), implementationEnvironment, environmentId);
-		processVariables(activity, activity.getRuntimeVariables(), true, publicEnvironment, environmentId);
-		processVariables(activity, activity.getImplementationVariables(), false, implementationEnvironment, environmentId);
+		implementationEnvironment = processArguments(activity,
+				activity.getRuntimeArguments(),
+				implementationEnvironment,
+				environmentId);
+		publicEnvironment = processVariables(activity,
+				activity.getRuntimeVariables(),
+				true,
+				publicEnvironment,
+				environmentId);
+		implementationEnvironment = processVariables(activity,
+				activity.getImplementationVariables(),
+				false,
+				implementationEnvironment,
+				environmentId);
 
+		if (publicEnvironment == null)
+			publicEnvironment = new ActivityLocationReferenceEnvironment(activity.getParentEnvironment());
+		
 		activity.setPublicEnvironment(publicEnvironment);
 		activity.setImplementationEnvironment(implementationEnvironment);
 	}
@@ -77,9 +91,5 @@ public class ActivityUtilities {
 			environment.declare(variable, owner);
 		}
 		return environment;
-	}
-
-	protected static void processActivityInstanceTree(ActivityInstance rootInstance, ActivityExecutor executor) {
-
 	}
 }

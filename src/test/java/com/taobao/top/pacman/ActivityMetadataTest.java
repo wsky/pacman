@@ -58,28 +58,40 @@ public class ActivityMetadataTest {
 		ActivityLocationReferenceEnvironment hostEnvironment = new ActivityLocationReferenceEnvironment(null);
 		ActivityUtilities.cacheRootMetadata(root, hostEnvironment);
 		assertRoot();
+
 		// root
 		assertActivity(root, null, root, null, true);
 		assertEquals(hostEnvironment, root.getParentEnvironment().getParent());
 		assertNotSame(hostEnvironment, root.getPublicEnvironment());
+
 		// child
 		assertActivity(root, root, child, RelationshipType.Child, true);
+
 		// childChild
 		assertActivity(root, child, childChild, RelationshipType.Child, true);
+
 		// runtimeArgument
+		assertActivity(root, root, in.getExpression(), RelationshipType.ArgumentExpression, false);
 		assertEquals(0, in.getRuntimeArgument().getId());
 		assertEquals(root, in.getRuntimeArgument().getOwner());
-		assertActivity(root, root, in.getExpression(), RelationshipType.ArgumentExpression, false);
+		// env
+		assertEquals(in.getRuntimeArgument(), root.getImplementationEnvironment().getLocationReference("in"));
+
 		// runtimeVariable
+		assertActivity(root, root, var.getDefault(), RelationshipType.VariableDefault, true);
 		assertEquals(root, var.getOwner());
 		assertEquals(2, var.getId());
 		assertTrue(var.isPublic());
-		assertActivity(root, root, var.getDefault(), RelationshipType.VariableDefault, true);
+		// env
+		assertEquals(var, root.getPublicEnvironment().getLocationReference("var"));
+
 		// implementationVariable
+		assertActivity(root, root, inner.getDefault(), RelationshipType.VariableDefault, false);
 		assertEquals(root, inner.getOwner());
 		assertEquals(3, inner.getId());
 		assertFalse(inner.isPublic());
-		assertActivity(root, root, inner.getDefault(), RelationshipType.VariableDefault, false);
+		// env
+		assertEquals(inner, root.getImplementationEnvironment().getLocationReference("inner"));
 	}
 
 	private void assertRoot() {
