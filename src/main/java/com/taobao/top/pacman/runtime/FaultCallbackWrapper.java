@@ -6,7 +6,6 @@ import com.taobao.top.pacman.FaultCallback;
 public class FaultCallbackWrapper {
 
 	public FaultCallbackWrapper(FaultCallback onFault, ActivityInstance currentInstance) {
-		// TODO Auto-generated constructor stub
 	}
 
 }

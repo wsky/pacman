@@ -12,27 +12,22 @@ public class ActivityExecutor {
 	};
 
 	public void abortWorkflowInstance(Exception reason) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void abortActivityInstance(ActivityInstance activity, Exception reason) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void cancelActivity(ActivityInstance activityInstance) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void scheduleCompletionBookmark(Bookmark bookmark, Object value) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public ActivityInstance ScheduleActivity(Activity activity, ActivityInstance currentInstance, CompletionCallbackWrapper completionCallbackWrapper, FaultCallbackWrapper faultCallbackWrapper) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
