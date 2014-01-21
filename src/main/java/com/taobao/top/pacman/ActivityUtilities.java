@@ -45,24 +45,24 @@ public class ActivityUtilities {
 	}
 
 	private static ActivityLocationReferenceEnvironment processArguments(
-			Activity parent,
+			Activity owner,
 			List<RuntimeArgument> arguments,
 			ActivityLocationReferenceEnvironment environment,
 			AtomicInteger environmentId) {
 		if (arguments.size() == 0)
 			return environment;
 		if (environment == null)
-			environment = new ActivityLocationReferenceEnvironment(parent.getParentEnvironment());
+			environment = new ActivityLocationReferenceEnvironment(owner.getParentEnvironment());
 		for (RuntimeArgument argument : arguments) {
-			argument.initializeRelationship(parent);
+			argument.initializeRelationship(owner);
 			argument.setId(environmentId.getAndIncrement());
-			environment.declare(argument, parent);
+			environment.declare(argument, owner);
 		}
 		return environment;
 	}
 
 	private static ActivityLocationReferenceEnvironment processVariables(
-			Activity parent,
+			Activity owner,
 			List<Variable> variables,
 			boolean isPublic,
 			ActivityLocationReferenceEnvironment environment,
@@ -70,11 +70,11 @@ public class ActivityUtilities {
 		if (variables.size() == 0)
 			return environment;
 		if (environment == null)
-			environment = new ActivityLocationReferenceEnvironment(parent.getParentEnvironment());
+			environment = new ActivityLocationReferenceEnvironment(owner.getParentEnvironment());
 		for (Variable variable : variables) {
-			variable.initializeRelationship(parent, isPublic);
+			variable.initializeRelationship(owner, isPublic);
 			variable.setId(environmentId.getAndIncrement());
-			environment.declare(variable, parent);
+			environment.declare(variable, owner);
 		}
 		return environment;
 	}

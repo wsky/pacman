@@ -6,6 +6,10 @@ import java.util.List;
 import com.taobao.top.pacman.runtime.BookmarkManager;
 
 public abstract class Activity {
+	private static final List<Activity> emptyActivities = new ArrayList<Activity>();
+	private static final List<RuntimeArgument> emptyArguments = new ArrayList<RuntimeArgument>();
+	private static final List<Variable> emptyVariables = new ArrayList<Variable>();
+
 	private int id;
 	private String displayName;
 	private RootProperties rootProperties;
@@ -126,6 +130,7 @@ public abstract class Activity {
 				parentEnvironment = this.getRoot().getRootProperties().HostEnvironment;
 			break;
 		case Child:
+			// isolate
 			break;
 		case VariableDefault:
 			parentEnvironment = this.getParent().getPublicEnvironment();
@@ -159,6 +164,14 @@ public abstract class Activity {
 
 	protected void internalCacheMetadata() {
 		this.cacheMetadata(new ActivityMetadata(this));
+		if (this.children == null)
+			this.children = emptyActivities;
+		if (this.runtimeArguments == null)
+			this.runtimeArguments = emptyArguments;
+		if (this.runtimeVariables == null)
+			this.runtimeVariables = emptyVariables;
+		if (this.implementationVariables == null)
+			this.implementationVariables = emptyVariables;
 	}
 
 	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {

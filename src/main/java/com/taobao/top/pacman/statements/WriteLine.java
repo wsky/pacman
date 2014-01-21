@@ -12,6 +12,8 @@ public class WriteLine extends NativeActivity {
 
 	@Override
 	protected void cacheMetadata(ActivityMetadata metadata) {
+		if (this.Text == null)
+			this.Text = new InArgument((Object) null);
 		metadata.bindAndAddArgument(this.Text, new RuntimeArgument("Text", String.class, ArgumentDirection.In));
 	}
 

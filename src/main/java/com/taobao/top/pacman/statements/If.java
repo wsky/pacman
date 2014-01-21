@@ -10,6 +10,7 @@ public class If extends NativeActivity {
 
 	public If() {
 		super();
+		this.Condition = new InArgument(true);
 	}
 
 	@Override
