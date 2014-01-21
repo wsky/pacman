@@ -7,6 +7,7 @@ import java.util.Map;
 public class ActivityLocationReferenceEnvironment extends LocationReferenceEnvironment {
 	private Map<String, LocationReference> declarations;
 
+	// TODO support unnamed declaration
 	// private List<LocationReference> unnamedDeclarations;
 
 	public ActivityLocationReferenceEnvironment(LocationReferenceEnvironment parent) {
@@ -21,7 +22,21 @@ public class ActivityLocationReferenceEnvironment extends LocationReferenceEnvir
 
 	@Override
 	public boolean isVisible(LocationReference locationReference) {
-		// TODO check declarations
+		LocationReferenceEnvironment currentScope = this;
+
+		do {
+			ActivityLocationReferenceEnvironment environment = (ActivityLocationReferenceEnvironment) currentScope;
+			if (environment == null)
+				// some other type of environment
+				return currentScope.isVisible(locationReference);
+			if (environment.declarations != null) {
+				for (LocationReference declaraton : environment.declarations.values()) {
+					if (locationReference == declaraton)
+						return true;
+				}
+			}
+			currentScope = currentScope.getParent();
+		} while (currentScope != null);
 		return false;
 	}
 
@@ -41,7 +56,10 @@ public class ActivityLocationReferenceEnvironment extends LocationReferenceEnvir
 			currentEnvironment = currentEnvironment.getParent();
 		}
 
-		// TODO maybe have some other environment
+		// maybe have some other type of environment
+		if (locationReference == null &&
+				!(currentEnvironment instanceof ActivityLocationReferenceEnvironment))
+			return currentEnvironment.getLocationReference(name);
 
 		return null;
 	}

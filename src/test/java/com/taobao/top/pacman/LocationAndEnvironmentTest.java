@@ -15,18 +15,28 @@ public class LocationAndEnvironmentTest {
 	}
 
 	@Test
-	public void get_location_reference_test() {
+	public void location_reference_env_test() {
+		Variable var = new Variable("var");
+		RuntimeArgument arg = new RuntimeArgument("arg", Object.class, ArgumentDirection.In);
+		RuntimeArgument varArg = new RuntimeArgument("var", Object.class, ArgumentDirection.In);
 		ActivityLocationReferenceEnvironment parent = new ActivityLocationReferenceEnvironment(null);
-		parent.declare(new Variable("var"), null);
-		parent.declare(new RuntimeArgument("arg", Object.class, ArgumentDirection.In), null);
+		parent.declare(var, null);
+		parent.declare(arg, null);
 		ActivityLocationReferenceEnvironment environment = new ActivityLocationReferenceEnvironment(parent);
-		environment.declare(new RuntimeArgument("var", Object.class, ArgumentDirection.In), null);
-		
+		environment.declare(varArg, null);
+
+		assertNotNull(environment.getLocationReference("arg"));
 		assertNotNull(environment.getLocationReference("var"));
 		assertEquals(RuntimeArgument.class, environment.getLocationReference("var").getClass());
-		
-		assertNotNull(environment.getLocationReference("arg"));
 
+		assertTrue(parent.isVisible(arg));
+		assertTrue(environment.isVisible(arg));
+
+		assertTrue(parent.isVisible(var));
+		assertTrue(environment.isVisible(var));
+
+		assertFalse(parent.isVisible(varArg));
+		assertTrue(environment.isVisible(varArg));
 	}
 
 	private void reference_test(LocationReference locationReference) {
