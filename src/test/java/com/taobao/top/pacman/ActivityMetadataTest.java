@@ -20,7 +20,10 @@ public class ActivityMetadataTest {
 	@Before
 	public void before() {
 		childChild = new WriteLine();
+		childChild.setDisplayName("writeLine");
+
 		If _if = new If();
+		_if.setDisplayName("if");
 		_if.Then = childChild;
 		child = _if;
 
@@ -45,6 +48,8 @@ public class ActivityMetadataTest {
 				metadata.addChild(this.child);
 			}
 		};
+
+		root.setDisplayName("root");
 	}
 
 	@Test
@@ -107,23 +112,17 @@ public class ActivityMetadataTest {
 		assertEquals(parent, current.getParent());
 		if (type == null)
 			return;
+
+		assertNotSame(parent.getPublicEnvironment(), current.getPublicEnvironment());
 		switch (type) {
 		case Child:
-			assertNotSame(parent.getPublicEnvironment(), current.getPublicEnvironment());
 			assertEquals(null, current.getParentEnvironment());
 			break;
 		case ArgumentExpression:
 			assertEquals(parent.getPublicEnvironment().getParent(), current.getParentEnvironment());
-			// FIXME expression should be processed in cacheMetadata()
-			// assertEquals(parent.getPublicEnvironment(), current.getPublicEnvironment());
 			break;
 		case VariableDefault:
 			assertEquals(parent.getPublicEnvironment(), current.getParentEnvironment());
-			// FIXME expression should be processed in cacheMetadata()
-			// assertEquals(isPublic ?
-			// parent.getPublicEnvironment() :
-			// parent.getImplementationEnvironment(),
-			// current.getPublicEnvironment());
 			break;
 		default:
 			break;
