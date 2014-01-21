@@ -54,7 +54,7 @@ public class ActivityMetadataTest {
 	}
 
 	@Test
-	public void activity_tree_test() {
+	public void activity_tree_process_test() {
 		ActivityLocationReferenceEnvironment hostEnvironment = new ActivityLocationReferenceEnvironment(null);
 		ActivityUtilities.cacheRootMetadata(root, hostEnvironment);
 		assertRoot();
@@ -73,10 +73,12 @@ public class ActivityMetadataTest {
 		// runtimeVariable
 		assertEquals(root, var.getOwner());
 		assertEquals(2, var.getId());
+		assertTrue(var.isPublic());
 		assertActivity(root, root, var.getDefault(), RelationshipType.VariableDefault, true);
 		// implementationVariable
 		assertEquals(root, inner.getOwner());
 		assertEquals(3, inner.getId());
+		assertFalse(inner.isPublic());
 		assertActivity(root, root, inner.getDefault(), RelationshipType.VariableDefault, false);
 	}
 
