@@ -52,7 +52,7 @@ public class Variable extends LocationReference {
 		this.owner = parent;
 		this.isPublic = isPublic;
 		if (this._default != null)
-			this._default.initializeRelationship(parent, RelationshipType.VariableDefault);
+			this._default.initializeRelationship(this, isPublic);
 	}
 
 	public Object get(ActivityContext context) {

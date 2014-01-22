@@ -25,6 +25,10 @@ public abstract class Activity {
 	private LocationReferenceEnvironment implementationEnvironment;
 
 	private RelationshipType relationshipToParent;
+	// which it belong to
+	private ActivityMembers memberOf;
+	// it's private members
+	private ActivityMembers parentOf;
 
 	public String getDisplayName() {
 		return this.displayName;
@@ -118,6 +122,14 @@ public abstract class Activity {
 		this.implementationEnvironment = environment;
 	}
 
+	protected ActivityMembers getMemberOf() {
+		return this.memberOf;
+	}
+
+	protected ActivityMembers getParentOf() {
+		return this.parentOf;
+	}
+
 	protected LocationReferenceEnvironment getParentEnvironment() {
 		if (this.parent == null)
 			return new ActivityLocationReferenceEnvironment(this.rootProperties.HostEnvironment);
@@ -144,15 +156,37 @@ public abstract class Activity {
 
 	protected void initializeAsRoot(LocationReferenceEnvironment hostEnvironment) {
 		this.parent = null;
+		this.parentOf = null;
+
 		this.root = this;
 		this.rootProperties = new RootProperties();
 		this.rootProperties.HostEnvironment = hostEnvironment;
+
+		this.memberOf = new ActivityMembers();
 	}
 
-	protected void initializeRelationship(Activity parent, RelationshipType relationshipType) {
+	protected void initializeRelationship(RuntimeArgument argument) {
+		this.initializeRelationship(argument.getOwner(), RelationshipType.ArgumentExpression, true);
+	}
+
+	protected void initializeRelationship(Variable variable, boolean isPublic) {
+		this.initializeRelationship(variable.getOwner(), RelationshipType.VariableDefault, isPublic);
+	}
+
+	protected void initializeRelationship(Activity parent, RelationshipType relationshipType, boolean isPublic) {
 		this.parent = parent;
 		this.root = parent.getRoot();
 		this.relationshipToParent = relationshipType;
+
+		// set activity visibility
+		if (isPublic)
+			this.memberOf = parent.memberOf;
+		else {
+			// parent private members init in child init()
+			if (parent.parentOf == null)
+				parent.parentOf = new ActivityMembers(parent.memberOf, parent.getId());
+			this.memberOf = parent.parentOf;
+		}
 	}
 
 	protected void clearCachedMetadata() {

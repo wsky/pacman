@@ -72,6 +72,7 @@ public class ActivityMetadataTest {
 		assertActivity(root, null, root, null, true);
 		assertEquals(hostEnvironment, root.getParentEnvironment().getParent());
 		assertNotSame(hostEnvironment, root.getPublicEnvironment());
+		assertEquals(1, root.getId());
 
 		// child
 		assertActivity(root, root, child, RelationshipType.Child, true);
@@ -80,7 +81,7 @@ public class ActivityMetadataTest {
 		assertActivity(root, child, childChild, RelationshipType.Child, true);
 
 		// runtimeArgument
-		assertActivity(root, root, in.getExpression(), RelationshipType.ArgumentExpression, false);
+		assertActivity(root, root, in.getExpression(), RelationshipType.ArgumentExpression, true);
 		assertEquals(0, in.getRuntimeArgument().getId());
 		assertEquals(root, in.getRuntimeArgument().getOwner());
 		// env
@@ -131,6 +132,16 @@ public class ActivityMetadataTest {
 		default:
 			break;
 		}
+
+		if (isPublic) {
+			assertEquals(parent.getMemberOf(), current.getMemberOf());
+			assertEquals(null, current.getMemberOf().getOwner());
+			assertEquals(null, current.getMemberOf().getParent());
+		} else {
+			assertEquals(parent.getParentOf(), current.getMemberOf());
+			assertEquals(parent, current.getMemberOf().getOwner());
+			assertEquals(parent.getMemberOf(), current.getMemberOf().getParent());
+		}
 	}
 
 	private ProcessActivityCallback createCallback() {
@@ -144,16 +155,32 @@ public class ActivityMetadataTest {
 			private void render(Activity activity) {
 				int depth = getDepth(activity);
 				String blank = "";
-				for (int i = 0; i < depth; i++) {
+				for (int i = 0; i < depth; i++)
 					blank = "    " + blank;
-				}
-				System.out.println(String.format("%s%s, displayName=%s", depth >= 1 ? blank + "- " : blank, activity.getClass().getSimpleName(), activity.getDisplayName()));
+
+				String id = activity.getMemberOf().getOwner() == null ?
+						activity.getId() + "" : getId(activity);
+				
+				System.out.println(String.format("%s%s %s, displayName=%s",
+						depth >= 1 ? blank + "- " : blank,
+						id,
+						activity.getClass().getSimpleName(),
+						activity.getDisplayName()));
+
 				for (RuntimeArgument argument : activity.getRuntimeArguments())
-					System.out.println(String.format("%s    - argument: %s, direction=%s", blank, argument.getName(), argument.getDirection()));
+					System.out.println(String.format(
+							"%s    - %s#%s argument: %s, direction=%s",
+							blank, id, argument.getId(), argument.getName(), argument.getDirection()));
+
 				for (Variable variable : activity.getRuntimeVariables())
-					System.out.println(String.format("%s    - variable: %s", blank, variable.getName()));
+					System.out.println(String.format(
+							"%s    - %s#%s variable: %s, isPublic=%s",
+							blank, id, variable.getId(), variable.getName(), variable.isPublic()));
+
 				for (Variable variable : activity.getImplementationVariables())
-					System.out.println(String.format("%s    - implVariable: %s", blank, variable.getName()));
+					System.out.println(String.format(
+							"%s    - %s#%s implVariable: %s, isPublic=%s",
+							blank, id, variable.getId(), variable.getName(), variable.isPublic()));
 			}
 
 			private int getDepth(Activity activity) {
@@ -164,6 +191,15 @@ public class ActivityMetadataTest {
 					depth++;
 					activity = activity.getParent();
 				} while (true);
+			}
+
+			private String getId(Activity activity) {
+				String id = Integer.toString(activity.getId());
+				while (activity.getParent() != null) {
+					id = activity.getParent().getId() + "-" + id;
+					activity = activity.getParent();
+				}
+				return id;
 			}
 		};
 	}

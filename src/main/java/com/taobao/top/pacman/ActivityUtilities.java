@@ -26,6 +26,8 @@ public class ActivityUtilities {
 	}
 
 	private static void processActivity(Activity activity, Stack<Activity> stack) {
+		// add itself frist so that having a id
+		activity.getMemberOf().add(activity);
 		activity.internalCacheMetadata();
 		processChildren(activity, activity.getChildren(), stack);
 
@@ -60,7 +62,7 @@ public class ActivityUtilities {
 
 	private static void processChildren(Activity parent, List<Activity> children, Stack<Activity> stack) {
 		for (Activity activity : children) {
-			activity.initializeRelationship(parent, RelationshipType.Child);
+			activity.initializeRelationship(parent, RelationshipType.Child, true);
 			stack.push(activity);
 		}
 	}
