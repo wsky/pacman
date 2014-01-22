@@ -1,7 +1,13 @@
 package com.taobao.top.pacman;
 
+import com.taobao.top.pacman.runtime.*;
+
 public class ActivityInstance {
 	private SubState subState;
+
+	public ActivityInstance(Activity activity, ActivityInstance parent, int id, CompletionCallbackWrapper onCompleteWrapper, FaultCallbackWrapper onFaultWrapper) {
+		// TODO Auto-generated constructor stub
+	}
 
 	public boolean isCancellationRequested() {
 		return false;
@@ -54,5 +60,20 @@ public class ActivityInstance {
 		ResolvingVariables,
 		Initialized,
 		Canceling
+	}
+
+	public CompletionBookmark getCompletionBookmark() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ActivityInstance getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void addChild(ActivityInstance instance) {
+		// TODO Auto-generated method stub
+		
 	}
 }

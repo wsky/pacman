@@ -1,8 +1,6 @@
 package com.taobao.top.pacman.runtime;
 
-import com.taobao.top.pacman.ActivityInstance;
-import com.taobao.top.pacman.Bookmark;
-import com.taobao.top.pacman.BookmarkCallback;
+import com.taobao.top.pacman.*;
 
 public class BookmarkManager {
 
@@ -20,6 +18,11 @@ public class BookmarkManager {
 
 	public void removeAll(ActivityInstance currentInstance) {
 		
+	}
+
+	public WorkItem generateWorkItem(ActivityExecutor activityExecutor, Bookmark bookmark, Object value) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -1,21 +1,128 @@
 package com.taobao.top.pacman;
 
+import java.util.Map;
+
+import com.taobao.top.pacman.hosting.*;
 import com.taobao.top.pacman.runtime.*;
 
 public class ActivityExecutor {
-	public Pool<NativeActivityContext> NativeActivityContextPool = new Pool<NativeActivityContext>() {
-		@Override
-		protected NativeActivityContext createNew() {
-			return null;
-		}
-	};
+	private WorkflowInstance host;
+	private Scheduler scheduler;
+	private BookmarkManager bookmarkManager;
 
-	public Pool<CodeActivityContext> CodeActivityContextPool = new Pool<CodeActivityContext>() {
-		@Override
-		protected CodeActivityContext createNew() {
-			return null;
+	private Activity rootActivity;
+	private ActivityInstance rootInstance;
+
+	private int lastInstanceId;
+
+	public Pool<NativeActivityContext> NativeActivityContextPool;
+	public Pool<CodeActivityContext> CodeActivityContextPool;
+	public Pool<ExecuteActivityWorkItem> ExecuteActivityWorkItemPool;
+	public Pool<ExecuteExpressionWorkItem> ExecuteExpressionWorkItemPool;
+	public Pool<EmptyWorkItem> EmptyWorkItemPool;
+
+	public ActivityExecutor(WorkflowInstance host) {
+		this.host = host;
+		this.scheduler = new Scheduler(this);
+		this.bookmarkManager = new BookmarkManager();
+		this.initialize();
+	}
+
+	public void markSchedulerRunning() {
+		this.scheduler.markRunning();
+	}
+
+	public void run() {
+		this.scheduler.resume();
+	}
+
+	public boolean onExecuteWorkItem(WorkItem workItem) {
+		workItem.release();
+
+		if (!(workItem instanceof CompletionWorkItem) &&
+				!(workItem instanceof EmptyWorkItem) &&
+				!workItem.isValid())
+			return true;
+
+		boolean isContinue = true;
+		if (!workItem.isEmpty()) {
+			try {
+				isContinue = workItem.execute(this, this.bookmarkManager);
+			} catch (Exception e) {
+				this.abortWorkflowInstance(e);
+				return true;
+			}
 		}
-	};
+
+		if (workItem.getWorkflowAbortException() != null) {
+			this.abortWorkflowInstance(workItem.getWorkflowAbortException());
+			return true;
+		}
+
+		workItem.postProcess(this);
+
+		if (workItem.getExceptionToPropagate() != null)
+			// upgrade to workflowException if error not processed
+			if (!this.propagateException(workItem))
+				this.abortWorkflowInstance(workItem.getExceptionToPropagate());
+
+		return isContinue;
+	}
+
+	private boolean propagateException(WorkItem workItem) {
+		return false;
+	}
+
+	public void scheduleRootActivity(Activity activity, Map<String, Object> inputs, CompletionCallbackWrapper onCompleteWrapper, FaultCallbackWrapper onFaultWrapper) {
+		// DataContext dataContext = this.GenerateRuntimeDataContext(inputs, null, activity);
+
+		this.rootActivity = activity;
+		// 生成根活动实例
+		this.rootInstance = new ActivityInstance(activity
+				, null
+				, ++this.lastInstanceId
+				, onCompleteWrapper
+				, onFaultWrapper);
+
+		// 调度根活动
+		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance));
+		// 调度活动变量
+		// this.ResolveVariables(this.rootInstance, dataContext);
+		// 调度活动参数
+		// this.ResolveArguments(this.RootInstance, dataContext);
+	}
+
+	public ActivityInstance scheduleActivity(
+			Activity activity,
+			ActivityInstance parent,
+			CompletionCallbackWrapper onCompleteWrapper,
+			FaultCallbackWrapper onFaultWrapper) {
+		// 数据上下文
+		// DataContext dataContext = this.GenerateRuntimeDataContext(null, parentDataContext, activity);
+
+		// 创建activity实例
+		ActivityInstance instance = new ActivityInstance(activity
+				, parent
+				, ++this.lastInstanceId
+				, onCompleteWrapper
+				, onFaultWrapper);
+
+		if (parent != null)
+			parent.addChild(instance);
+
+		// 调度活动
+		this.scheduleBody(instance);
+		// 调度活动变量
+		// this.ResolveVariables(instance, dataContext);
+		// 调度活动参数
+		// this.ResolveArguments(instance, dataContext);
+
+		return instance;
+	}
+
+	public void scheduleCompletionBookmark(Bookmark bookmark, Object value) {
+		this.scheduler.enqueueWork(this.bookmarkManager.generateWorkItem(this, bookmark, value));
+	}
 
 	public void abortWorkflowInstance(Exception reason) {
 
@@ -29,15 +136,48 @@ public class ActivityExecutor {
 
 	}
 
-	public void scheduleCompletionBookmark(Bookmark bookmark, Object value) {
-
+	private void scheduleBody(ActivityInstance instance) {
+		ExecuteActivityWorkItem workItem = this.ExecuteActivityWorkItemPool.acquire();
+		workItem.initialize(instance);
+		this.scheduler.pushWork(workItem);
 	}
 
-	public ActivityInstance ScheduleActivity(Activity activity, ActivityInstance currentInstance, CompletionCallbackWrapper completionCallbackWrapper, FaultCallbackWrapper faultCallbackWrapper) {
-		return null;
+	private void scheduleExpression(ActivityInstance instance, int resultReference) {
+		ExecuteExpressionWorkItem workItem = this.ExecuteExpressionWorkItemPool.acquire();
+		workItem.initialize(instance, resultReference);
+		this.scheduler.pushWork(workItem);
 	}
 
-	public ActivityInstance ScheduleActivityWithResult(ActivityWithResult activity, ActivityInstance currentInstance, CompletionCallbackWrapper completionCallbackWrapper, FaultCallbackWrapper faultCallbackWrapper) {
-		return null;
+	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
+		// 活动完成后的调度，若有回调且未执行则执行该回调工作项
+		if (completedInstance.getCompletionBookmark() != null) {
+			WorkItem w = completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this);
+			this.scheduler.pushWork(w);
+		} else if (completedInstance.getParent() != null) {
+			// 若有父活动则激活父活动工作项
+			this.scheduler.pushWork(this.createEmptyWorkItem(completedInstance.getParent()));
+		}
+	}
+
+	private WorkItem createEmptyWorkItem(ActivityInstance instance) {
+		EmptyWorkItem workItem = this.EmptyWorkItemPool.acquire();
+		workItem.initialize(instance);
+		return workItem;
+	}
+
+	private void initialize() {
+		this.NativeActivityContextPool = new Pool<NativeActivityContext>() {
+			@Override
+			protected NativeActivityContext createNew() {
+				return null;
+			}
+		};
+		this.CodeActivityContextPool = new Pool<CodeActivityContext>() {
+			@Override
+			protected CodeActivityContext createNew() {
+				return null;
+			}
+		};
+		// TODO init pool
 	}
 }
