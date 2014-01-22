@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.taobao.top.pacman.ActivityUtilities.ProcessActivityCallback;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 import com.taobao.top.pacman.statements.If;
 import com.taobao.top.pacman.statements.WriteLine;
@@ -16,6 +17,7 @@ public class ActivityMetadataTest {
 	private InArgument in;
 	private Variable var;
 	private Variable inner;
+	private ProcessActivityCallback callback;
 
 	@Before
 	public void before() {
@@ -50,6 +52,8 @@ public class ActivityMetadataTest {
 		};
 
 		root.setDisplayName("root");
+
+		callback = createCallback();
 	}
 
 	@Test
@@ -61,7 +65,7 @@ public class ActivityMetadataTest {
 	@Test
 	public void activity_tree_process_test() {
 		ActivityLocationReferenceEnvironment hostEnvironment = new ActivityLocationReferenceEnvironment(null);
-		ActivityUtilities.cacheRootMetadata(root, hostEnvironment);
+		ActivityUtilities.cacheRootMetadata(root, hostEnvironment, callback);
 		assertRoot();
 
 		// root
@@ -127,6 +131,40 @@ public class ActivityMetadataTest {
 		default:
 			break;
 		}
+	}
 
+	private ProcessActivityCallback createCallback() {
+		return new ProcessActivityCallback() {
+
+			@Override
+			public void execute(Activity activity) {
+				this.render(activity);
+			}
+
+			private void render(Activity activity) {
+				int depth = getDepth(activity);
+				String blank = "";
+				for (int i = 0; i < depth; i++) {
+					blank = "    " + blank;
+				}
+				System.out.println(String.format("%s%s, displayName=%s", depth >= 1 ? blank + "- " : blank, activity.getClass().getSimpleName(), activity.getDisplayName()));
+				for (RuntimeArgument argument : activity.getRuntimeArguments())
+					System.out.println(String.format("%s    - argument: %s, direction=%s", blank, argument.getName(), argument.getDirection()));
+				for (Variable variable : activity.getRuntimeVariables())
+					System.out.println(String.format("%s    - variable: %s", blank, variable.getName()));
+				for (Variable variable : activity.getImplementationVariables())
+					System.out.println(String.format("%s    - implVariable: %s", blank, variable.getName()));
+			}
+
+			private int getDepth(Activity activity) {
+				int depth = 0;
+				do {
+					if (activity.getParent() == null)
+						return depth;
+					depth++;
+					activity = activity.getParent();
+				} while (true);
+			}
+		};
 	}
 }

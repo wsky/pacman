@@ -5,19 +5,23 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ActivityUtilities {
-	public static void cacheRootMetadata(Activity activity, LocationReferenceEnvironment hostEnvironment) {
+	public static void cacheRootMetadata(Activity activity,
+			LocationReferenceEnvironment hostEnvironment,
+			ProcessActivityCallback callback) {
 		activity.initializeAsRoot(hostEnvironment);
-		processActivityTree(activity);
+		processActivityTree(activity, callback);
 		// TODO support error validator
 	}
 
-	private static void processActivityTree(Activity root) {
+	private static void processActivityTree(Activity root, ProcessActivityCallback callback) {
 		Stack<Activity> stack = new Stack<Activity>();
 		stack.push(root);
 		Activity currentActivity;
 		do {
 			currentActivity = stack.pop();
 			processActivity(currentActivity, stack);
+			if (callback != null)
+				callback.execute(currentActivity);
 		} while (!stack.isEmpty());
 	}
 
@@ -102,5 +106,9 @@ public class ActivityUtilities {
 				stack.add(variable.getDefault());
 		}
 		return environment;
+	}
+
+	public interface ProcessActivityCallback {
+		public void execute(Activity activity);
 	}
 }
