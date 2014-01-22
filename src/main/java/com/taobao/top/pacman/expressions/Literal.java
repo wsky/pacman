@@ -2,7 +2,7 @@ package com.taobao.top.pacman.expressions;
 
 import com.taobao.top.pacman.*;
 
-public class Literal extends NativeActivityWithResult {
+public class Literal extends CodeActivityWithResult {
 	private Object constValue;
 
 	public Literal(Object constValue) {
@@ -10,7 +10,7 @@ public class Literal extends NativeActivityWithResult {
 	}
 
 	@Override
-	protected Object Execute(NativeActivityContext context) {
+	protected Object execute(CodeActivityContext context) {
 		return this.constValue;
 	}
 }

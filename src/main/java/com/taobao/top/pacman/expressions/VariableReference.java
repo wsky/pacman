@@ -2,16 +2,17 @@ package com.taobao.top.pacman.expressions;
 
 import com.taobao.top.pacman.*;
 
-public class VariableValue extends CodeActivityWithResult {
+public class VariableReference extends CodeActivityWithResult {
 	private Variable variable;
 
-	public VariableValue(Variable variable) {
+	public VariableReference(Variable variable) {
 		this.variable = variable;
 	}
 
 	@Override
 	protected Object execute(CodeActivityContext context) {
-		return this.variable.get(context);
+		return context.getLocation(this.variable);
 	}
 
+	// FIXME check variable's metadata was cached
 }

@@ -28,4 +28,13 @@ public abstract class Argument {
 	protected void setExpression(ActivityWithResult expression) {
 		this.expression = expression;
 	}
+	
+	public Object get(ActivityContext context) {
+		return context.get(this);
+	}
+
+	public void set(ActivityContext context, Object value) {
+		context.set(this, value);
+	}
+
 }

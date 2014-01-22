@@ -20,12 +20,4 @@ public class InArgument extends Argument {
 	public InArgument(ActivityWithResult expression) {
 		this.setExpression(expression);
 	}
-
-	public Object get(ActivityContext context) {
-		return context.get(this);
-	}
-
-	public void set(ActivityContext context, Object value) {
-		context.set(this, value);
-	}
 }

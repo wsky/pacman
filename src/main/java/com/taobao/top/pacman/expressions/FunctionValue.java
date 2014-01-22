@@ -2,7 +2,7 @@ package com.taobao.top.pacman.expressions;
 
 import com.taobao.top.pacman.*;
 
-public class FunctionValue extends NativeActivityWithResult {
+public class FunctionValue extends CodeActivityWithResult {
 	private Function<ActivityContext, Object> func;
 
 	public FunctionValue(Function<ActivityContext, Object> function) {
@@ -10,7 +10,7 @@ public class FunctionValue extends NativeActivityWithResult {
 	}
 
 	@Override
-	protected Object Execute(NativeActivityContext context) {
+	protected Object execute(CodeActivityContext context) {
 		return this.func.execute(context);
 	}
 }

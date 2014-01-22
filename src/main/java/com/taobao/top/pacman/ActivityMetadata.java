@@ -11,8 +11,7 @@ public class ActivityMetadata {
 	}
 
 	public void bindAndAddArgument(Argument binding, RuntimeArgument argument) {
-		binding.setRuntimeArgument(argument);
-		argument.setBoundArgument(binding);
+		bindArgument(binding, argument);
 		this.addArgument(argument);
 	}
 
@@ -38,5 +37,10 @@ public class ActivityMetadata {
 
 	public void setChildren(List<Activity> children) {
 		this.activity.setChildren(children);
+	}
+
+	public static void bindArgument(Argument binding, RuntimeArgument argument) {
+		binding.setRuntimeArgument(argument);
+		argument.setBoundArgument(binding);
 	}
 }

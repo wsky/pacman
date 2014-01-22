@@ -15,6 +15,7 @@ public class ActivityMetadataTest {
 	private Activity child;
 	private Activity childChild;
 	private InArgument in;
+	private OutArgument out;
 	private Variable var;
 	private Variable inner;
 	private ProcessActivityCallback callback;
@@ -31,12 +32,13 @@ public class ActivityMetadataTest {
 
 		in = new InArgument(true);
 		var = new Variable("var", true);
+		out = new OutArgument(var);
 		inner = new Variable("inner", false);
 
 		root = new Activity() {
 			public Activity child = ActivityMetadataTest.this.child;
 			public InArgument in = ActivityMetadataTest.this.in;
-			public OutArgument out = new OutArgument();
+			public OutArgument out = ActivityMetadataTest.this.out;
 			public Variable var = ActivityMetadataTest.this.var;
 			private Variable inner = ActivityMetadataTest.this.inner;
 
@@ -104,6 +106,11 @@ public class ActivityMetadataTest {
 		assertEquals(inner, root.getImplementationEnvironment().getLocationReference("inner"));
 	}
 
+	@Test
+	public void reference_to_undifined_variable_test() {
+		//
+	}
+
 	private void assertRoot() {
 		assertEquals(If.class, root.getChildren().get(0).getClass());
 		assertEquals("in", root.getRuntimeArguments().get(0).getName());
@@ -160,7 +167,7 @@ public class ActivityMetadataTest {
 
 				String id = activity.getMemberOf().getOwner() == null ?
 						activity.getId() + "" : getId(activity);
-				
+
 				System.out.println(String.format("%s%s %s, displayName=%s",
 						depth >= 1 ? blank + "- " : blank,
 						id,
@@ -169,17 +176,17 @@ public class ActivityMetadataTest {
 
 				for (RuntimeArgument argument : activity.getRuntimeArguments())
 					System.out.println(String.format(
-							"%s    - %s#%s argument: %s, direction=%s",
+							"%s    * %s#%s argument: %s, direction=%s",
 							blank, id, argument.getId(), argument.getName(), argument.getDirection()));
 
 				for (Variable variable : activity.getRuntimeVariables())
 					System.out.println(String.format(
-							"%s    - %s#%s variable: %s, isPublic=%s",
+							"%s    * %s#%s variable: %s, isPublic=%s",
 							blank, id, variable.getId(), variable.getName(), variable.isPublic()));
 
 				for (Variable variable : activity.getImplementationVariables())
 					System.out.println(String.format(
-							"%s    - %s#%s implVariable: %s, isPublic=%s",
+							"%s    * %s#%s implVariable: %s, isPublic=%s",
 							blank, id, variable.getId(), variable.getName(), variable.isPublic()));
 			}
 

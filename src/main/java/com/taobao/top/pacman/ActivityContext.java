@@ -29,15 +29,15 @@ public class ActivityContext {
 		return this.currentInstance.getEnvironment();
 	}
 
-	protected Location getLocation(LocationReference locationReference) {
+	public Location getLocation(LocationReference locationReference) {
 		return this.getEnvironment().getLocation(locationReference.getId());
 	}
 
-	protected Object getValue(LocationReference locationReference) {
+	public Object getValue(LocationReference locationReference) {
 		return this.getLocation(locationReference).getValue();
 	}
 
-	protected void setValue(LocationReference locationReference, Object value) {
+	public void setValue(LocationReference locationReference, Object value) {
 		this.getLocation(locationReference).setValue(value);
 	}
 

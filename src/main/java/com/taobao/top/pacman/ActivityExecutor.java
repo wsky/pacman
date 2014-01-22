@@ -11,20 +11,27 @@ public class ActivityExecutor {
 		}
 	};
 
+	public Pool<CodeActivityContext> CodeActivityContextPool = new Pool<CodeActivityContext>() {
+		@Override
+		protected CodeActivityContext createNew() {
+			return null;
+		}
+	};
+
 	public void abortWorkflowInstance(Exception reason) {
-		
+
 	}
 
 	public void abortActivityInstance(ActivityInstance activity, Exception reason) {
-		
+
 	}
 
 	public void cancelActivity(ActivityInstance activityInstance) {
-		
+
 	}
 
 	public void scheduleCompletionBookmark(Bookmark bookmark, Object value) {
-		
+
 	}
 
 	public ActivityInstance ScheduleActivity(Activity activity, ActivityInstance currentInstance, CompletionCallbackWrapper completionCallbackWrapper, FaultCallbackWrapper faultCallbackWrapper) {
