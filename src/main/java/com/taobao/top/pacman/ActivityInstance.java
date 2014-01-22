@@ -1,7 +1,7 @@
 package com.taobao.top.pacman;
 
-
 public class ActivityInstance {
+	private SubState subState;
 
 	public boolean isCancellationRequested() {
 		return false;
@@ -18,6 +18,10 @@ public class ActivityInstance {
 		return false;
 	}
 
+	public ActivityInstanceState getState() {
+		return null;
+	}
+
 	public void cancelChildren(NativeActivityContext nativeActivityContext) {
 
 	}
@@ -30,4 +34,25 @@ public class ActivityInstance {
 		return null;
 	}
 
+	public void markCanceled() {
+		this.subState = SubState.Canceling;
+	}
+
+	public enum ActivityInstanceState {
+		Executing,
+		Closed,
+		Canceling,
+		Canceled,
+		Faulted
+	}
+
+	enum SubState {
+		Executing,
+		PreExecuting,
+		Created,
+		ResolvingArguments,
+		ResolvingVariables,
+		Initialized,
+		Canceling
+	}
 }

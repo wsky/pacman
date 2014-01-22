@@ -1,7 +1,6 @@
 package com.taobao.top.pacman;
 
-import com.taobao.top.pacman.runtime.CompletionCallbackWrapper;
-import com.taobao.top.pacman.runtime.FaultCallbackWrapper;
+import com.taobao.top.pacman.runtime.*;
 
 public class ActivityExecutor {
 	public Pool<NativeActivityContext> NativeActivityContextPool = new Pool<NativeActivityContext>() {
@@ -35,6 +34,10 @@ public class ActivityExecutor {
 	}
 
 	public ActivityInstance ScheduleActivity(Activity activity, ActivityInstance currentInstance, CompletionCallbackWrapper completionCallbackWrapper, FaultCallbackWrapper faultCallbackWrapper) {
+		return null;
+	}
+
+	public ActivityInstance ScheduleActivityWithResult(ActivityWithResult activity, ActivityInstance currentInstance, CompletionCallbackWrapper completionCallbackWrapper, FaultCallbackWrapper faultCallbackWrapper) {
 		return null;
 	}
 }

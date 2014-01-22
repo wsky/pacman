@@ -26,7 +26,7 @@ public class Sequence extends NativeActivity {
 	protected void cacheMetadata(ActivityMetadata metadata) {
 		for (Activity activity : this.getActivities())
 			metadata.addChild(activity);
-		metadata.addRuntimeVariable(this.lastIndexHint);
+		metadata.addImplementationVariable(this.lastIndexHint);
 	}
 
 	@Override

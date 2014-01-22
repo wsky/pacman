@@ -1,8 +1,6 @@
 package com.taobao.top.pacman;
 
-import com.taobao.top.pacman.runtime.BookmarkManager;
-import com.taobao.top.pacman.runtime.CompletionCallbackWrapper;
-import com.taobao.top.pacman.runtime.FaultCallbackWrapper;
+import com.taobao.top.pacman.runtime.*;
 
 public class NativeActivityContext extends ActivityContext {
 	private BookmarkManager bookmarkManager;
@@ -46,6 +44,12 @@ public class NativeActivityContext extends ActivityContext {
 		// Helper.Assert(object.ReferenceEquals(activity.Parent, this.CurrentInstance), "只允许中止当前活动实例的子活动");
 
 		this.executor.abortActivityInstance(activity, reason);
+	}
+
+	public void markCanceled() {
+		if (!this.currentInstance.isCancellationRequested())
+			throw new SecurityException("markCanceledOnlyCallableIfCancelRequested");
+		this.currentInstance.markCanceled();
 	}
 
 	public void cancel() {
@@ -112,6 +116,21 @@ public class NativeActivityContext extends ActivityContext {
 
 	public ActivityInstance scheduleActivity(Activity activity, CompletionCallback onCompleted, FaultCallback onFault) {
 		return this.executor.ScheduleActivity(activity,
+				this.currentInstance,
+				onCompleted == null ? null : new CompletionCallbackWrapper(onCompleted, this.currentInstance),
+				onFault == null ? null : new FaultCallbackWrapper(onFault, this.currentInstance));
+	}
+
+	public <T> ActivityInstance scheduleActivityWithResult(
+			ActivityWithResult activity, CompletionWithResultCallback<T> onCompleted) {
+		return this.scheduleActivityWithResult(activity, onCompleted, null);
+	}
+
+	public <T> ActivityInstance scheduleActivityWithResult(
+			ActivityWithResult activity,
+			CompletionWithResultCallback<T> onCompleted,
+			FaultCallback onFault) {
+		return this.executor.ScheduleActivityWithResult(activity,
 				this.currentInstance,
 				onCompleted == null ? null : new CompletionCallbackWrapper(onCompleted, this.currentInstance),
 				onFault == null ? null : new FaultCallbackWrapper(onFault, this.currentInstance));

@@ -23,9 +23,12 @@ public class If extends NativeActivity {
 
 	@Override
 	protected void execute(NativeActivityContext context) {
-		if ((Boolean) this.Condition.get(context))
-			context.scheduleActivity(this.Then);
-		else
+		if ((Boolean) this.Condition.get(context)) {
+			if (this.Then != null)
+				context.scheduleActivity(this.Then);
+			return;
+		}
+		if (this.Else != null)
 			context.scheduleActivity(this.Else);
 	}
 }
