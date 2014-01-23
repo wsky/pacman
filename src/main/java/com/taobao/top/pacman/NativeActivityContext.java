@@ -2,6 +2,7 @@ package com.taobao.top.pacman;
 
 import com.taobao.top.pacman.runtime.*;
 
+// wrapper executor usage, add more log and assert here
 public class NativeActivityContext extends ActivityContext {
 	private BookmarkManager bookmarkManager;
 
@@ -53,7 +54,7 @@ public class NativeActivityContext extends ActivityContext {
 	}
 
 	public void cancel() {
-		this.currentInstance.beginCancel(this);
+		this.currentInstance.baseCancel(this);
 	}
 
 	public void cancelChildren() {
@@ -66,6 +67,9 @@ public class NativeActivityContext extends ActivityContext {
 
 		if (activityInstance.isCompleted())
 			return;
+
+		if (activityInstance.getParent().equals(this.currentInstance))
+			throw new SecurityException("can only cancel direct children");
 
 		this.executor.cancelActivity(activityInstance);
 	}
