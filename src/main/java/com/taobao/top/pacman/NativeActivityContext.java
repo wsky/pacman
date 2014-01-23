@@ -117,8 +117,8 @@ public class NativeActivityContext extends ActivityContext {
 	public ActivityInstance scheduleActivity(Activity activity, CompletionCallback onCompleted, FaultCallback onFault) {
 		return this.executor.scheduleActivity(activity,
 				this.currentInstance,
-				onCompleted == null ? null : new CompletionCallbackWrapper(onCompleted, this.currentInstance),
-				onFault == null ? null : new FaultCallbackWrapper(onFault, this.currentInstance));
+				onCompleted == null ? null : new CompletionBookmark(onCompleted, this.currentInstance),
+				onFault == null ? null : new FaultBookmark(onFault, this.currentInstance));
 	}
 
 	public <T> ActivityInstance scheduleActivityWithResult(
@@ -132,7 +132,7 @@ public class NativeActivityContext extends ActivityContext {
 			FaultCallback onFault) {
 		return this.executor.scheduleActivity(activity,
 				this.currentInstance,
-				onCompleted == null ? null : new CompletionCallbackWrapper(onCompleted, this.currentInstance),
-				onFault == null ? null : new FaultCallbackWrapper(onFault, this.currentInstance));
+				onCompleted == null ? null : new CompletionBookmark(onCompleted, this.currentInstance),
+				onFault == null ? null : new FaultBookmark(onFault, this.currentInstance));
 	}
 }

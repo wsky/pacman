@@ -53,7 +53,7 @@ public class WorkflowInstance {
 	}
 
 	private void initialize(Map<String, Object> inputs) {
-		this.executor.scheduleRootActivity(this.workflowDefinition, inputs, null, null);
+		this.executor.scheduleRootActivity(this.workflowDefinition, inputs);
 		this._isInitialized = true;
 	}
 
@@ -74,5 +74,10 @@ public class WorkflowInstance {
 		Runnable,
 		Unloaded,
 		Aborted
+	}
+
+	public void abort(Exception reason) {
+		// TODO Auto-generated method stub
+		
 	}
 }

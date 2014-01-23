@@ -2,6 +2,7 @@ package com.taobao.top.pacman;
 
 import java.util.Map;
 
+import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.hosting.*;
 import com.taobao.top.pacman.runtime.*;
 
@@ -69,50 +70,83 @@ public class ActivityExecutor {
 		return isContinue;
 	}
 
-	public void scheduleRootActivity(Activity activity, Map<String, Object> inputs, CompletionCallbackWrapper onCompleteWrapper, FaultCallbackWrapper onFaultWrapper) {
-		// DataContext dataContext = this.GenerateRuntimeDataContext(inputs, null, activity);
+	// performing schedule() by pushing workitem to scheduler
+	// executor preparing workItems for scheduler
 
+	public Exception completeActivityInstance(ActivityInstance instance) {
+		// TODO handle root complete and gather root outputs
+		// ...
+
+		// to gather activity outputs
+		this.scheduleCompletionBookmark(instance);
+
+		// TODO cleanup environmental resources
+		// ...
+
+		instance.markAsComplete();
+		return null;
+	}
+
+	public void abortWorkflowInstance(Exception reason) {
+		this.host.abort(reason);
+	}
+
+	public void abortActivityInstance(ActivityInstance instance, Exception reason) {
+		instance.abort(this, this.bookmarkManager, reason, true);
+		if (instance.getCompletionBookmark() != null)
+			instance.getCompletionBookmark().checkForCancelation();
+		else if (instance.getParent() != null)
+			instance.setCompletionBookmark(new CompletionBookmark());
+		this.scheduleCompletionBookmark(instance);
+	}
+
+	public void cancelActivity(ActivityInstance instance) {
+		if (instance.isCancellationRequested() ||
+				instance.getState() != ActivityInstanceState.Executing)
+			return;
+
+		instance.setCancellationRequested();
+
+		this.scheduler.pushWork(instance.haveNotExecuted() ?
+				this.createEmptyWorkItem(instance) :
+				new CancelActivityWorkItem(instance));
+	}
+
+	public void scheduleRootActivity(Activity activity, Map<String, Object> argumentValues) {
 		this.rootActivity = activity;
-		// 生成根活动实例
-		this.rootInstance = new ActivityInstance(activity
-				, null
-				, ++this.lastInstanceId
-				, onCompleteWrapper
-				, onFaultWrapper);
-
-		// 调度根活动
-		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance));
-		// 调度活动变量
-		// this.ResolveVariables(this.rootInstance, dataContext);
-		// 调度活动参数
-		// this.ResolveArguments(this.RootInstance, dataContext);
+		this.rootInstance = this.createActivityInstance(activity, null, null, null, null);
+		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance, argumentValues));
 	}
 
 	public ActivityInstance scheduleActivity(
 			Activity activity,
 			ActivityInstance parent,
-			CompletionCallbackWrapper onCompleteWrapper,
-			FaultCallbackWrapper onFaultWrapper) {
-		// 数据上下文
-		// DataContext dataContext = this.GenerateRuntimeDataContext(null, parentDataContext, activity);
+			CompletionBookmark completionBookmark,
+			FaultBookmark faultBookmark) {
+		return this.scheduleActivity(activity, parent, completionBookmark, faultBookmark, null);
+	}
 
-		// 创建activity实例
-		ActivityInstance instance = new ActivityInstance(activity
-				, parent
-				, ++this.lastInstanceId
-				, onCompleteWrapper
-				, onFaultWrapper);
+	public ActivityInstance scheduleActivity(
+			Activity activity,
+			ActivityInstance parent,
+			CompletionBookmark completionBookmark,
+			FaultBookmark faultBookmark,
+			LocationEnvironment parentEnvironment) {
+		return this.scheduleActivity(activity, parent,
+				completionBookmark, faultBookmark, parentEnvironment, null, null);
+	}
 
-		if (parent != null)
-			parent.addChild(instance);
-
-		// 调度活动
-		this.scheduleBody(instance);
-		// 调度活动变量
-		// this.ResolveVariables(instance, dataContext);
-		// 调度活动参数
-		// this.ResolveArguments(instance, dataContext);
-
+	public ActivityInstance scheduleActivity(
+			Activity activity,
+			ActivityInstance parent,
+			CompletionBookmark completionBookmark,
+			FaultBookmark faultBookmark,
+			LocationEnvironment parentEnvironment,
+			Map<String, Object> argumentValues,
+			Location resultLocation) {
+		ActivityInstance instance = this.createActivityInstance(
+				activity, parent, completionBookmark, faultBookmark, parentEnvironment);
+		this.scheduleBody(instance, argumentValues, resultLocation);
 		return instance;
 	}
 
@@ -120,42 +154,55 @@ public class ActivityExecutor {
 		this.scheduler.enqueueWork(this.bookmarkManager.generateWorkItem(this, bookmark, value));
 	}
 
-	public void abortWorkflowInstance(Exception reason) {
-		// TODO impl abort workflow
+	public void scheduleExpression(Activity activity,
+			ActivityInstance parent,
+			LocationEnvironment parentEnvironment,
+			Location resultLocation) {
+		this.scheduleActivity(activity, parent, null, null, parentEnvironment, null, resultLocation);
 	}
 
-	public void abortActivityInstance(ActivityInstance activity, Exception reason) {
-		// TODO impl abort activity
-	}
-
-	public void cancelActivity(ActivityInstance activityInstance) {
-		// TODO impl cancel activity
-	}
-
-	private void scheduleBody(ActivityInstance instance) {
+	private void scheduleBody(ActivityInstance instance, Map<String, Object> argumentValues, Location resultLocation) {
+		if (resultLocation != null) {
+			this.scheduler.pushWork(new ExecuteExpressionWorkItem(instance, argumentValues, resultLocation));
+			return;
+		}
 		ExecuteActivityWorkItem workItem = this.ExecuteActivityWorkItemPool.acquire();
-		workItem.initialize(instance);
-		this.scheduler.pushWork(workItem);
-	}
-
-	private void scheduleExpression(ActivityInstance instance, int resultReference) {
-		ExecuteExpressionWorkItem workItem = this.ExecuteExpressionWorkItemPool.acquire();
-		workItem.initialize(instance, resultReference);
+		workItem.initialize(instance, argumentValues);
 		this.scheduler.pushWork(workItem);
 	}
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
 		if (completedInstance.getCompletionBookmark() != null) {
-			WorkItem w = completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this);
-			this.scheduler.pushWork(w);
+			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}
 		if (completedInstance.getParent() != null)
+			// FIXME set parent incomplete?
 			this.scheduler.pushWork(this.createEmptyWorkItem(completedInstance.getParent()));
 	}
 
 	private boolean propagateException(WorkItem workItem) {
+		// TODO impl propagete exception
 		return false;
+	}
+
+	private void gatherRootOutputs() {
+		// TODO impl gathering root outputs
+	}
+
+	private ActivityInstance createActivityInstance(Activity activity,
+			ActivityInstance parent,
+			CompletionBookmark completionBookmark,
+			FaultBookmark faultBookmark,
+			LocationEnvironment parentEnvironment) {
+		ActivityInstance instance = new ActivityInstance(activity);
+		if (parent != null) {
+			instance.setCompletionBookmark(completionBookmark);
+			instance.setFaultBookmakr(faultBookmark);
+			parent.addChild(instance);
+		}
+		instance.initialize(parent, ++this.lastInstanceId, parentEnvironment, this);
+		return instance;
 	}
 
 	private WorkItem createEmptyWorkItem(ActivityInstance instance) {
