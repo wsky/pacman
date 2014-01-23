@@ -69,10 +69,6 @@ public class ActivityExecutor {
 		return isContinue;
 	}
 
-	private boolean propagateException(WorkItem workItem) {
-		return false;
-	}
-
 	public void scheduleRootActivity(Activity activity, Map<String, Object> inputs, CompletionCallbackWrapper onCompleteWrapper, FaultCallbackWrapper onFaultWrapper) {
 		// DataContext dataContext = this.GenerateRuntimeDataContext(inputs, null, activity);
 
@@ -125,15 +121,15 @@ public class ActivityExecutor {
 	}
 
 	public void abortWorkflowInstance(Exception reason) {
-
+		// TODO impl abort workflow
 	}
 
 	public void abortActivityInstance(ActivityInstance activity, Exception reason) {
-
+		// TODO impl abort activity
 	}
 
 	public void cancelActivity(ActivityInstance activityInstance) {
-
+		// TODO impl cancel activity
 	}
 
 	private void scheduleBody(ActivityInstance instance) {
@@ -149,14 +145,17 @@ public class ActivityExecutor {
 	}
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
-		// 活动完成后的调度，若有回调且未执行则执行该回调工作项
 		if (completedInstance.getCompletionBookmark() != null) {
 			WorkItem w = completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this);
 			this.scheduler.pushWork(w);
-		} else if (completedInstance.getParent() != null) {
-			// 若有父活动则激活父活动工作项
-			this.scheduler.pushWork(this.createEmptyWorkItem(completedInstance.getParent()));
+			return;
 		}
+		if (completedInstance.getParent() != null)
+			this.scheduler.pushWork(this.createEmptyWorkItem(completedInstance.getParent()));
+	}
+
+	private boolean propagateException(WorkItem workItem) {
+		return false;
 	}
 
 	private WorkItem createEmptyWorkItem(ActivityInstance instance) {
@@ -178,6 +177,24 @@ public class ActivityExecutor {
 				return null;
 			}
 		};
-		// TODO init pool
+
+		this.ExecuteActivityWorkItemPool = new Pool<ExecuteActivityWorkItem>() {
+			@Override
+			protected ExecuteActivityWorkItem createNew() {
+				return null;
+			}
+		};
+		this.ExecuteExpressionWorkItemPool = new Pool<ExecuteExpressionWorkItem>() {
+			@Override
+			protected ExecuteExpressionWorkItem createNew() {
+				return null;
+			}
+		};
+		this.EmptyWorkItemPool = new Pool<EmptyWorkItem>() {
+			@Override
+			protected EmptyWorkItem createNew() {
+				return null;
+			}
+		};
 	}
 }
