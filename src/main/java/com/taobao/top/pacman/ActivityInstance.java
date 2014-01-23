@@ -116,4 +116,9 @@ public class ActivityInstance {
 		instance.state = ActivityInstanceState.Canceled;
 		return instance;
 	}
+
+	public void setInitializationIncomplete() {
+		// TODO Auto-generated method stub
+		
+	}
 }

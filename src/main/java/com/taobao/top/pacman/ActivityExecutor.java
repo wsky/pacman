@@ -96,6 +96,7 @@ public class ActivityExecutor {
 		if (instance.getCompletionBookmark() != null)
 			instance.getCompletionBookmark().checkForCancelation();
 		else if (instance.getParent() != null)
+			// for variable.default and arugment.expression
 			instance.setCompletionBookmark(new CompletionBookmark());
 		this.scheduleCompletionBookmark(instance);
 	}
@@ -177,9 +178,13 @@ public class ActivityExecutor {
 			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}
-		if (completedInstance.getParent() != null)
-			// FIXME set parent incomplete?
+		if (completedInstance.getParent() != null) {
+			// for variable.default and arugment.expression
+			// if resovle failed, it's state not equal to closed, should tell parent init incomplete
+			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().haveNotExecuted())
+				completedInstance.getParent().setInitializationIncomplete();
 			this.scheduler.pushWork(this.createEmptyWorkItem(completedInstance.getParent()));
+		}
 	}
 
 	private boolean propagateException(WorkItem workItem) {
