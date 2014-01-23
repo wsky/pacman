@@ -8,7 +8,7 @@ import com.taobao.top.pacman.Delegate;
 
 public class CompletionBookmark {
 
-	public CompletionBookmark(Delegate onCompleted, ActivityInstance currentInstance) {
+	public CompletionBookmark(CompletionCallbackWrapper callbackWrapper) {
 		// TODO Auto-generated constructor stub
 	}
 	

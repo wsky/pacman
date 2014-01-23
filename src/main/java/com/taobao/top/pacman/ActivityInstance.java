@@ -4,13 +4,14 @@ import com.taobao.top.pacman.runtime.*;
 
 public class ActivityInstance {
 	private SubState subState;
+	private ActivityInstanceState state;
 
 	public ActivityInstance(Activity activity) {
 	}
 
 	public void initialize(ActivityInstance parent, int id, LocationEnvironment parentEnvironment, ActivityExecutor executor) {
 	}
-	
+
 	public void setCompletionBookmark(CompletionBookmark completionBookmark) {
 
 	}
@@ -22,7 +23,7 @@ public class ActivityInstance {
 	public boolean isCancellationRequested() {
 		return false;
 	}
-	
+
 	public void setCancellationRequested() {
 	}
 
@@ -97,7 +98,7 @@ public class ActivityInstance {
 
 	public void abort(ActivityExecutor activityExecutor, BookmarkManager bookmarkManager, Exception reason, boolean b) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public boolean haveNotExecuted() {
@@ -105,4 +106,14 @@ public class ActivityInstance {
 		return false;
 	}
 
+	public boolean isPerformingDefaultCancelation() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	protected static ActivityInstance createCanceledActivityInstance(Activity activity) {
+		ActivityInstance instance = new ActivityInstance(activity);
+		instance.state = ActivityInstanceState.Canceled;
+		return instance;
+	}
 }

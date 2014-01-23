@@ -154,6 +154,7 @@ public class ActivityExecutor {
 		this.scheduler.enqueueWork(this.bookmarkManager.generateWorkItem(this, bookmark, value));
 	}
 
+	// for argument/variable schedule
 	public void scheduleExpression(Activity activity,
 			ActivityInstance parent,
 			LocationEnvironment parentEnvironment,

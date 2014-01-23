@@ -110,15 +110,22 @@ public class NativeActivityContext extends ActivityContext {
 		return this.scheduleActivity(activity, onCompleted, null);
 	}
 
-	public ActivityInstance scheduleActivity(Activity activity, FaultCallback onFault) {
-		return this.scheduleActivity(activity, null, onFault);
+	public ActivityInstance scheduleActivity(Activity activity, FaultCallback onFaulted) {
+		return this.scheduleActivity(activity, null, onFaulted);
 	}
 
-	public ActivityInstance scheduleActivity(Activity activity, CompletionCallback onCompleted, FaultCallback onFault) {
-		return this.executor.scheduleActivity(activity,
-				this.currentInstance,
-				onCompleted == null ? null : new CompletionBookmark(onCompleted, this.currentInstance),
-				onFault == null ? null : new FaultBookmark(onFault, this.currentInstance));
+	public ActivityInstance scheduleActivity(Activity activity, CompletionCallback onCompleted, FaultCallback onFaulted) {
+		CompletionBookmark completionBookmark = null;
+		FaultBookmark faultBookmark = null;
+		if (onCompleted != null) {
+			completionBookmark = new CompletionBookmark(
+					new ActivityCompletionCallbackWrapper(
+							onCompleted,
+							this.currentInstance));
+		}
+		if (onFaulted != null)
+			faultBookmark = new FaultBookmark(onFaulted, this.currentInstance);
+		return this.internalScheduleActivity(activity, completionBookmark, faultBookmark);
 	}
 
 	public <T> ActivityInstance scheduleActivityWithResult(
@@ -129,10 +136,27 @@ public class NativeActivityContext extends ActivityContext {
 	public <T> ActivityInstance scheduleActivityWithResult(
 			ActivityWithResult activity,
 			CompletionWithResultCallback<T> onCompleted,
-			FaultCallback onFault) {
-		return this.executor.scheduleActivity(activity,
-				this.currentInstance,
-				onCompleted == null ? null : new CompletionBookmark(onCompleted, this.currentInstance),
-				onFault == null ? null : new FaultBookmark(onFault, this.currentInstance));
+			FaultCallback onFaulted) {
+		CompletionBookmark completionBookmark = null;
+		FaultBookmark faultBookmark = null;
+		if (onCompleted != null) {
+			completionBookmark = new CompletionBookmark(
+					new FuncCompletionCallbackWrapper(
+							onCompleted,
+							this.currentInstance));
+		}
+		if (onFaulted != null)
+			faultBookmark = new FaultBookmark(onFaulted, this.currentInstance);
+		return this.internalScheduleActivity(activity, completionBookmark, faultBookmark);
+	}
+
+	private ActivityInstance internalScheduleActivity(Activity activity,
+			CompletionBookmark onCompleted,
+			FaultBookmark onFaulted) {
+		if (this.currentInstance.isPerformingDefaultCancelation()) {
+			this.currentInstance.markCanceled();
+			return ActivityInstance.createCanceledActivityInstance(activity);
+		}
+		return this.executor.scheduleActivity(activity, this.currentInstance, onCompleted, onFaulted);
 	}
 }
