@@ -6,7 +6,6 @@ import com.taobao.top.pacman.ActivityInstance;
 
 public class ExecuteActivityWorkItem extends WorkItem {
 	public void initialize(ActivityInstance instance, Map<String, Object> argumentValues) {
-		// TODO Auto-generated method stub
 		
 	}
 

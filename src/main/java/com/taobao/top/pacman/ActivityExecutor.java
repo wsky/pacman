@@ -18,9 +18,10 @@ public class ActivityExecutor {
 
 	public Pool<NativeActivityContext> NativeActivityContextPool;
 	public Pool<CodeActivityContext> CodeActivityContextPool;
+	public Pool<EmptyWorkItem> EmptyWorkItemPool;
 	public Pool<ExecuteActivityWorkItem> ExecuteActivityWorkItemPool;
 	public Pool<ExecuteExpressionWorkItem> ExecuteExpressionWorkItemPool;
-	public Pool<EmptyWorkItem> EmptyWorkItemPool;
+	public Pool<ResolveNextArgumentWorkItem> ResolveNextArgumentWorkItemPool;
 
 	public ActivityExecutor(WorkflowInstance host) {
 		this.host = host;
@@ -163,6 +164,10 @@ public class ActivityExecutor {
 		this.scheduleActivity(activity, parent, null, null, parentEnvironment, null, resultLocation);
 	}
 
+	public void scheduleItem(WorkItem workItem) {
+		this.scheduler.pushWork(workItem);
+	}
+
 	private void scheduleBody(ActivityInstance instance, Map<String, Object> argumentValues, Location resultLocation) {
 		if (resultLocation != null) {
 			this.scheduler.pushWork(new ExecuteExpressionWorkItem(instance, argumentValues, resultLocation));
@@ -230,7 +235,12 @@ public class ActivityExecutor {
 				return null;
 			}
 		};
-
+		this.EmptyWorkItemPool = new Pool<EmptyWorkItem>() {
+			@Override
+			protected EmptyWorkItem createNew() {
+				return null;
+			}
+		};
 		this.ExecuteActivityWorkItemPool = new Pool<ExecuteActivityWorkItem>() {
 			@Override
 			protected ExecuteActivityWorkItem createNew() {
@@ -243,9 +253,9 @@ public class ActivityExecutor {
 				return null;
 			}
 		};
-		this.EmptyWorkItemPool = new Pool<EmptyWorkItem>() {
+		this.ResolveNextArgumentWorkItemPool = new Pool<ResolveNextArgumentWorkItem>() {
 			@Override
-			protected EmptyWorkItem createNew() {
+			protected ResolveNextArgumentWorkItem createNew() {
 				return null;
 			}
 		};

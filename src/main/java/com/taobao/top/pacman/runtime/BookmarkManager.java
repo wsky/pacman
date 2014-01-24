@@ -21,7 +21,6 @@ public class BookmarkManager {
 	}
 
 	public WorkItem generateWorkItem(ActivityExecutor activityExecutor, Bookmark bookmark, Object value) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

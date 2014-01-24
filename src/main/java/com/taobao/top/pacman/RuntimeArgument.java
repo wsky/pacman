@@ -40,6 +40,34 @@ public class RuntimeArgument extends LocationReference {
 			this.boundArgument.getExpression().initializeRelationship(this);
 	}
 
+	public boolean tryPopuateValue(LocationEnvironment environment,
+			ActivityInstance activityInstance,
+			Object value,
+			Location resultLocation) {
+		if (value != null) {
+			Helper.assertNotNull(resultLocation);
+			Location location = new Location();
+			environment.declare(this, location, activityInstance);
+			location.setValue(value);
+			return true;
+		}
+
+		if (this.getBoundArgument().getExpression() != null) {
+			Location location = new Location();
+			environment.declare(this, location, activityInstance);
+			return false;
+		}
+
+		if (resultLocation != null && this.getOwner().isResultArgument(this)) {
+			environment.declare(this, resultLocation, activityInstance);
+			return true;
+		}
+
+		Location location = new Location();
+		environment.declare(this, location, activityInstance);
+		return true;
+	}
+
 	public enum ArgumentDirection {
 		In, Out
 	}

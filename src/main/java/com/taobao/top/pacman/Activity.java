@@ -215,10 +215,22 @@ public abstract class Activity {
 	}
 
 	protected void internalCancel(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
+		NativeActivityContext context = executor.NativeActivityContextPool.acquire();
+		try {
+			context.initialize(instance, executor, bookmarkManager);
+			context.cancel();
+		} catch (Exception e) {
+			context.dispose();
+			executor.NativeActivityContextPool.release(context);
+		}
 	}
 
 	protected void cacheMetadata(ActivityMetadata metadata) {
 		// TODO default dynamic scan and prepare
+	}
+	
+	protected boolean isResultArgument(RuntimeArgument runtimeArgument) {
+		return false;
 	}
 
 	public class RootProperties {

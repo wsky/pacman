@@ -2,10 +2,12 @@ package com.taobao.top.pacman;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.taobao.top.pacman.runtime.*;
 
 public class ActivityInstance {
+	private int id;
 	private Activity activity;
 	private ActivityInstance parent;
 	private List<ActivityInstance> children;
@@ -24,11 +26,38 @@ public class ActivityInstance {
 	private boolean isInitializationIncomplete;
 	private boolean isPerformingDefaultCancelation;
 
+	private boolean noSymbols;
+
 	public ActivityInstance(Activity activity) {
+		this.activity = activity;
+		this.state = ActivityInstanceState.Executing;
+		this.subState = SubState.Created;
 	}
 
 	protected void initialize(ActivityInstance parent, int id, LocationEnvironment parentEnvironment, ActivityExecutor executor) {
-		// TODO init env
+		this.parent = parent;
+		this.id = id;
+
+		if (this.parent != null) {
+			if (parentEnvironment != null)
+				parentEnvironment = this.parent.getEnvironment();
+		}
+
+		int symbolCount = 0;
+
+		if (symbolCount > 0) {
+			this.environment = new LocationEnvironment(executor, this.activity, parentEnvironment, symbolCount);
+			this.subState = SubState.ResolvingArguments;
+			return;
+		}
+
+		if (parentEnvironment == null) {
+			this.environment = new LocationEnvironment(executor, this.activity);
+			return;
+		}
+
+		this.noSymbols = true;
+		this.environment = parentEnvironment;
 	}
 
 	protected void setCompletionBookmark(CompletionBookmark completionBookmark) {
@@ -69,20 +98,21 @@ public class ActivityInstance {
 		return this.state;
 	}
 
-	protected boolean isCancellationRequested() {
-		return this.isCancellationRequested;
-	}
-
-	protected void setCancellationRequested() {
-		this.isCancellationRequested = true;
-	}
-
 	protected void markCanceled() {
 		this.subState = SubState.Canceling;
 	}
 
 	protected void markExecuted() {
 		this.subState = SubState.Executing;
+	}
+
+	protected boolean isCancellationRequested() {
+		return this.isCancellationRequested;
+	}
+
+	protected void setCancellationRequested() {
+		Helper.assertFalse(this.isCancellationRequested);
+		this.isCancellationRequested = true;
 	}
 
 	protected boolean isCompleted() {
@@ -103,7 +133,7 @@ public class ActivityInstance {
 	}
 
 	protected void baseCancel(NativeActivityContext context) {
-		// FIXME assert isCancellationRequested
+		Helper.assertTrue(this.isCancellationRequested());
 		this.isPerformingDefaultCancelation = true;
 		this.cancelChildren(context);
 	}
@@ -124,23 +154,128 @@ public class ActivityInstance {
 		return this.isPerformingDefaultCancelation;
 	}
 
-	public void setInitializationIncomplete() {
-		this.isInitializationIncomplete = true;
-	}
-
 	public boolean haveNotExecuted() {
 		return this.subState == SubState.PreExecuting;
 	}
 
+	public void setInitializationIncomplete() {
+		this.isInitializationIncomplete = true;
+	}
+
+	public void setInitialized(ActivityExecutor executor) {
+		Helper.assertNotEquals(SubState.Initialized, this.subState);
+		this.subState = SubState.Initialized;
+	}
+
+	public void finalize(boolean fault) {
+		if (!fault)
+			return;
+		this.tryCancelParent();
+		this.state = ActivityInstanceState.Faulted;
+	}
+
+	public void setCanceled() {
+		Helper.assertFalse(this.isCompleted());
+		this.tryCancelParent();
+		this.state = ActivityInstanceState.Canceled;
+	}
+
+	public void setClosed() {
+		Helper.assertFalse(this.isCompleted());
+		this.state = ActivityInstanceState.Closed;
+	}
+
 	public void execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
-		if (this.isInitializationIncomplete)
-			throw new SecurityException("init incomplete");
+		Helper.assertFalse(this.isInitializationIncomplete, "init incomplete");
 		this.markExecuted();
 		this.activity.internalExecute(this, executor, bookmarkManager);
 	}
 
 	public void cancel(ActivityExecutor executor, BookmarkManager bookmarkManager) {
 		this.activity.internalCancel(this, executor, bookmarkManager);
+	}
+
+	public boolean resolveArguments(ActivityExecutor executor,
+			Map<String, Object> argumentValues,
+			Location resultLocation,
+			int startIndex) {
+		boolean sync = true;
+
+		List<RuntimeArgument> runtimeArguments = this.getActivity().getRuntimeArguments();
+		int argumentCount = runtimeArguments.size();
+
+		if (argumentCount == 0)
+			return sync;
+
+		for (int i = startIndex; i < argumentCount; i++) {
+			RuntimeArgument argument = runtimeArguments.get(i);
+			Object value = null;
+
+			if (argumentValues != null)
+				value = argumentValues.get(argument.getName());
+
+			if (!argument.tryPopuateValue(this.getEnvironment(), this, value, resultLocation)) {
+				sync = false;
+				int next = i + 1;
+				// if have one more argument, should resume argument resolution after current expression scheduled
+				if (next < runtimeArguments.size()) {
+					ResolveNextArgumentWorkItem workItem = executor.ResolveNextArgumentWorkItemPool.acquire();
+					workItem.initialize(this, next, argumentValues, resultLocation);
+					executor.scheduleItem(workItem);
+				}
+				// schedule argument expression
+				executor.scheduleExpression(
+						argument.getBoundArgument().getExpression(),
+						this,
+						this.getEnvironment(),
+						this.getEnvironment().getLocation(argument.getId()));
+			}
+		}
+
+		if (sync && startIndex == 0)
+			this.subState = SubState.ResolvingVariables;
+
+		return sync;
+	}
+
+	public boolean resolveVariables(ActivityExecutor executor) {
+		this.subState = SubState.ResolvingVariables;
+		boolean sync = true;
+
+		List<Variable> implementationVariables = this.getActivity().getImplementationVariables();
+		List<Variable> runtimevaVariables = this.getActivity().getRuntimeVariables();
+
+		for (int i = 0; i < implementationVariables.size(); i++) {
+			Variable variable = implementationVariables.get(i);
+			if (!variable.tryPopulateLocation(executor)) {
+				Helper.assertNotNull(variable.getDefault());
+				executor.scheduleExpression(
+						variable.getDefault(),
+						this,
+						this.getEnvironment(),
+						this.getEnvironment().getLocation(variable.getId()));
+				sync = false;
+			}
+		}
+
+		for (int i = 0; i < runtimevaVariables.size(); i++) {
+			Variable variable = runtimevaVariables.get(i);
+			if (!variable.tryPopulateLocation(executor)) {
+				Helper.assertNotNull(variable.getDefault());
+				executor.scheduleExpression(
+						variable.getDefault(),
+						this,
+						this.getEnvironment(),
+						this.getEnvironment().getLocation(variable.getId()));
+				sync = false;
+			}
+		}
+		return sync;
+	}
+
+	private void tryCancelParent() {
+		if (this.parent != null && this.parent.isPerformingDefaultCancelation())
+			this.parent.markCanceled();
 	}
 
 	protected static ActivityInstance createCanceledActivityInstance(Activity activity) {

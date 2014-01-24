@@ -62,4 +62,9 @@ public class Variable extends LocationReference {
 	public void set(ActivityContext context, Object value) {
 		context.setValue(this, value);
 	}
+
+	public boolean tryPopulateLocation(ActivityExecutor executor) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

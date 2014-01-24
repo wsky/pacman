@@ -10,6 +10,12 @@ public class LocationEnvironment {
 		this.locations = new ArrayList<Location>();
 	}
 
+	public LocationEnvironment(ActivityExecutor executor, Activity activity, LocationEnvironment parentEnvironment, int symbolCount) {
+	}
+
+	public LocationEnvironment(ActivityExecutor executor, Activity activity) {
+	}
+
 	public Location getLocation(LocationReference locationReference) {
 		return this.getLocation(locationReference.getId());
 	}
@@ -25,5 +31,10 @@ public class LocationEnvironment {
 	public void bindReference(LocationReference locationReference, Object defaultValue) {
 		locationReference.setId(this.locations.size());
 		this.locations.add(new Location(defaultValue));
+	}
+
+	public void declare(RuntimeArgument runtimeArgument, Location location, ActivityInstance activityInstance) {
+		// TODO Auto-generated method stub
+		
 	}
 }

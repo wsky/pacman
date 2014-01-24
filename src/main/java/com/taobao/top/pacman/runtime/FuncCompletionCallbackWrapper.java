@@ -7,7 +7,6 @@ public class FuncCompletionCallbackWrapper extends CompletionCallbackWrapper {
 
 	public FuncCompletionCallbackWrapper(Delegate delegate, ActivityInstance currentInstance) {
 		super(delegate, currentInstance);
-		// TODO Auto-generated constructor stub
 	}
 
 }

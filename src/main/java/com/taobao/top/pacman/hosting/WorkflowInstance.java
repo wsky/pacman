@@ -77,7 +77,6 @@ public class WorkflowInstance {
 	}
 
 	public void abort(Exception reason) {
-		// TODO Auto-generated method stub
 		
 	}
 }

@@ -1,9 +1,9 @@
 package com.taobao.top.pacman;
 
-
 public class ActivityContext {
 	protected ActivityInstance currentInstance;
 	protected ActivityExecutor executor;
+	private Activity activity;
 
 	protected ActivityContext() {
 	}
@@ -15,6 +15,7 @@ public class ActivityContext {
 	protected void reinitialize(ActivityInstance instance, ActivityExecutor executor) {
 		this.currentInstance = instance;
 		this.executor = executor;
+		this.activity = this.currentInstance.getActivity();
 	}
 
 	protected void dispose() {
@@ -22,7 +23,7 @@ public class ActivityContext {
 	}
 
 	protected Activity getActivity() {
-		return this.currentInstance.getActivity();
+		return this.activity;
 	}
 
 	protected LocationEnvironment getEnvironment() {

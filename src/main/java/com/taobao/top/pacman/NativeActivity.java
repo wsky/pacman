@@ -42,7 +42,7 @@ public abstract class NativeActivity extends Activity {
 	}
 
 	protected void cancel(NativeActivityContext context) {
-		// Helper.Assert(context.IsCancellationRequested, "当前活动实例没有取消执行的请求");
+		Helper.assertFalse(context.isCancellationRequested());
 		context.cancel();
 	}
 }
