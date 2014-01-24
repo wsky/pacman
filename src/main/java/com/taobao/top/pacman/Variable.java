@@ -64,7 +64,8 @@ public class Variable extends LocationReference {
 	}
 
 	public boolean tryPopulateLocation(ActivityExecutor executor) {
-		// TODO Auto-generated method stub
+		// some types of varibale not need schedule, just reference to another varibale value
+		// VariableReference
 		return false;
 	}
 }

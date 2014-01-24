@@ -2,10 +2,25 @@ package com.taobao.top.pacman.runtime;
 
 import com.taobao.top.pacman.*;
 
-public class EmptyWorkItem extends WorkItem {
-
-	public void initialize(ActivityInstance instance) {
-		
+public class EmptyWorkItem extends ActivityExecutionWorkItem {
+	public EmptyWorkItem() {
+		this.isEmpty = true;
+		this.isPooled = true;
 	}
 
+	public void initialize(ActivityInstance activityInstance) {
+		super.reinitialize(activityInstance);
+	}
+
+	@Override
+	protected void releaseToPool(ActivityExecutor executor) {
+		super.clear();
+		executor.EmptyWorkItemPool.release(this);
+	}
+
+	@Override
+	public boolean execute(ActivityExecutor activityExecutor, BookmarkManager bookmarkManager) {
+		Helper.assertFail();
+		return true;
+	}
 }

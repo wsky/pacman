@@ -2,34 +2,70 @@ package com.taobao.top.pacman.runtime;
 
 import com.taobao.top.pacman.*;
 
-public class WorkItem {
+public abstract class WorkItem {
+	private ActivityInstance activityInstance;
+	private Exception exceptionToPropagate;
+	protected Exception workflowAbortException;
+	protected boolean isEmpty;
+	protected boolean isPooled;
 
-	public void release() {
-		
+	protected WorkItem() {
+	}
+
+	protected WorkItem(ActivityInstance activityInstance) {
+		this.activityInstance = activityInstance;
+	}
+
+	public ActivityInstance getActivityInstance() {
+		return this.activityInstance;
+	}
+
+	public void reinitialize(ActivityInstance activityInstance) {
+		this.activityInstance = activityInstance;
+		this.activityInstance.incrementBusyCount();
 	}
 
 	public boolean isEmpty() {
-		return false;
-	}
-
-	public boolean execute(ActivityExecutor activityExecutor, BookmarkManager bookmarkManager) {
-		return false;
+		return this.isEmpty;
 	}
 
 	public Exception getWorkflowAbortException() {
-		return null;
-	}
-
-	public void postProcess(ActivityExecutor activityExecutor) {
-		
+		return this.workflowAbortException;
 	}
 
 	public Exception getExceptionToPropagate() {
-		return null;
+		return this.exceptionToPropagate;
 	}
 
-	public boolean isValid() {
-		return false;
+	public void setExceptionToPropagate(Exception exception) {
+		this.exceptionToPropagate = exception;
 	}
 
+	public void exceptionPropagated() {
+		this.exceptionToPropagate = null;
+	}
+
+	public void release() {
+		this.activityInstance.decrementBusyCount();
+	}
+
+	public void dispose(ActivityExecutor executor) {
+		if (this.isPooled)
+			this.releaseToPool(executor);
+	}
+
+	protected void releaseToPool(ActivityExecutor executor) {
+	}
+
+	protected void clear() {
+		this.exceptionToPropagate = null;
+		this.workflowAbortException = null;
+		this.activityInstance = null;
+	}
+
+	public abstract boolean isValid();
+
+	public abstract boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager);
+
+	public abstract void postProcess(ActivityExecutor executor);
 }

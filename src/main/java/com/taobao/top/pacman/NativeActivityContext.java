@@ -21,7 +21,7 @@ public class NativeActivityContext extends ActivityContext {
 	}
 
 	@Override
-	protected void dispose() {
+	public void dispose() {
 		super.dispose();
 		this.bookmarkManager = null;
 	}
@@ -143,12 +143,9 @@ public class NativeActivityContext extends ActivityContext {
 			FaultCallback onFaulted) {
 		CompletionBookmark completionBookmark = null;
 		FaultBookmark faultBookmark = null;
-		if (onCompleted != null) {
+		if (onCompleted != null)
 			completionBookmark = new CompletionBookmark(
-					new FuncCompletionCallbackWrapper(
-							onCompleted,
-							this.currentInstance));
-		}
+					new FuncCompletionCallbackWrapper<T>(onCompleted, this.currentInstance));
 		if (onFaulted != null)
 			faultBookmark = new FaultBookmark(onFaulted, this.currentInstance);
 		return this.internalScheduleActivity(activity, completionBookmark, faultBookmark);

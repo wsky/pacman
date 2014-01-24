@@ -18,7 +18,7 @@ public class ActivityContext {
 		this.activity = this.currentInstance.getActivity();
 	}
 
-	protected void dispose() {
+	public void dispose() {
 		this.reinitialize(null, null);
 	}
 

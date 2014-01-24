@@ -22,6 +22,7 @@ public class ActivityExecutor {
 	public Pool<ExecuteActivityWorkItem> ExecuteActivityWorkItemPool;
 	public Pool<ExecuteExpressionWorkItem> ExecuteExpressionWorkItemPool;
 	public Pool<ResolveNextArgumentWorkItem> ResolveNextArgumentWorkItemPool;
+	public Pool<CompletionWorkItem> CompletionWorkItemPool;
 
 	public ActivityExecutor(WorkflowInstance host) {
 		this.host = host;
@@ -116,8 +117,9 @@ public class ActivityExecutor {
 
 	public void scheduleRootActivity(Activity activity, Map<String, Object> argumentValues) {
 		this.rootActivity = activity;
-		this.rootInstance = this.createActivityInstance(activity, null, null, null, null);
-		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance, argumentValues));
+		this.rootInstance = new ActivityInstance(activity);
+		boolean requiresSymbolResolution = this.rootInstance.initialize(null, this.lastInstanceId, null, this);
+		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance, requiresSymbolResolution, argumentValues));
 	}
 
 	public ActivityInstance scheduleActivity(
@@ -146,9 +148,9 @@ public class ActivityExecutor {
 			LocationEnvironment parentEnvironment,
 			Map<String, Object> argumentValues,
 			Location resultLocation) {
-		ActivityInstance instance = this.createActivityInstance(
-				activity, parent, completionBookmark, faultBookmark, parentEnvironment);
-		this.scheduleBody(instance, argumentValues, resultLocation);
+		ActivityInstance instance = this.createActivityInstance(activity, parent, completionBookmark, faultBookmark);
+		boolean requiresSymbolResolution = instance.initialize(parent, this.lastInstanceId, parentEnvironment, this);
+		this.scheduleBody(instance, requiresSymbolResolution, argumentValues, resultLocation);
 		return instance;
 	}
 
@@ -168,13 +170,17 @@ public class ActivityExecutor {
 		this.scheduler.pushWork(workItem);
 	}
 
-	private void scheduleBody(ActivityInstance instance, Map<String, Object> argumentValues, Location resultLocation) {
+	private void scheduleBody(ActivityInstance instance,
+			boolean requiresSymbolResolution,
+			Map<String, Object> argumentValues,
+			Location resultLocation) {
 		if (resultLocation != null) {
-			this.scheduler.pushWork(new ExecuteExpressionWorkItem(instance, argumentValues, resultLocation));
+			this.scheduler.pushWork(new ExecuteExpressionWorkItem(
+					instance, requiresSymbolResolution, argumentValues, resultLocation));
 			return;
 		}
 		ExecuteActivityWorkItem workItem = this.ExecuteActivityWorkItemPool.acquire();
-		workItem.initialize(instance, argumentValues);
+		workItem.initialize(instance, requiresSymbolResolution, argumentValues);
 		this.scheduler.pushWork(workItem);
 	}
 
@@ -204,15 +210,14 @@ public class ActivityExecutor {
 	private ActivityInstance createActivityInstance(Activity activity,
 			ActivityInstance parent,
 			CompletionBookmark completionBookmark,
-			FaultBookmark faultBookmark,
-			LocationEnvironment parentEnvironment) {
+			FaultBookmark faultBookmark) {
 		ActivityInstance instance = new ActivityInstance(activity);
 		if (parent != null) {
 			instance.setCompletionBookmark(completionBookmark);
 			instance.setFaultBookmakr(faultBookmark);
 			parent.addChild(instance);
 		}
-		instance.initialize(parent, ++this.lastInstanceId, parentEnvironment, this);
+		this.lastInstanceId++;
 		return instance;
 	}
 

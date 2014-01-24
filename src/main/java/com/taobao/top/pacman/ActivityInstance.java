@@ -34,7 +34,7 @@ public class ActivityInstance {
 		this.subState = SubState.Created;
 	}
 
-	protected void initialize(ActivityInstance parent, int id, LocationEnvironment parentEnvironment, ActivityExecutor executor) {
+	protected boolean initialize(ActivityInstance parent, int id, LocationEnvironment parentEnvironment, ActivityExecutor executor) {
 		this.parent = parent;
 		this.id = id;
 
@@ -43,21 +43,22 @@ public class ActivityInstance {
 				parentEnvironment = this.parent.getEnvironment();
 		}
 
-		int symbolCount = 0;
+		int symbolCount = this.getActivity().getSymbolCount();
 
 		if (symbolCount > 0) {
 			this.environment = new LocationEnvironment(executor, this.activity, parentEnvironment, symbolCount);
 			this.subState = SubState.ResolvingArguments;
-			return;
+			return true;
 		}
 
 		if (parentEnvironment == null) {
 			this.environment = new LocationEnvironment(executor, this.activity);
-			return;
+			return false;
 		}
 
 		this.noSymbols = true;
 		this.environment = parentEnvironment;
+		return false;
 	}
 
 	protected void setCompletionBookmark(CompletionBookmark completionBookmark) {
@@ -98,7 +99,7 @@ public class ActivityInstance {
 		return this.state;
 	}
 
-	protected void markCanceled() {
+	public void markCanceled() {
 		this.subState = SubState.Canceling;
 	}
 
@@ -162,7 +163,7 @@ public class ActivityInstance {
 		this.isInitializationIncomplete = true;
 	}
 
-	public void setInitialized(ActivityExecutor executor) {
+	public void setInitialized() {
 		Helper.assertNotEquals(SubState.Initialized, this.subState);
 		this.subState = SubState.Initialized;
 	}
@@ -188,11 +189,11 @@ public class ActivityInstance {
 	public void execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
 		Helper.assertFalse(this.isInitializationIncomplete, "init incomplete");
 		this.markExecuted();
-		this.activity.internalExecute(this, executor, bookmarkManager);
+		this.getActivity().internalExecute(this, executor, bookmarkManager);
 	}
 
 	public void cancel(ActivityExecutor executor, BookmarkManager bookmarkManager) {
-		this.activity.internalCancel(this, executor, bookmarkManager);
+		this.getActivity().internalCancel(this, executor, bookmarkManager);
 	}
 
 	public boolean resolveArguments(ActivityExecutor executor,
@@ -214,6 +215,8 @@ public class ActivityInstance {
 			if (argumentValues != null)
 				value = argumentValues.get(argument.getName());
 
+			// some types of argument not need schedule, just reference to another argument value
+			// argumentReference
 			if (!argument.tryPopuateValue(this.getEnvironment(), this, value, resultLocation)) {
 				sync = false;
 				int next = i + 1;
@@ -228,6 +231,7 @@ public class ActivityInstance {
 						argument.getBoundArgument().getExpression(),
 						this,
 						this.getEnvironment(),
+						// FIXME should not direct use real Location, use Referencelocation
 						this.getEnvironment().getLocation(argument.getId()));
 			}
 		}
@@ -260,12 +264,14 @@ public class ActivityInstance {
 
 		for (int i = 0; i < runtimevaVariables.size(); i++) {
 			Variable variable = runtimevaVariables.get(i);
+			// some types of varibale not need schedule, just reference to another varibale value
 			if (!variable.tryPopulateLocation(executor)) {
 				Helper.assertNotNull(variable.getDefault());
 				executor.scheduleExpression(
 						variable.getDefault(),
 						this,
 						this.getEnvironment(),
+						// FIXME should not direct use real location, use Referencelocation
 						this.getEnvironment().getLocation(variable.getId()));
 				sync = false;
 			}
@@ -274,8 +280,8 @@ public class ActivityInstance {
 	}
 
 	private void tryCancelParent() {
-		if (this.parent != null && this.parent.isPerformingDefaultCancelation())
-			this.parent.markCanceled();
+		if (this.getParent() != null && this.getParent().isPerformingDefaultCancelation())
+			this.getParent().markCanceled();
 	}
 
 	protected static ActivityInstance createCanceledActivityInstance(Activity activity) {
@@ -300,5 +306,20 @@ public class ActivityInstance {
 		ResolvingVariables,
 		Initialized,
 		Canceling
+	}
+
+	public void incrementBusyCount() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void decrementBusyCount() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public boolean updateState(ActivityExecutor executor) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

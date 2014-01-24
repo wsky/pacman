@@ -53,6 +53,7 @@ public class RuntimeArgument extends LocationReference {
 		}
 
 		if (this.getBoundArgument().getExpression() != null) {
+			// FIXME some type of argument just refer to another argument
 			Location location = new Location();
 			environment.declare(this, location, activityInstance);
 			return false;

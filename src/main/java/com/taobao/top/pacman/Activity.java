@@ -20,6 +20,7 @@ public abstract class Activity {
 	private List<RuntimeArgument> runtimeArguments;
 	private List<Variable> runtimeVariables;
 	private List<Variable> implementationVariables;
+	private int symbolCount;
 
 	private LocationReferenceEnvironment publicEnvironment;
 	private LocationReferenceEnvironment implementationEnvironment;
@@ -104,6 +105,10 @@ public abstract class Activity {
 		if (this.implementationVariables == null)
 			this.implementationVariables = new ArrayList<Variable>();
 		this.implementationVariables.add(variable);
+	}
+	
+	protected int getSymbolCount() {
+		return this.symbolCount;
 	}
 
 	protected LocationReferenceEnvironment getPublicEnvironment() {
@@ -200,12 +205,21 @@ public abstract class Activity {
 		this.cacheMetadata(new ActivityMetadata(this));
 		if (this.children == null)
 			this.children = emptyActivities;
+		
 		if (this.runtimeArguments == null)
 			this.runtimeArguments = emptyArguments;
+		else
+			this.symbolCount += this.runtimeArguments.size();
+		
 		if (this.runtimeVariables == null)
 			this.runtimeVariables = emptyVariables;
+		else
+			this.symbolCount += this.runtimeVariables.size();
+		
 		if (this.implementationVariables == null)
 			this.implementationVariables = emptyVariables;
+		else
+			this.symbolCount += this.implementationVariables.size();
 	}
 
 	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
@@ -228,7 +242,7 @@ public abstract class Activity {
 	protected void cacheMetadata(ActivityMetadata metadata) {
 		// TODO default dynamic scan and prepare
 	}
-	
+
 	protected boolean isResultArgument(RuntimeArgument runtimeArgument) {
 		return false;
 	}

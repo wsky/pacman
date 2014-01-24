@@ -2,11 +2,20 @@ package com.taobao.top.pacman.runtime;
 
 import java.util.Map;
 
+import com.taobao.top.pacman.ActivityExecutor;
 import com.taobao.top.pacman.ActivityInstance;
 
-public class ExecuteRootActivityWorkItem extends WorkItem {
+public class ExecuteRootActivityWorkItem extends ExecuteActivityWorkItem {
+	public ExecuteRootActivityWorkItem(
+			ActivityInstance activityInstance,
+			boolean requiresSymbolResolution,
+			Map<String, Object> argumentValues) {
+		super(activityInstance, requiresSymbolResolution, argumentValues);
+	}
 
-	public ExecuteRootActivityWorkItem(ActivityInstance rootInstance, Map<String, Object> inputs) {
+	@Override
+	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+		return super.execute(executor, bookmarkManager);
 	}
 
 }
