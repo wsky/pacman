@@ -12,7 +12,7 @@ public class WorkflowInstance {
 	private Map<String, Object> initialArguments;
 	private Activity workflowDefinition;
 
-	private boolean _isInitialized;
+	private boolean isInitialized;
 	private UUID id;
 
 	// private Exception abortedException;
@@ -43,9 +43,12 @@ public class WorkflowInstance {
 		this.runScheduler();
 	}
 
-	private void ensureInitialized()
-	{
-		if (!this._isInitialized) {
+	public void abort(Exception reason) {
+
+	}
+
+	private void ensureInitialized() {
+		if (!this.isInitialized) {
 			this.executor = new ActivityExecutor(this);
 			this.initialize(this.initialArguments);
 		}
@@ -53,7 +56,7 @@ public class WorkflowInstance {
 
 	private void initialize(Map<String, Object> inputs) {
 		this.executor.scheduleRootActivity(this.workflowDefinition, inputs);
-		this._isInitialized = true;
+		this.isInitialized = true;
 	}
 
 	private void runScheduler() {
@@ -73,9 +76,5 @@ public class WorkflowInstance {
 		Runnable,
 		Unloaded,
 		Aborted
-	}
-
-	public void abort(Exception reason) {
-
 	}
 }
