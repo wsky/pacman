@@ -1,7 +1,10 @@
 package com.taobao.top.pacman;
 
+import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
+
 public abstract class Argument {
 	private String name;
+	private ArgumentDirection direction;
 	private RuntimeArgument runtimeArgument;
 	private ActivityWithResult expression;
 
@@ -11,6 +14,14 @@ public abstract class Argument {
 
 	protected void setName(String name) {
 		this.name = name;
+	}
+
+	protected ArgumentDirection getDirection() {
+		return this.direction;
+	}
+
+	protected void setDirection(ArgumentDirection direction) {
+		this.direction = direction;
 	}
 
 	protected RuntimeArgument getRuntimeArgument() {

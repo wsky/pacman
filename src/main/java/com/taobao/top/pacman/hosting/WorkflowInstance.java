@@ -25,13 +25,12 @@ public class WorkflowInstance {
 		this(workflowDefinition, UUID.randomUUID(), inputs);
 	}
 
-	public WorkflowInstance(Activity workflowDefinition, UUID id, Map<String, Object> inputs)
-	{
+	public WorkflowInstance(Activity workflowDefinition, UUID id, Map<String, Object> inputs) {
 		this.id = id;
 		this.workflowDefinition = workflowDefinition;
 		this.initialArguments = inputs == null ? new HashMap<String, Object>() : inputs;
 
-		// TODO check isRuntimeReady
+		// FIXME check isRuntimeReady
 		ActivityUtilities.cacheRootMetadata(
 				this.workflowDefinition,
 				new ActivityLocationReferenceEnvironment(null), null);
@@ -77,6 +76,6 @@ public class WorkflowInstance {
 	}
 
 	public void abort(Exception reason) {
-		
+
 	}
 }
