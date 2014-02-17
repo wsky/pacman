@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.taobao.top.pacman.ActivityExecutor;
 import com.taobao.top.pacman.ActivityInstance;
+import com.taobao.top.pacman.Helper;
 import com.taobao.top.pacman.Location;
 
 public class ExecuteActivityWorkItem extends ActivityExecutionWorkItem {
@@ -36,11 +37,11 @@ public class ExecuteActivityWorkItem extends ActivityExecutionWorkItem {
 	}
 
 	@Override
-	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		return this.executeBody(executor, bookmarkManager, null);
 	}
 
-	protected boolean executeBody(ActivityExecutor executor, BookmarkManager bookmarkManager, Location resultLocation) {
+	protected boolean executeBody(ActivityExecutor executor, BookmarkManager bookmarkManager, Location resultLocation) throws Exception {
 		try {
 			if (this.requiresSymbolResolution) {
 				if (!this.getActivityInstance().resolveArguments(executor, argumentValues, resultLocation, 0))
@@ -51,7 +52,8 @@ public class ExecuteActivityWorkItem extends ActivityExecutionWorkItem {
 			this.getActivityInstance().setInitialized();
 			this.getActivityInstance().execute(executor, bookmarkManager);
 		} catch (Exception e) {
-			// FIXME check if runtime fatal
+			if (Helper.isFatal(e))
+				throw e;
 			this.setExceptionToPropagate(e);
 		}
 		return true;

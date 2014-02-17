@@ -2,6 +2,7 @@ package com.taobao.top.pacman.runtime;
 
 import com.taobao.top.pacman.ActivityExecutor;
 import com.taobao.top.pacman.ActivityInstance;
+import com.taobao.top.pacman.Helper;
 import com.taobao.top.pacman.NativeActivityContext;
 
 public class CompletionWorkItem extends ActivityExecutionWorkItem {
@@ -31,13 +32,14 @@ public class CompletionWorkItem extends ActivityExecutionWorkItem {
 	}
 
 	@Override
-	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		NativeActivityContext context = executor.NativeActivityContextPool.acquire();
 		try {
 			context.initialize(this.getActivityInstance(), executor, bookmarkManager);
 			this.callbackWrapper.invoke(context, this.completedInstance);
 		} catch (Exception e) {
-			// FIXME assert fatal
+			if (Helper.isFatal(e))
+				throw e;
 			this.setExceptionToPropagate(e);
 		} finally {
 			context.dispose();

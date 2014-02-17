@@ -43,4 +43,8 @@ public class Helper {
 	public static void assertFail() {
 
 	}
+
+	public static boolean isFatal(Exception e) {
+		return false;
+	}
 }

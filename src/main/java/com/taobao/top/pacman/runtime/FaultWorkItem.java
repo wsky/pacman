@@ -15,7 +15,7 @@ public class FaultWorkItem extends ActivityExecutionWorkItem {
 	}
 
 	@Override
-	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		NativeActivityFaultContext faultContext = null;
 		try {
 			faultContext = new NativeActivityFaultContext(this.getActivityInstance(), executor, bookmarkManager);
@@ -24,7 +24,8 @@ public class FaultWorkItem extends ActivityExecutionWorkItem {
 			if (faultContext.isFaultHandled())
 				this.setExceptionToPropagateWithoutSkip(this.propagatedException);
 		} catch (Exception e) {
-			// FIXME assert fatal
+			if (Helper.isFatal(e))
+				throw e;
 			this.setExceptionToPropagate(e);
 		} finally {
 			if (faultContext != null)

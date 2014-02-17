@@ -65,7 +65,7 @@ public abstract class WorkItem {
 
 	public abstract boolean isValid();
 
-	public abstract boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager);
+	public abstract boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception;
 
 	public abstract void postProcess(ActivityExecutor executor);
 }
