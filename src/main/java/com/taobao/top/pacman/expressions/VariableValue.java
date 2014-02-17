@@ -14,4 +14,6 @@ public class VariableValue extends CodeActivityWithResult {
 		return this.variable.get(context);
 	}
 
+	// TODO check variable specified
+
 }

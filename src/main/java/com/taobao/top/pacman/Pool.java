@@ -1,10 +1,11 @@
 package com.taobao.top.pacman;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
 
 public abstract class Pool<T> {
 	static final int DefaultPoolSize = 10;
-	
+
 	private Class<T> type;
 	private T[] items;
 	private int count;
@@ -16,6 +17,7 @@ public abstract class Pool<T> {
 
 	@SuppressWarnings("unchecked")
 	public Pool(int poolSize) {
+		this.type = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		this.items = (T[]) Array.newInstance(this.type, poolSize);
 		this.poolSize = poolSize;
 	}

@@ -1,6 +1,7 @@
 package com.taobao.top.pacman.runtime;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
 
 @SuppressWarnings("unchecked")
 public class Quack<T> {
@@ -16,6 +17,7 @@ public class Quack<T> {
 	int count;
 
 	public Quack() {
+		this.type = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		this.items = (T[]) Array.newInstance(this.type, 4);
 	}
 

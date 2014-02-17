@@ -119,7 +119,7 @@ public class ActivityInstance {
 	}
 
 	protected boolean isCompleted() {
-		return this.isCompleted;
+		return this.getState() != ActivityInstanceState.Executing;
 	}
 
 	public ActivityInstance getParent() {
@@ -213,6 +213,9 @@ public class ActivityInstance {
 
 		for (int i = startIndex; i < argumentCount; i++) {
 			RuntimeArgument argument = runtimeArguments.get(i);
+
+			System.out.println("resolve argument:" + argument.getName());
+
 			Object value = null;
 
 			if (argumentValues != null)
@@ -255,10 +258,14 @@ public class ActivityInstance {
 
 		List<Variable> implementationVariables = this.getActivity().getImplementationVariables();
 		List<Variable> runtimevaVariables = this.getActivity().getRuntimeVariables();
+		ActivityContext context = new ActivityContext(this, executor);
 
 		for (int i = 0; i < implementationVariables.size(); i++) {
 			Variable variable = implementationVariables.get(i);
-			if (!variable.tryPopulateLocation(executor)) {
+
+			System.out.println("resolve variable:" + variable.getName());
+
+			if (!variable.tryPopulateLocation(executor, context)) {
 				Helper.assertNotNull(variable.getDefault());
 				executor.scheduleExpression(
 						variable.getDefault(),
@@ -271,8 +278,11 @@ public class ActivityInstance {
 
 		for (int i = 0; i < runtimevaVariables.size(); i++) {
 			Variable variable = runtimevaVariables.get(i);
+
+			System.out.println("resolve variable:" + variable.getName());
+
 			// some types of varibale not need schedule, just reference to another varibale value
-			if (!variable.tryPopulateLocation(executor)) {
+			if (!variable.tryPopulateLocation(executor, context)) {
 				Helper.assertNotNull(variable.getDefault());
 				executor.scheduleExpression(
 						variable.getDefault(),
@@ -320,7 +330,12 @@ public class ActivityInstance {
 					this.hasPendingWork() || activityCompleted,
 					"should have scheduled work pending if we're not complete");
 		} else if (!this.hasPendingWork()) {
-			// transaction
+			activityCompleted = true;
+			if (this.subState == SubState.Canceling)
+				this.setCanceled();
+			else
+				this.setClosed();
+			// transaction maybe check here
 		} else if (this.isPerformingDefaultCancelation()) {
 			// TODO impl bookmark cleanup
 			// if (this.onlyHasOutstandingBookmarks()) {
@@ -332,6 +347,8 @@ public class ActivityInstance {
 			// activityCompleted = true;
 			// }
 		}
+
+		System.out.println(String.format("update state: %s, %s, %s", activityCompleted, this.getState(), this.subState));
 
 		return activityCompleted;
 	}

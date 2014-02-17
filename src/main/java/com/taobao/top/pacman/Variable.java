@@ -63,10 +63,11 @@ public class Variable extends LocationReference {
 		context.setValue(this, value);
 	}
 
-	public boolean tryPopulateLocation(ActivityExecutor executor) {
+	public boolean tryPopulateLocation(ActivityExecutor executor, ActivityContext context) {
 		// some types of varibale not need schedule, just reference to another varibale value
 		// VariableReference
 		// TODO impl varibale populate
-		return false;
+		context.getEnvironment().declare(this, new Location(), context.getCurrentInstance());
+		return this.getDefault() == null;
 	}
 }

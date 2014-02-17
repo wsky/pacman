@@ -24,7 +24,6 @@ public class ActivityExecutor {
 	public Pool<CodeActivityContext> CodeActivityContextPool;
 	public Pool<EmptyWorkItem> EmptyWorkItemPool;
 	public Pool<ExecuteActivityWorkItem> ExecuteActivityWorkItemPool;
-	public Pool<ExecuteExpressionWorkItem> ExecuteExpressionWorkItemPool;
 	public Pool<ResolveNextArgumentWorkItem> ResolveNextArgumentWorkItemPool;
 	public Pool<CompletionWorkItem> CompletionWorkItemPool;
 
@@ -44,6 +43,7 @@ public class ActivityExecutor {
 	}
 
 	public boolean onExecuteWorkItem(WorkItem workItem) {
+		System.out.println("execute: " + workItem);
 		workItem.release();
 
 		if (!(workItem instanceof CompletionWorkItem) &&
@@ -57,6 +57,7 @@ public class ActivityExecutor {
 				// NOTE 3 execute workItem, maybe execute activity or other callback
 				isContinue = workItem.execute(this, this.bookmarkManager);
 			} catch (Exception e) {
+				e.printStackTrace();
 				this.abortWorkflowInstance(e);
 				return true;
 			}
@@ -82,6 +83,7 @@ public class ActivityExecutor {
 	// executor preparing workItems for scheduler
 
 	public Exception completeActivityInstance(ActivityInstance instance) {
+		System.err.println("complate activityInstance: " + instance.getActivity());
 		Exception exception = null;
 
 		this.handleRootCompletion(instance);
@@ -128,6 +130,7 @@ public class ActivityExecutor {
 		this.rootInstance = new ActivityInstance(activity);
 		boolean requiresSymbolResolution = this.rootInstance.initialize(null, this.lastInstanceId, null, this);
 		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance, requiresSymbolResolution, argumentValues));
+		System.out.println("push root work item");
 	}
 
 	public ActivityInstance scheduleActivity(
@@ -194,10 +197,12 @@ public class ActivityExecutor {
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
 		if (completedInstance.getCompletionBookmark() != null) {
+			System.err.println("complate bookmark");
 			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}
 		if (completedInstance.getParent() != null) {
+			System.err.println("complate and raise parent");
 			// for variable.default and arugment.expression
 			// if resovle failed, it's state not equal to closed, should tell parent init incomplete
 			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().haveNotExecuted())
@@ -267,37 +272,31 @@ public class ActivityExecutor {
 		this.NativeActivityContextPool = new Pool<NativeActivityContext>() {
 			@Override
 			protected NativeActivityContext createNew() {
-				return null;
+				return new NativeActivityContext();
 			}
 		};
 		this.CodeActivityContextPool = new Pool<CodeActivityContext>() {
 			@Override
 			protected CodeActivityContext createNew() {
-				return null;
+				return new CodeActivityContext();
 			}
 		};
 		this.EmptyWorkItemPool = new Pool<EmptyWorkItem>() {
 			@Override
 			protected EmptyWorkItem createNew() {
-				return null;
+				return new EmptyWorkItem();
 			}
 		};
 		this.ExecuteActivityWorkItemPool = new Pool<ExecuteActivityWorkItem>() {
 			@Override
 			protected ExecuteActivityWorkItem createNew() {
-				return null;
-			}
-		};
-		this.ExecuteExpressionWorkItemPool = new Pool<ExecuteExpressionWorkItem>() {
-			@Override
-			protected ExecuteExpressionWorkItem createNew() {
-				return null;
+				return new ExecuteActivityWorkItem();
 			}
 		};
 		this.ResolveNextArgumentWorkItemPool = new Pool<ResolveNextArgumentWorkItem>() {
 			@Override
 			protected ResolveNextArgumentWorkItem createNew() {
-				return null;
+				return new ResolveNextArgumentWorkItem();
 			}
 		};
 	}

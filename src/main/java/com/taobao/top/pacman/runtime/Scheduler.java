@@ -7,7 +7,6 @@ public class Scheduler {
 	private WorkItem firstWorkItem;
 	private Quack<WorkItem> workItemQueue;
 	private boolean isRunning;
-	private boolean isIdle;
 
 	public Scheduler(ActivityExecutor executor) {
 		this.executor = executor;
@@ -18,10 +17,10 @@ public class Scheduler {
 	}
 
 	public void resume() {
-		if (this.isIdle) {
+		if (this.isIdle()) {
 
 		}
-		//NOTE 2 schedule work
+		// NOTE 2 schedule work
 		onScheduledWork(this);
 	}
 
@@ -48,7 +47,7 @@ public class Scheduler {
 
 	private boolean executeWorkItem(WorkItem workItem) {
 		boolean flag = this.executor.onExecuteWorkItem(workItem);
-		//NOTE 5 cleanup and return workItem to pool
+		// NOTE 5 cleanup and return workItem to pool
 		workItem.dispose(this.executor);
 		return flag;
 	}
@@ -58,11 +57,15 @@ public class Scheduler {
 		// this.executor.onSchedulerIdle();
 	}
 
+	private boolean isIdle() {
+		return this.firstWorkItem == null;
+	}
+
 	public static void onScheduledWork(Scheduler scheduler) {
 		boolean flag = true;
 
 		while (flag) {
-			if (scheduler.isIdle || !scheduler.isRunning)
+			if (scheduler.isIdle())
 				break;
 
 			WorkItem currentWorkItem = scheduler.firstWorkItem;
@@ -75,7 +78,9 @@ public class Scheduler {
 			flag = scheduler.executeWorkItem(currentWorkItem);
 		}
 
-		if (scheduler.isIdle) {
+		// FIXME impl logic after idle
+
+		if (scheduler.isIdle()) {
 			scheduler.isRunning = false;
 			scheduler.scheduleIdle();
 		}

@@ -19,7 +19,13 @@ public class ActivityContext {
 	}
 
 	public void dispose() {
-		this.reinitialize(null, null);
+		this.currentInstance = null;
+		this.executor = null;
+		this.activity = null;
+	}
+
+	protected ActivityInstance getCurrentInstance() {
+		return this.currentInstance;
 	}
 
 	protected Activity getActivity() {
@@ -35,6 +41,7 @@ public class ActivityContext {
 	}
 
 	public Object getValue(LocationReference locationReference) {
+		// FIXME maybe chained access, AllowChainedEnvironmentAccess
 		return this.getLocation(locationReference).getValue();
 	}
 

@@ -28,7 +28,8 @@ public class ScheduleTest {
 			this.result = new OutArgument();
 			this.var = new Variable();
 			WriteLine writeLine = new WriteLine();
-			writeLine.Text = new InArgument(this.var);
+			//writeLine.Text = new InArgument(this.var);
+			writeLine.Text = new InArgument();
 			this.body = writeLine;
 		}
 
