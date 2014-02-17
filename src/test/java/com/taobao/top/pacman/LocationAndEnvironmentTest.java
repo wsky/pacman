@@ -41,7 +41,7 @@ public class LocationAndEnvironmentTest {
 
 	private void reference_test(LocationReference locationReference) {
 		LocationEnvironment environment = new LocationEnvironment();
-		environment.bindReference(locationReference, true);
+		environment.declare(locationReference, new Location(true), null);
 		Location location = environment.getLocation(locationReference.getId());
 		assertTrue((Boolean) location.getValue());
 		location.setValue(false);

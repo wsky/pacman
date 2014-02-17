@@ -18,7 +18,7 @@ public class ExecuteExpressionWorkItem extends ExecuteActivityWorkItem {
 	}
 
 	@Override
-	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		return super.executeBody(executor, bookmarkManager, this.resultLocation);
 	}
 }

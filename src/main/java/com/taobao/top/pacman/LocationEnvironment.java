@@ -1,19 +1,15 @@
 package com.taobao.top.pacman;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LocationEnvironment {
-	private List<Location> locations;
+	private Location[] locations;
+	private LocationEnvironment parent;
 
 	public LocationEnvironment() {
-		this.locations = new ArrayList<Location>();
 	}
 
-	public LocationEnvironment(ActivityExecutor executor, Activity activity, LocationEnvironment parentEnvironment, int symbolCount) {
-	}
-
-	public LocationEnvironment(ActivityExecutor executor, Activity activity) {
+	public LocationEnvironment(LocationEnvironment parentEnvironment, int symbolCount) {
+		this.parent = parentEnvironment;
+		this.locations = new Location[symbolCount];
 	}
 
 	public Location getLocation(LocationReference locationReference) {
@@ -21,20 +17,10 @@ public class LocationEnvironment {
 	}
 
 	public Location getLocation(int id) {
-		return id > -1 && id < this.locations.size() ? this.locations.get(id) : null;
+		return this.locations != null && id > -1 && id < this.locations.length ? this.locations[id] : null;
 	}
 
-	public void bindReference(LocationReference locationReference) {
-		this.bindReference(locationReference, null);
-	}
-
-	public void bindReference(LocationReference locationReference, Object defaultValue) {
-		locationReference.setId(this.locations.size());
-		this.locations.add(new Location(defaultValue));
-	}
-
-	public void declare(RuntimeArgument runtimeArgument, Location location, ActivityInstance activityInstance) {
-		// TODO Auto-generated method stub
-		
+	public void declare(LocationReference locationReference, Location location, ActivityInstance activityInstance) {
+		this.locations[locationReference.getId()] = location;
 	}
 }

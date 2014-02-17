@@ -9,7 +9,7 @@ public class CompletionWithCancelationCheckWorkItem extends CompletionWorkItem {
 	}
 
 	@Override
-	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		if (this.completedInstance.getState() != ActivityInstanceState.Closed &&
 				this.getActivityInstance().isPerformingDefaultCancelation())
 			this.getActivityInstance().markCanceled();

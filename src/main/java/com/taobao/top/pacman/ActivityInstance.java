@@ -46,13 +46,13 @@ public class ActivityInstance {
 		int symbolCount = this.getActivity().getSymbolCount();
 
 		if (symbolCount > 0) {
-			this.environment = new LocationEnvironment(executor, this.activity, parentEnvironment, symbolCount);
+			this.environment = new LocationEnvironment(parentEnvironment, symbolCount);
 			this.subState = SubState.ResolvingArguments;
 			return true;
 		}
 
 		if (parentEnvironment == null) {
-			this.environment = new LocationEnvironment(executor, this.activity);
+			this.environment = new LocationEnvironment();
 			return false;
 		}
 
