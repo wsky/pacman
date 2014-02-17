@@ -21,6 +21,7 @@ public class Scheduler {
 		if (this.isIdle) {
 
 		}
+		//NOTE 2 schedule work
 		onScheduledWork(this);
 	}
 
@@ -47,6 +48,7 @@ public class Scheduler {
 
 	private boolean executeWorkItem(WorkItem workItem) {
 		boolean flag = this.executor.onExecuteWorkItem(workItem);
+		//NOTE 5 cleanup and return workItem to pool
 		workItem.dispose(this.executor);
 		return flag;
 	}
@@ -74,7 +76,6 @@ public class Scheduler {
 		}
 
 		if (scheduler.isIdle) {
-			// 置为停止
 			scheduler.isRunning = false;
 			scheduler.scheduleIdle();
 		}

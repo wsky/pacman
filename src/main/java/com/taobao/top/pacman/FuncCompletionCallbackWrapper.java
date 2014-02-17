@@ -13,7 +13,6 @@ public class FuncCompletionCallbackWrapper<T> extends CompletionCallbackWrapper 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void gatherOutputs(ActivityInstance completedInstance) {
-		// FIXME fix result id
 		int id = this.getResultId((ActivityWithResult) completedInstance.getActivity());
 		this.resultValue = (T) completedInstance.getEnvironment().getLocation(id).getValue();
 	}

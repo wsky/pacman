@@ -28,6 +28,8 @@ public class ActivityInstance {
 
 	private boolean noSymbols;
 
+	private int busyCount;
+
 	public ActivityInstance(Activity activity) {
 		this.activity = activity;
 		this.state = ActivityInstanceState.Executing;
@@ -156,7 +158,7 @@ public class ActivityInstance {
 	}
 
 	public boolean haveNotExecuted() {
-		return this.subState == SubState.PreExecuting;
+		return this.subState != SubState.Executing;
 	}
 
 	public void setInitializationIncomplete() {
@@ -189,6 +191,7 @@ public class ActivityInstance {
 	public void execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
 		Helper.assertFalse(this.isInitializationIncomplete, "init incomplete");
 		this.markExecuted();
+		// NOTE 3.2 internal execute activity
 		this.getActivity().internalExecute(this, executor, bookmarkManager);
 	}
 
@@ -223,6 +226,8 @@ public class ActivityInstance {
 				// if have one more argument, should resume argument resolution after current expression scheduled
 				if (next < runtimeArguments.size()) {
 					ResolveNextArgumentWorkItem workItem = executor.ResolveNextArgumentWorkItemPool.acquire();
+					// looks confused that still pass resultLocation,
+					// but only used when resultArgument and the activtiy must be activityWithResult
 					workItem.initialize(this, next, argumentValues, resultLocation);
 					executor.scheduleItem(workItem);
 				}
@@ -233,6 +238,8 @@ public class ActivityInstance {
 						this.getEnvironment(),
 						// FIXME should not direct use real Location, use Referencelocation
 						this.getEnvironment().getLocation(argument.getId()));
+				// must break, different from variables
+				break;
 			}
 		}
 
@@ -279,6 +286,65 @@ public class ActivityInstance {
 		return sync;
 	}
 
+	public boolean updateState(ActivityExecutor executor) {
+		boolean activityCompleted = false;
+
+		if (this.haveNotExecuted()) {
+			if (this.isCancellationRequested()) {
+				if (this.hasChildren()) {
+					for (ActivityInstance child : this.getChildren()) {
+						Helper.assertTrue(
+								child.getState() == ActivityInstanceState.Executing,
+								"should only have children if they're still executing");
+						executor.cancelActivity(child);
+					}
+				} else {
+					this.setCanceled();
+					activityCompleted = true;
+				}
+			} else if (!this.hasPendingWork()) {
+				boolean scheduleBody = false;
+				if (this.subState == SubState.ResolvingArguments) {
+					// NOTE 4.2.1 finish async resolution of arguments now and continue variables resolution
+					this.getEnvironment().collapseTemporaryResolutionLocations();
+					this.subState = SubState.ResolvingVariables;
+					scheduleBody = this.resolveVariables(executor);
+				} else if (this.subState == SubState.ResolvingVariables)
+					scheduleBody = true;
+
+				if (scheduleBody)
+					executor.scheduleBody(this, false, null, null);
+			}
+
+			Helper.assertTrue(
+					this.hasPendingWork() || activityCompleted,
+					"should have scheduled work pending if we're not complete");
+		} else if (!this.hasPendingWork()) {
+			// transaction
+		} else if (this.isPerformingDefaultCancelation()) {
+			// TODO impl bookmark cleanup
+			// if (this.onlyHasOutstandingBookmarks()) {
+			// executor.getBookmarkManager().removeAll(this);
+			// RemoveAllBookmarks(executor.RawBookmarkScopeManager, executor.RawBookmarkManager);
+			// this.markCanceled();
+			// Helper.assertFalse(this.hasPendingWork(), "Shouldn't have pending work here.");
+			// this.setCanceled();
+			// activityCompleted = true;
+			// }
+		}
+
+		return activityCompleted;
+	}
+
+	public void incrementBusyCount() {
+		this.busyCount++;
+	}
+
+	public void decrementBusyCount() {
+		Helper.assertTrue(this.busyCount > 0);
+		this.busyCount--;
+	}
+
 	private void tryCancelParent() {
 		if (this.getParent() != null && this.getParent().isPerformingDefaultCancelation())
 			this.getParent().markCanceled();
@@ -288,6 +354,14 @@ public class ActivityInstance {
 		ActivityInstance instance = new ActivityInstance(activity);
 		instance.state = ActivityInstanceState.Canceled;
 		return instance;
+	}
+
+	private boolean hasPendingWork() {
+		return this.hasChildren() || this.busyCount > 0;
+	}
+
+	private boolean hasChildren() {
+		return this.children != null && this.children.size() > 0;
 	}
 
 	public enum ActivityInstanceState {
@@ -300,26 +374,10 @@ public class ActivityInstance {
 
 	enum SubState {
 		Executing,
-		PreExecuting,
 		Created,
 		ResolvingArguments,
 		ResolvingVariables,
 		Initialized,
 		Canceling
-	}
-
-	public void incrementBusyCount() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void decrementBusyCount() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public boolean updateState(ActivityExecutor executor) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

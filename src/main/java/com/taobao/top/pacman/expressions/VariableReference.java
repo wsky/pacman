@@ -14,5 +14,5 @@ public class VariableReference extends CodeActivityWithResult {
 		return context.getLocation(this.variable);
 	}
 
-	// FIXME check variable's metadata was cached
+	// TODO check variable's metadata was cached
 }

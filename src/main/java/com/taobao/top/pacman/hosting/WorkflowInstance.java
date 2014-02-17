@@ -30,7 +30,7 @@ public class WorkflowInstance {
 		this.workflowDefinition = workflowDefinition;
 		this.initialArguments = inputs == null ? new HashMap<String, Object>() : inputs;
 
-		// FIXME check isRuntimeReady
+		// TODO check isRuntimeReady
 		ActivityUtilities.cacheRootMetadata(
 				this.workflowDefinition,
 				new ActivityLocationReferenceEnvironment(null), null);
@@ -55,6 +55,7 @@ public class WorkflowInstance {
 	}
 
 	private void initialize(Map<String, Object> inputs) {
+		// NOTE 1 prepare root schedule, first workItem
 		this.executor.scheduleRootActivity(this.workflowDefinition, inputs);
 		this.isInitialized = true;
 	}

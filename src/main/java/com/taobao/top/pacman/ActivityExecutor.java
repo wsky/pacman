@@ -1,8 +1,11 @@
 package com.taobao.top.pacman;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
+import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 import com.taobao.top.pacman.hosting.*;
 import com.taobao.top.pacman.runtime.*;
 
@@ -13,6 +16,7 @@ public class ActivityExecutor {
 
 	private Activity rootActivity;
 	private ActivityInstance rootInstance;
+	private Map<String, Object> workflowOutputs;
 
 	private int lastInstanceId;
 
@@ -50,6 +54,7 @@ public class ActivityExecutor {
 		boolean isContinue = true;
 		if (!workItem.isEmpty()) {
 			try {
+				// NOTE 3 execute workItem, maybe execute activity or other callback
 				isContinue = workItem.execute(this, this.bookmarkManager);
 			} catch (Exception e) {
 				this.abortWorkflowInstance(e);
@@ -62,6 +67,7 @@ public class ActivityExecutor {
 			return true;
 		}
 
+		// NOTE 4 post workItem
 		workItem.postProcess(this);
 
 		if (workItem.getExceptionToPropagate() != null)
@@ -76,17 +82,19 @@ public class ActivityExecutor {
 	// executor preparing workItems for scheduler
 
 	public Exception completeActivityInstance(ActivityInstance instance) {
-		// TODO handle root complete and gather root outputs
-		// ...
+		Exception exception = null;
 
-		// to gather activity outputs
+		this.handleRootCompletion(instance);
+
+		// NOTE 4.3.2 completionBookmark to gather up any outputs and schdule callback to parent
 		this.scheduleCompletionBookmark(instance);
 
 		// TODO cleanup environmental resources
 		// ...
 
 		instance.markAsComplete();
-		return null;
+
+		return exception;
 	}
 
 	public void abortWorkflowInstance(Exception reason) {
@@ -170,7 +178,7 @@ public class ActivityExecutor {
 		this.scheduler.pushWork(workItem);
 	}
 
-	private void scheduleBody(ActivityInstance instance,
+	protected void scheduleBody(ActivityInstance instance,
 			boolean requiresSymbolResolution,
 			Map<String, Object> argumentValues,
 			Location resultLocation) {
@@ -203,8 +211,36 @@ public class ActivityExecutor {
 		return false;
 	}
 
-	private void gatherRootOutputs() {
-		// TODO impl gathering root outputs
+	// NOTE 4.3.1 gather root activity outputs
+	private void handleRootCompletion(ActivityInstance completedInstance) {
+		if (completedInstance.getParent() != null)
+			return;
+		if (completedInstance == this.rootInstance)
+			this.gatherRootOutputs(this.rootInstance.getEnvironment());
+	}
+
+	private void gatherRootOutputs(LocationEnvironment rootEnvironment) {
+		Helper.assertNull(this.workflowOutputs);
+		Helper.assertNotEquals(ActivityInstanceState.Executing, this.rootInstance.getState());
+		Helper.assertNotNull(rootEnvironment);
+
+		if (this.rootInstance.getState() != ActivityInstanceState.Closed)
+			return;
+
+		List<RuntimeArgument> rootArguments = this.rootActivity.getRuntimeArguments();
+		for (int i = 0; i < rootArguments.size(); i++) {
+			RuntimeArgument argument = rootArguments.get(i);
+
+			if (argument.getDirection() != ArgumentDirection.Out)
+				continue;
+
+			if (this.workflowOutputs == null)
+				this.workflowOutputs = new HashMap<String, Object>();
+
+			Location location = rootEnvironment.getLocation(argument.getId());
+			Helper.assertNotNull(location);
+			this.workflowOutputs.put(argument.getName(), location.getValue());
+		}
 	}
 
 	private ActivityInstance createActivityInstance(Activity activity,

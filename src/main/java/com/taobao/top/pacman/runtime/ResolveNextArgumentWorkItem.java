@@ -35,7 +35,7 @@ public class ResolveNextArgumentWorkItem extends ActivityExecutionWorkItem {
 	@Override
 	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
 		this.getActivityInstance().resolveArguments(
-				executor, argumentValues, resultLocation, this.nextArgumentIndex);
+				executor, this.argumentValues, this.resultLocation, this.nextArgumentIndex);
 		return true;
 	}
 }

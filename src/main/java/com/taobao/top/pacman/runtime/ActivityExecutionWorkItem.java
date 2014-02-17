@@ -32,14 +32,17 @@ public abstract class ActivityExecutionWorkItem extends WorkItem {
 
 	@Override
 	public void postProcess(ActivityExecutor executor) {
+		// NOTE 4.1 check exception
 		if (this.getExceptionToPropagate() != null && !this.skipAbort) {
 			executor.abortActivityInstance(this.getActivityInstance(), this.getExceptionToPropagate());
 			return;
 		}
 
+		// NOTE 4.2 update activityInstance state and check weather activity completed 
 		if (!this.getActivityInstance().updateState(executor))
 			return;
 
+		// NOTE 4.3 complete activityInstance
 		Exception exception = executor.completeActivityInstance(this.getActivityInstance());
 		if (exception != null)
 			this.setExceptionToPropagate(exception);

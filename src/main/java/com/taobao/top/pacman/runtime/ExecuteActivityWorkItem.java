@@ -43,6 +43,7 @@ public class ExecuteActivityWorkItem extends ActivityExecutionWorkItem {
 
 	protected boolean executeBody(ActivityExecutor executor, BookmarkManager bookmarkManager, Location resultLocation) throws Exception {
 		try {
+			//NOTE 3.1 resolve argument and variable now or schedule them
 			if (this.requiresSymbolResolution) {
 				if (!this.getActivityInstance().resolveArguments(executor, argumentValues, resultLocation, 0))
 					return true;
