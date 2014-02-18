@@ -33,15 +33,14 @@ public class ScheduleTest {
 			this.result2 = new OutArgument();
 			this.var = new Variable();
 			WriteLine writeLine = new WriteLine();
+			// TODO test funcValue
 			// writeLine.Text = new InArgument(new Function<ActivityContext, Object>() {
 			// @Override
 			// public Object execute(ActivityContext context) {
 			// return context.get(name);
 			// }
 			// });
-			// should be implementationChild
-			// writeLine.Text = new InArgument(var);
-			writeLine.Text = new InArgument();
+			writeLine.Text = new InArgument(var);
 			this.body = writeLine;
 		}
 
@@ -51,7 +50,10 @@ public class ScheduleTest {
 			this.result1.set(context, "1");
 			this.result2.set(context, "2");
 			// context.abort(new Exception("error"));
+
+			// ((WriteLine)this.body).Text.set(context, "");
 			context.scheduleActivity(this.body);
+
 			// FIXME test callback
 			// context.scheduleActivity(this.body, new CompletionCallback() {
 			// @Override
@@ -67,8 +69,8 @@ public class ScheduleTest {
 			metadata.bindAndAddArgument(this.name, new RuntimeArgument("name", String.class, ArgumentDirection.In));
 			metadata.bindAndAddArgument(this.result1, new RuntimeArgument("result1", String.class, ArgumentDirection.Out));
 			metadata.bindAndAddArgument(this.result2, new RuntimeArgument("result2", String.class, ArgumentDirection.Out));
-			metadata.addRuntimeVariable(this.var);
-			metadata.addChild(this.body);
+			metadata.addImplementationVariable(this.var);
+			metadata.addImplementationChild(this.body);
 		}
 	}
 }

@@ -43,14 +43,14 @@ public class ActivityInstance {
 		this.id = id;
 
 		if (this.parent != null) {
-			if (parentEnvironment != null)
+			if (parentEnvironment == null)
 				parentEnvironment = this.parent.getEnvironment();
 		}
 
 		int symbolCount = this.getActivity().getSymbolCount();
 
 		if (symbolCount > 0) {
-			System.err.println(this.activity.getClass().getSimpleName() + parentEnvironment);
+			System.err.println("parentEnv: " + this.activity.getClass().getSimpleName() + parentEnvironment);
 			this.environment = new LocationEnvironment(this.getActivity(), parentEnvironment, symbolCount);
 			this.subState = SubState.ResolvingArguments;
 			return true;
