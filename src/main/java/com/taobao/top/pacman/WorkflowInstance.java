@@ -41,8 +41,13 @@ public class WorkflowInstance {
 		if (reason != null)
 			this.abortedException = reason;
 	}
-	
+
 	protected void notifyPaused() {
+		// TODO raise some eventhanles or trace
+	}
+
+	protected void notifyUnhandledException(Exception exception, Activity activity, int id) {
+		// TODO raise some eventhanles or trace
 	}
 
 	private void ensureInitialized() {
@@ -76,10 +81,5 @@ public class WorkflowInstance {
 			throw instance.executor.getCompletionException();
 
 		return instance.executor.getWorkflowOutputs();
-	}
-
-	public void notifyUnhandledException(Exception exception, Activity activity, int id) {
-		// TODO Auto-generated method stub
-		
 	}
 }

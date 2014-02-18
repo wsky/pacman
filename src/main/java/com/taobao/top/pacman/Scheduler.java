@@ -1,29 +1,47 @@
 package com.taobao.top.pacman;
 
-import com.taobao.top.pacman.*;
 import com.taobao.top.pacman.runtime.Quack;
 import com.taobao.top.pacman.runtime.WorkItem;
 
 public class Scheduler {
+	public static final ContinueAction CONTINUE_ACTION = new ContinueAction();
+	public static final YieldSilentlyAction YIELD_SILENTLY_ACTION = new YieldSilentlyAction();
+	public static final AbortAction ABORT_ACTION = new AbortAction();
+
 	private ActivityExecutor executor;
 	private WorkItem firstWorkItem;
 	private Quack<WorkItem> workItemQueue;
 	private boolean isRunning;
+	private boolean isPausing;
 
 	public Scheduler(ActivityExecutor executor) {
 		this.executor = executor;
+	}
+
+	public boolean isIdle() {
+		return this.firstWorkItem == null;
+	}
+
+	public boolean isRunning() {
+		return this.isRunning;
 	}
 
 	public void markRunning() {
 		this.isRunning = true;
 	}
 
-	public void resume() throws Exception {
-		if (this.isIdle()) {
+	public void pause() {
+		this.isPausing = true;
+	}
 
-		}
-		// NOTE 2 schedule work
-		onScheduledWork(this);
+	public void resume() throws Exception {
+		if (this.isIdle() || this.isPausing) {
+			this.isPausing = false;
+			this.isRunning = false;
+			this.scheduleIdle();
+		} else
+			// NOTE 2 schedule work
+			onScheduledWork(this);
 	}
 
 	public void pushWork(WorkItem workItem) {
@@ -47,11 +65,22 @@ public class Scheduler {
 		}
 	}
 
-	private boolean executeWorkItem(WorkItem workItem) throws Exception {
-		boolean flag = this.executor.onExecuteWorkItem(workItem);
+	private RequestedAction executeWorkItem(WorkItem workItem) throws Exception {
+		RequestedAction action = this.executor.onExecuteWorkItem(workItem);
+
+		// NOTE if yields, item still active and the callback should to dispose it
+		if (action == YIELD_SILENTLY_ACTION)
+			return action;
+
+		// NOTE check executor abort/terminate pending
+		// onExecuteWorkItem will performing abort() and set isAbortPending=true
+		if (this.executor.isAbortPending() || this.executor.isTerminatePending())
+			action = ABORT_ACTION;
+
 		// NOTE 5 cleanup and return workItem to pool
 		workItem.dispose(this.executor);
-		return flag;
+
+		return action;
 	}
 
 	private void scheduleIdle() throws Exception {
@@ -62,16 +91,15 @@ public class Scheduler {
 		this.executor.notifyUnhandledException(exception, source);
 	}
 
-	private boolean isIdle() {
-		return this.firstWorkItem == null;
-	}
-
 	public static void onScheduledWork(Scheduler scheduler) throws Exception {
-		boolean flag = true;
+		RequestedAction nextAction = CONTINUE_ACTION;
+		boolean idleOrPaused = false;
 
-		while (flag) {
-			if (scheduler.isIdle())
+		while (nextAction == CONTINUE_ACTION) {
+			if (scheduler.isIdle() || scheduler.isPausing) {
+				idleOrPaused = true;
 				break;
+			}
 
 			WorkItem currentWorkItem = scheduler.firstWorkItem;
 
@@ -80,68 +108,53 @@ public class Scheduler {
 					scheduler.workItemQueue.dequeue() :
 					null;
 
-			flag = scheduler.executeWorkItem(currentWorkItem);
+			nextAction = scheduler.executeWorkItem(currentWorkItem);
 		}
 
-		// we must process events or dispose workflow resources until idle
-		// FIXME impl logic after idle, raise workflowInstance pausing or complete
+		// we must process events or dispose workflow resources until idle or paused
 
-		// idle or paused
-		if (scheduler.isIdle()) {
+		if (idleOrPaused || nextAction == ABORT_ACTION) {
 			scheduler.isRunning = false;
+			scheduler.isPausing = false;
 			scheduler.scheduleIdle();
+			return;
 		}
 
-		// if(!yieldSilentlyAction)
-		// scheduler.notifyUnhandledException(exception, source);
+		if (nextAction != YIELD_SILENTLY_ACTION) {
+			Helper.assertEquals(NotifyUnhandledExceptionAction.class, nextAction.getClass());
+			NotifyUnhandledExceptionAction notifyAction = (NotifyUnhandledExceptionAction) nextAction;
+			scheduler.isRunning = false;
+			scheduler.notifyUnhandledException(notifyAction.getException(), notifyAction.getSource());
+		}
 	}
 
-	// internal abstract class RequestedAction
-	// {
-	// protected RequestedAction()
-	// {
-	// }
-	// }
-	//
-	// class ContinueAction : RequestedAction
-	// {
-	// public ContinueAction()
-	// {
-	// }
-	// }
-	//
-	// class YieldSilentlyAction : RequestedAction
-	// {
-	// public YieldSilentlyAction()
-	// {
-	// }
-	// }
-	//
-	// class AbortAction : RequestedAction
-	// {
-	// public AbortAction()
-	// {
-	// }
-	// }
-	//
-	// class NotifyUnhandledExceptionAction : RequestedAction
-	// {
-	// public NotifyUnhandledExceptionAction(Exception exception, ActivityInstance source)
-	// {
-	// this.Exception = exception;
-	// this.Source = source;
-	// }
-	//
-	// public Exception Exception
-	// {
-	// get;
-	// private set;
-	// }
-	//
-	// public ActivityInstance Source
-	// {
-	// get;
-	// private set;
-	// }
-	// }
+	public static abstract class RequestedAction {
+	}
+
+	public static class ContinueAction extends RequestedAction {
+	}
+
+	public static class YieldSilentlyAction extends RequestedAction {
+	}
+
+	public static class AbortAction extends RequestedAction {
+	}
+
+	public static class NotifyUnhandledExceptionAction extends RequestedAction {
+		private Exception exception;
+		private ActivityInstance source;
+
+		public NotifyUnhandledExceptionAction(Exception exception, ActivityInstance source) {
+			this.exception = exception;
+			this.source = source;
+		}
+
+		public Exception getException() {
+			return this.exception;
+		}
+
+		public ActivityInstance getSource() {
+			return this.source;
+		}
+	}
 }

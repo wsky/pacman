@@ -6,9 +6,12 @@ import java.util.Map;
 
 import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
+import com.taobao.top.pacman.Scheduler.RequestedAction;
 import com.taobao.top.pacman.runtime.*;
 
 public class ActivityExecutor {
+	private int lastInstanceId;
+
 	private WorkflowInstance host;
 	private Scheduler scheduler;
 	private BookmarkManager bookmarkManager;
@@ -16,10 +19,11 @@ public class ActivityExecutor {
 	private Activity rootActivity;
 	private ActivityInstance rootInstance;
 	private Map<String, Object> workflowOutputs;
-
-	private int lastInstanceId;
-
 	private Exception completionException;
+
+	// flag for schedule
+	private boolean isAbortPending;
+	private boolean isTerminatePending;
 
 	public Pool<NativeActivityContext> NativeActivityContextPool;
 	public Pool<CodeActivityContext> CodeActivityContextPool;
@@ -43,6 +47,14 @@ public class ActivityExecutor {
 		return this.completionException;
 	}
 
+	protected boolean isAbortPending() {
+		return this.isAbortPending;
+	}
+
+	protected boolean isTerminatePending() {
+		return this.isTerminatePending;
+	}
+
 	protected void markSchedulerRunning() {
 		this.scheduler.markRunning();
 	}
@@ -51,42 +63,35 @@ public class ActivityExecutor {
 		this.scheduler.resume();
 	}
 
-	protected boolean onExecuteWorkItem(WorkItem workItem) throws Exception {
+	protected RequestedAction onExecuteWorkItem(WorkItem workItem) throws Exception {
 		System.out.println("execute: " + workItem);
 		workItem.release();
 
-		if (!(workItem instanceof CompletionWorkItem) &&
-				!(workItem instanceof EmptyWorkItem) &&
-				!workItem.isValid())
-			return true;
+		if (!workItem.isValid())
+			return Scheduler.CONTINUE_ACTION;
 
-		boolean isContinue = true;
 		if (!workItem.isEmpty()) {
-			try {
-				// NOTE 3 execute workItem, maybe execute activity or other callback
-				isContinue = workItem.execute(this, this.bookmarkManager);
-			} catch (Exception e) {
-				if (Helper.isFatal(e))
-					throw e;
-				this.abortWorkflowInstance(e);
-				return true;
-			}
+			// NOTE 3 execute workItem, maybe execute activity or other callback
+			if (!workItem.execute(this, this.bookmarkManager))
+				return Scheduler.YIELD_SILENTLY_ACTION;
 		}
 
 		if (workItem.getWorkflowAbortException() != null) {
 			this.abortWorkflowInstance(workItem.getWorkflowAbortException());
-			return true;
+			return Scheduler.CONTINUE_ACTION;
 		}
 
 		// NOTE 4 post workItem
 		workItem.postProcess(this);
 
 		if (workItem.getExceptionToPropagate() != null)
-			// upgrade to workflowException if error not processed
-			if (!this.propagateException(workItem))
-				this.abortWorkflowInstance(workItem.getExceptionToPropagate());
+			this.propagateException(workItem);
+		if (workItem.getExceptionToPropagate() != null)
+			return new Scheduler.NotifyUnhandledExceptionAction(
+					workItem.getExceptionToPropagate(),
+					workItem.getOriginalExceptionSource());
 
-		return isContinue;
+		return Scheduler.CONTINUE_ACTION;
 	}
 
 	protected void onSchedulerIdle() throws Exception {
@@ -128,6 +133,7 @@ public class ActivityExecutor {
 
 	// called from onExecuteWorkItem() or user calling context.abort()
 	protected void abortWorkflowInstance(Exception reason) {
+		this.isAbortPending = true;
 		this.host.abort(reason);
 	}
 
@@ -241,7 +247,7 @@ public class ActivityExecutor {
 	}
 
 	private boolean propagateException(WorkItem workItem) {
-		// TODO impl propagete exception
+		// TODO impl propagete exception for try/cathch statement
 		return false;
 	}
 

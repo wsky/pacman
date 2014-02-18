@@ -16,13 +16,17 @@ public abstract class WorkItem {
 		this.activityInstance = activityInstance;
 	}
 
+	public void reinitialize(ActivityInstance activityInstance) {
+		this.activityInstance = activityInstance;
+		this.activityInstance.incrementBusyCount();
+	}
+	
 	public ActivityInstance getActivityInstance() {
 		return this.activityInstance;
 	}
 
-	public void reinitialize(ActivityInstance activityInstance) {
-		this.activityInstance = activityInstance;
-		this.activityInstance.incrementBusyCount();
+	public ActivityInstance getOriginalExceptionSource() {
+		return this.getActivityInstance();
 	}
 
 	public boolean isEmpty() {

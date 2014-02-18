@@ -25,7 +25,7 @@ public abstract class ActivityExecutionWorkItem extends WorkItem {
 		this.skipAbort = false;
 	}
 
-	protected void setExceptionToPropagateWithoutSkip(Exception exception) {
+	protected void setExceptionToPropagateWithoutAbort(Exception exception) {
 		this.setExceptionToPropagate(exception);
 		this.skipAbort = true;
 	}
