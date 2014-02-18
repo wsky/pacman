@@ -13,6 +13,7 @@ public class ScheduleTest {
 	public void schedule() throws Exception {
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("name", "test_name");
+		inputs.put("Text", "print_text");
 		Activity workflow = new Workflow();
 		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, inputs);
 		System.out.println(inputs);
@@ -32,8 +33,15 @@ public class ScheduleTest {
 			this.result2 = new OutArgument();
 			this.var = new Variable();
 			WriteLine writeLine = new WriteLine();
-			writeLine.Text = new InArgument(this.var);
-			// writeLine.Text = new InArgument();
+			// writeLine.Text = new InArgument(new Function<ActivityContext, Object>() {
+			// @Override
+			// public Object execute(ActivityContext context) {
+			// return context.get(name);
+			// }
+			// });
+			// should be implementationChild
+			// writeLine.Text = new InArgument(var);
+			writeLine.Text = new InArgument();
 			this.body = writeLine;
 		}
 

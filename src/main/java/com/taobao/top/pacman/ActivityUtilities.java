@@ -33,7 +33,8 @@ public class ActivityUtilities {
 		// add itself frist so that having a id
 		activity.getMemberOf().add(activity);
 		activity.internalCacheMetadata();
-		processChildren(activity, activity.getChildren(), stack);
+		processChildren(activity, activity.getChildren(), RelationshipType.Child, stack);
+		processChildren(activity, activity.getImplementationChildren(), RelationshipType.ImplementationChild, stack);
 
 		ActivityLocationReferenceEnvironment implementationEnvironment = null;
 		ActivityLocationReferenceEnvironment publicEnvironment = null;
@@ -64,9 +65,9 @@ public class ActivityUtilities {
 		activity.setImplementationEnvironment(implementationEnvironment);
 	}
 
-	private static void processChildren(Activity parent, List<Activity> children, Stack<Activity> stack) {
+	private static void processChildren(Activity parent, List<Activity> children, RelationshipType relationshipType, Stack<Activity> stack) {
 		for (Activity activity : children) {
-			activity.initializeRelationship(parent, RelationshipType.Child, true);
+			activity.initializeRelationship(parent, relationshipType, true);
 			stack.push(activity);
 		}
 	}

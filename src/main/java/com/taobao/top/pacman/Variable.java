@@ -100,7 +100,7 @@ public class Variable extends LocationReference {
 		return location;
 	}
 
-	private boolean isInTree() {
+	protected boolean isInTree() {
 		return this.getOwner() != null;
 	}
 }

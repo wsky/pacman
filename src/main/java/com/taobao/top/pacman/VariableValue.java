@@ -22,6 +22,11 @@ public class VariableValue extends CodeActivityWithResult {
 		return this.executeWithTryGetValue(context);
 	}
 
+	@Override
+	protected void cacheMetadata(ActivityMetadata metadata) {
+		Helper.assertTrue(this.variable.isInTree());
+		Helper.assertTrue(metadata.getEnvironment().isVisible(this.variable));
+	}
 	// TODO check variable specified
 
 }

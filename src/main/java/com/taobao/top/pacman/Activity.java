@@ -17,6 +17,7 @@ public abstract class Activity {
 	private Activity parent;
 
 	private List<Activity> children;
+	private List<Activity> implementationChildren;
 	private List<RuntimeArgument> runtimeArguments;
 	private List<Variable> runtimeVariables;
 	private List<Variable> implementationVariables;
@@ -73,6 +74,16 @@ public abstract class Activity {
 		this.children.add(child);
 	}
 
+	protected List<Activity> getImplementationChildren() {
+		return this.implementationChildren;
+	}
+
+	protected void addImplementationChild(Activity implementationChild) {
+		if (this.implementationChildren == null)
+			this.implementationChildren = new ArrayList<Activity>();
+		this.implementationChildren.add(implementationChild);
+	}
+
 	protected List<RuntimeArgument> getRuntimeArguments() {
 		return this.runtimeArguments;
 	}
@@ -106,7 +117,7 @@ public abstract class Activity {
 			this.implementationVariables = new ArrayList<Variable>();
 		this.implementationVariables.add(variable);
 	}
-	
+
 	protected int getSymbolCount() {
 		return this.symbolCount;
 	}
@@ -148,6 +159,9 @@ public abstract class Activity {
 			break;
 		case Child:
 			// isolate
+			break;
+		case ImplementationChild:
+			parentEnvironment = this.getParent().getImplementationEnvironment();
 			break;
 		case VariableDefault:
 			parentEnvironment = this.getParent().getPublicEnvironment();
@@ -196,26 +210,31 @@ public abstract class Activity {
 
 	protected void clearCachedMetadata() {
 		this.children = null;
+		this.implementationChildren = null;
 		this.runtimeArguments = null;
 		this.runtimeVariables = null;
 		this.implementationVariables = null;
 	}
 
 	protected void internalCacheMetadata() {
-		this.cacheMetadata(new ActivityMetadata(this));
+		this.cacheMetadata(new ActivityMetadata(this, this.getParentEnvironment()));
+
 		if (this.children == null)
 			this.children = emptyActivities;
-		
+
+		if (this.implementationChildren == null)
+			this.implementationChildren = emptyActivities;
+
 		if (this.runtimeArguments == null)
 			this.runtimeArguments = emptyArguments;
 		else
 			this.symbolCount += this.runtimeArguments.size();
-		
+
 		if (this.runtimeVariables == null)
 			this.runtimeVariables = emptyVariables;
 		else
 			this.symbolCount += this.runtimeVariables.size();
-		
+
 		if (this.implementationVariables == null)
 			this.implementationVariables = emptyVariables;
 		else

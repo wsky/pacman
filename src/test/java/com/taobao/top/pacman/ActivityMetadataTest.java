@@ -12,6 +12,7 @@ import com.taobao.top.pacman.statements.WriteLine;
 
 public class ActivityMetadataTest {
 	private Activity root;
+	private Activity nest;
 	private Activity child;
 	private Activity childChild;
 	private InArgument in;
@@ -22,6 +23,11 @@ public class ActivityMetadataTest {
 
 	@Before
 	public void before() {
+		in = new InArgument(true);
+		var = new Variable("var", true);
+		out = new OutArgument(var);
+		inner = new Variable("inner", false);
+
 		childChild = new WriteLine();
 		childChild.setDisplayName("writeLine");
 
@@ -30,13 +36,21 @@ public class ActivityMetadataTest {
 		_if.Then = childChild;
 		child = _if;
 
-		in = new InArgument(true);
-		var = new Variable("var", true);
-		out = new OutArgument(var);
-		inner = new Variable("inner", false);
+		nest = new Activity() {
+			// private InArgument nestIn = new InArgument();
+			private InArgument nestIn = new InArgument(inner);
+
+			@Override
+			protected void cacheMetadata(ActivityMetadata metadata) {
+				Helper.assertTrue(metadata.getEnvironment().isVisible(inner));
+				metadata.bindAndAddArgument(this.nestIn, new RuntimeArgument("nestIn", Integer.class, ArgumentDirection.In));
+			}
+		};
+		nest.setDisplayName("nest");
 
 		root = new Activity() {
 			public Activity child = ActivityMetadataTest.this.child;
+			public Activity nest = ActivityMetadataTest.this.nest;
 			public InArgument in = ActivityMetadataTest.this.in;
 			public OutArgument out = ActivityMetadataTest.this.out;
 			public Variable var = ActivityMetadataTest.this.var;
@@ -50,6 +64,7 @@ public class ActivityMetadataTest {
 				metadata.addRuntimeVariable(this.var);
 				metadata.addImplementationVariable(this.inner);
 				metadata.addChild(this.child);
+				metadata.addImplementationChild(this.nest);
 			}
 		};
 
@@ -60,7 +75,8 @@ public class ActivityMetadataTest {
 
 	@Test
 	public void cache_metadata_test() {
-		root.cacheMetadata(new ActivityMetadata(root));
+		root.initializeAsRoot(new ActivityLocationReferenceEnvironment(null));
+		root.cacheMetadata(new ActivityMetadata(root, root.getParentEnvironment()));
 		assertRoot();
 	}
 
@@ -108,7 +124,7 @@ public class ActivityMetadataTest {
 
 	@Test
 	public void reference_to_undifined_variable_test() {
-		//
+		// TODO test undefined variable validate
 	}
 
 	private void assertRoot() {

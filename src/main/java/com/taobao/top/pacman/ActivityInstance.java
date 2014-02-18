@@ -50,6 +50,7 @@ public class ActivityInstance {
 		int symbolCount = this.getActivity().getSymbolCount();
 
 		if (symbolCount > 0) {
+			System.err.println(this.activity.getClass().getSimpleName() + parentEnvironment);
 			this.environment = new LocationEnvironment(this.getActivity(), parentEnvironment, symbolCount);
 			this.subState = SubState.ResolvingArguments;
 			return true;
@@ -213,6 +214,8 @@ public class ActivityInstance {
 			Map<String, Object> argumentValues,
 			Location resultLocation,
 			int startIndex) {
+		System.out.println("overrideValues: " + argumentValues);
+
 		boolean sync = true;
 
 		List<RuntimeArgument> runtimeArguments = this.getActivity().getRuntimeArguments();
