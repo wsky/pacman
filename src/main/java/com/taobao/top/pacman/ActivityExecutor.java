@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
-import com.taobao.top.pacman.hosting.*;
 import com.taobao.top.pacman.runtime.*;
 
 public class ActivityExecutor {
@@ -19,6 +18,8 @@ public class ActivityExecutor {
 	private Map<String, Object> workflowOutputs;
 
 	private int lastInstanceId;
+
+	private Exception completionException;
 
 	public Pool<NativeActivityContext> NativeActivityContextPool;
 	public Pool<CodeActivityContext> CodeActivityContextPool;
@@ -34,15 +35,23 @@ public class ActivityExecutor {
 		this.initialize();
 	}
 
-	public void markSchedulerRunning() {
+	protected Map<String, Object> getWorkflowOutputs() {
+		return this.workflowOutputs;
+	}
+
+	protected Exception getCompletionException() {
+		return this.completionException;
+	}
+
+	protected void markSchedulerRunning() {
 		this.scheduler.markRunning();
 	}
 
-	public void run() {
+	protected void run() throws Exception {
 		this.scheduler.resume();
 	}
 
-	public boolean onExecuteWorkItem(WorkItem workItem) {
+	protected boolean onExecuteWorkItem(WorkItem workItem) throws Exception {
 		System.out.println("execute: " + workItem);
 		workItem.release();
 
@@ -57,7 +66,8 @@ public class ActivityExecutor {
 				// NOTE 3 execute workItem, maybe execute activity or other callback
 				isContinue = workItem.execute(this, this.bookmarkManager);
 			} catch (Exception e) {
-				e.printStackTrace();
+				if (Helper.isFatal(e))
+					throw e;
 				this.abortWorkflowInstance(e);
 				return true;
 			}
@@ -79,11 +89,28 @@ public class ActivityExecutor {
 		return isContinue;
 	}
 
-	// performing schedule() by pushing workitem to scheduler
-	// executor preparing workItems for scheduler
+	protected void onSchedulerIdle() throws Exception {
+		try {
+			this.host.notifyPaused();
+		} catch (Exception e) {
+			if (Helper.isFatal(e))
+				throw e;
+			this.abortWorkflowInstance(e);
+		}
+	}
+
+	protected void notifyUnhandledException(Exception exception, ActivityInstance source) throws Exception {
+		try {
+			this.host.notifyUnhandledException(exception, source.getActivity(), source.getId());
+		} catch (Exception e) {
+			if (Helper.isFatal(e))
+				throw e;
+			this.abortWorkflowInstance(e);
+		}
+	}
 
 	public Exception completeActivityInstance(ActivityInstance instance) {
-		System.err.println("complate activityInstance: " + instance.getActivity());
+		System.out.println("complate activityInstance: " + instance.getActivity());
 		Exception exception = null;
 
 		this.handleRootCompletion(instance);
@@ -99,10 +126,12 @@ public class ActivityExecutor {
 		return exception;
 	}
 
-	public void abortWorkflowInstance(Exception reason) {
+	// called from onExecuteWorkItem() or user calling context.abort()
+	protected void abortWorkflowInstance(Exception reason) {
 		this.host.abort(reason);
 	}
 
+	// called from context.abortChildInstance() or postProcess()
 	public void abortActivityInstance(ActivityInstance instance, Exception reason) {
 		instance.abort(this, this.bookmarkManager, reason, true);
 		if (instance.getCompletionBookmark() != null)
@@ -197,12 +226,12 @@ public class ActivityExecutor {
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
 		if (completedInstance.getCompletionBookmark() != null) {
-			System.err.println("complate bookmark");
+			System.out.println("complate bookmark");
 			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}
 		if (completedInstance.getParent() != null) {
-			System.err.println("complate and raise parent");
+			System.out.println("complate and raise parent");
 			// for variable.default and arugment.expression
 			// if resovle failed, it's state not equal to closed, should tell parent init incomplete
 			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().haveNotExecuted())
@@ -246,6 +275,8 @@ public class ActivityExecutor {
 			Helper.assertNotNull(location);
 			this.workflowOutputs.put(argument.getName(), location.getValue());
 		}
+
+		System.out.println("gather root outputs: " + this.workflowOutputs);
 	}
 
 	private ActivityInstance createActivityInstance(Activity activity,

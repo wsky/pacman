@@ -1,34 +1,24 @@
-package com.taobao.top.pacman.hosting;
+package com.taobao.top.pacman;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-
-import com.taobao.top.pacman.*;
 
 public class WorkflowInstance {
 	private ActivityExecutor executor;
-	private WorkflowInstanceState state;
 	private Map<String, Object> initialArguments;
 	private Activity workflowDefinition;
 
 	private boolean isInitialized;
-	private UUID id;
-
-	// private Exception abortedException;
+	private boolean isAborted;
+	private Exception abortedException;
 
 	public WorkflowInstance(Activity workflowDefinition) {
 		this(workflowDefinition, new HashMap<String, Object>());
 	}
 
 	public WorkflowInstance(Activity workflowDefinition, Map<String, Object> inputs) {
-		this(workflowDefinition, UUID.randomUUID(), inputs);
-	}
-
-	public WorkflowInstance(Activity workflowDefinition, UUID id, Map<String, Object> inputs) {
-		this.id = id;
 		this.workflowDefinition = workflowDefinition;
-		this.initialArguments = inputs == null ? new HashMap<String, Object>() : inputs;
+		this.initialArguments = inputs;
 
 		// TODO check isRuntimeReady
 		ActivityUtilities.cacheRootMetadata(
@@ -37,14 +27,22 @@ public class WorkflowInstance {
 
 	}
 
-	public void resumeBookmark(String bookmarkName, Object value) {
-		this.ensureInitialized();
-		this.executor.scheduleCompletionBookmark(new Bookmark(bookmarkName), value);
-		this.runScheduler();
+	// TODO impl bookmark resume
+	// public void resumeBookmark(String bookmarkName, Object value) {
+	// this.ensureInitialized();
+	// this.executor.scheduleCompletionBookmark(new Bookmark(bookmarkName), value);
+	// this.runScheduler();
+	// }
+
+	protected void abort(Exception reason) {
+		if (this.isAborted)
+			return;
+		this.isAborted = true;
+		if (reason != null)
+			this.abortedException = reason;
 	}
-
-	public void abort(Exception reason) {
-
+	
+	protected void notifyPaused() {
 	}
 
 	private void ensureInitialized() {
@@ -55,27 +53,33 @@ public class WorkflowInstance {
 	}
 
 	private void initialize(Map<String, Object> inputs) {
+		// if (inputs == null)
+		// inputs = ActivityUtilities.EmptyParameters;
 		// NOTE 1 prepare root schedule, first workItem
 		this.executor.scheduleRootActivity(this.workflowDefinition, inputs);
 		this.isInitialized = true;
 	}
 
-	private void runScheduler() {
-		this.state = WorkflowInstanceState.Runnable;
+	private void runScheduler() throws Exception {
 		this.executor.markSchedulerRunning();
 		this.executor.run();
 	}
 
-	public static void invoke(Activity activity, Map<String, Object> inputs) {
+	public static Map<String, Object> invoke(Activity activity, Map<String, Object> inputs) throws Exception {
 		WorkflowInstance instance = new WorkflowInstance(activity, inputs);
 		instance.ensureInitialized();
 		instance.runScheduler();
+
+		if (instance.abortedException != null)
+			throw instance.abortedException;
+		if (instance.executor.getCompletionException() != null)
+			throw instance.executor.getCompletionException();
+
+		return instance.executor.getWorkflowOutputs();
 	}
 
-	enum WorkflowInstanceState {
-		Paused,
-		Runnable,
-		Unloaded,
-		Aborted
+	public void notifyUnhandledException(Exception exception, Activity activity, int id) {
+		// TODO Auto-generated method stub
+		
 	}
 }

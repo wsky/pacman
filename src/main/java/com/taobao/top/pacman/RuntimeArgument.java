@@ -45,7 +45,7 @@ public class RuntimeArgument extends LocationReference {
 			Object value,
 			Location resultLocation) {
 		if (value != null) {
-			Helper.assertNotNull(resultLocation);
+			Helper.assertNull(resultLocation);
 			Location location = new Location();
 			environment.declare(this, location, activityInstance);
 			location.setValue(value);
@@ -60,7 +60,7 @@ public class RuntimeArgument extends LocationReference {
 		}
 
 		if (resultLocation != null && this.getOwner().isResultArgument(this)) {
-			//NOTE here only works for resultArgument
+			// NOTE here only works for resultArgument
 			environment.declare(this, resultLocation, activityInstance);
 			return true;
 		}

@@ -15,18 +15,16 @@ public class ActivityInstance {
 	private CompletionBookmark completionBookmark;
 	private FaultBookmark faultBookmark;
 	private LocationEnvironment environment;
+	private boolean noSymbols;
 
 	// instance state
 	private ActivityInstanceState state;
 	// execution state
 	private SubState subState;
 
-	private boolean isCompleted;
 	private boolean isCancellationRequested;
 	private boolean isInitializationIncomplete;
 	private boolean isPerformingDefaultCancelation;
-
-	private boolean noSymbols;
 
 	private int busyCount;
 
@@ -36,7 +34,11 @@ public class ActivityInstance {
 		this.subState = SubState.Created;
 	}
 
-	protected boolean initialize(ActivityInstance parent, int id, LocationEnvironment parentEnvironment, ActivityExecutor executor) {
+	protected boolean initialize(
+			ActivityInstance parent,
+			int id,
+			LocationEnvironment parentEnvironment,
+			ActivityExecutor executor) {
 		this.parent = parent;
 		this.id = id;
 
@@ -63,6 +65,10 @@ public class ActivityInstance {
 		return false;
 	}
 
+	protected int getId() {
+		return this.id;
+	}
+
 	protected void setCompletionBookmark(CompletionBookmark completionBookmark) {
 		this.completionBookmark = completionBookmark;
 	}
@@ -81,6 +87,10 @@ public class ActivityInstance {
 
 	protected LocationEnvironment getEnvironment() {
 		return this.environment;
+	}
+
+	protected boolean isEnvironmentOwner() {
+		return !this.noSymbols;
 	}
 
 	protected Iterable<ActivityInstance> getChildren() {

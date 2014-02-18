@@ -1,10 +1,14 @@
 package com.taobao.top.pacman;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ActivityUtilities {
+	public static final Map<String, Object> EmptyParameters = new HashMap<String, Object>();
+
 	public static void cacheRootMetadata(Activity activity,
 			LocationReferenceEnvironment hostEnvironment,
 			ProcessActivityCallback callback) {
