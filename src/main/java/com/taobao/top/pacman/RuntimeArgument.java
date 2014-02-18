@@ -40,8 +40,9 @@ public class RuntimeArgument extends LocationReference {
 			this.boundArgument.getExpression().initializeRelationship(this);
 	}
 
-	public boolean tryPopuateValue(LocationEnvironment environment,
+	protected boolean tryPopuateValue(LocationEnvironment environment,
 			ActivityInstance activityInstance,
+			ActivityContext resolutionContext,
 			Object value,
 			Location resultLocation) {
 		if (value != null) {
@@ -53,10 +54,13 @@ public class RuntimeArgument extends LocationReference {
 		}
 
 		if (this.getBoundArgument().getExpression() != null) {
-			// FIXME some type of argument just refer to another argument
-			Location location = new Location();
-			environment.declare(this, location, activityInstance);
-			return false;
+			// TODO skip fastpath
+			// Location location = new Location();
+			// environment.declare(this, location, activityInstance);
+
+			// NOTE fast-path as some type of argument just refer to another argument
+			resolutionContext.setActivity(this.getBoundArgument().getExpression());
+			return this.boundArgument.tryPopulateValue(environment, activityInstance, resolutionContext);
 		}
 
 		if (resultLocation != null && this.getOwner().isResultArgument(this)) {
@@ -65,9 +69,38 @@ public class RuntimeArgument extends LocationReference {
 			return true;
 		}
 
+		// only declare location but no value
 		Location location = new Location();
 		environment.declare(this, location, activityInstance);
 		return true;
+	}
+
+	@Override
+	protected Location getLocation(ActivityContext context) {
+		Helper.assertNotNull(context);
+		Helper.assertTrue(this.isInTree());
+
+		Location location;
+		if (!context.allowChainedEnvironmentAccess()) {
+			Helper.assertEquals(this.getOwner(), context.getActivity());
+			Object[] ret = context.getEnvironment().tryGetLocation(this.getId());
+			location = (Location) ret[1];
+			Helper.assertTrue((Boolean) ret[0]);
+		} else {
+			Helper.assertTrue(this.getOwner() == context.getActivity() ||
+					// maybe chained access parent
+					this.getOwner() == context.getActivity().getMemberOf().getOwner());
+
+			Object[] ret = context.getEnvironment().tryGetLocation(this.getId(), this.getOwner());
+			location = (Location) ret[1];
+			Helper.assertTrue((Boolean) ret[0]);
+		}
+
+		return location;
+	}
+
+	private boolean isInTree() {
+		return this.getOwner() != null;
 	}
 
 	public enum ArgumentDirection {

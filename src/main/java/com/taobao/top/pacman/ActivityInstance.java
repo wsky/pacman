@@ -50,13 +50,13 @@ public class ActivityInstance {
 		int symbolCount = this.getActivity().getSymbolCount();
 
 		if (symbolCount > 0) {
-			this.environment = new LocationEnvironment(parentEnvironment, symbolCount);
+			this.environment = new LocationEnvironment(this.getActivity(), parentEnvironment, symbolCount);
 			this.subState = SubState.ResolvingArguments;
 			return true;
 		}
 
 		if (parentEnvironment == null) {
-			this.environment = new LocationEnvironment();
+			this.environment = new LocationEnvironment(this.getActivity());
 			return false;
 		}
 
@@ -221,6 +221,8 @@ public class ActivityInstance {
 		if (argumentCount == 0)
 			return sync;
 
+		ActivityContext resolutionContext = new ActivityContext(this, executor);
+
 		for (int i = startIndex; i < argumentCount; i++) {
 			RuntimeArgument argument = runtimeArguments.get(i);
 
@@ -233,7 +235,7 @@ public class ActivityInstance {
 
 			// some types of argument not need schedule, just reference to another argument value
 			// argumentReference
-			if (!argument.tryPopuateValue(this.getEnvironment(), this, value, resultLocation)) {
+			if (!argument.tryPopuateValue(this.getEnvironment(), this, resolutionContext, value, resultLocation)) {
 				sync = false;
 				int next = i + 1;
 				// if have one more argument, should resume argument resolution after current expression scheduled
@@ -248,7 +250,7 @@ public class ActivityInstance {
 				executor.scheduleExpression(
 						argument.getBoundArgument().getExpression(),
 						this,
-						this.getEnvironment(),
+						resolutionContext.getEnvironment(),
 						// FIXME should not direct use real Location, use Referencelocation
 						this.getEnvironment().getLocation(argument.getId()));
 				// must break, different from variables

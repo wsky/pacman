@@ -135,6 +135,7 @@ public class ActivityExecutor {
 	protected void abortWorkflowInstance(Exception reason) {
 		this.isAbortPending = true;
 		this.host.abort(reason);
+		System.out.println("-- abortWorkflowInstance: " + reason.getMessage());
 	}
 
 	// called from context.abortChildInstance() or postProcess()

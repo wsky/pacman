@@ -47,4 +47,9 @@ public abstract class Argument {
 	public void set(ActivityContext context, Object value) {
 		context.set(this, value);
 	}
+
+	protected abstract boolean tryPopulateValue(
+			LocationEnvironment environment,
+			ActivityInstance activityInstance,
+			ActivityContext resolutionContext);
 }

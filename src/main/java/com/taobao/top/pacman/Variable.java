@@ -63,11 +63,44 @@ public class Variable extends LocationReference {
 		context.setValue(this, value);
 	}
 
-	public boolean tryPopulateLocation(ActivityExecutor executor, ActivityContext context) {
-		// some types of varibale not need schedule, just reference to another varibale value
-		// VariableReference
-		// TODO impl varibale populate
-		context.getEnvironment().declare(this, new Location(), context.getCurrentInstance());
-		return this.getDefault() == null;
+	protected boolean tryPopulateLocation(ActivityExecutor executor, ActivityContext context) {
+		boolean sync = true;
+		Location variableLocation = new Location();
+		context.getEnvironment().declare(this, variableLocation, context.getCurrentInstance());
+		
+		if (this.getDefault() == null)
+			return sync;
+
+		Object[] ret = this.getDefault().tryGetValue(context);
+		if ((Boolean) ret[0])
+			variableLocation.setValue(ret[1]);
+		else
+			sync = false;
+
+		return sync;
+	}
+
+	@Override
+	protected Location getLocation(ActivityContext context) {
+		Helper.assertNotNull(context);
+		Helper.assertTrue(this.isInTree());
+
+		Location location;
+		if (!context.allowChainedEnvironmentAccess()) {
+			Helper.assertEquals(this.getOwner(), context.getActivity());
+			Object[] ret = context.getEnvironment().tryGetLocation(this.getId());
+			location = (Location) ret[1];
+			Helper.assertTrue((Boolean) ret[0]);
+		} else {
+			Object[] ret = context.getEnvironment().tryGetLocation(this.getId(), this.getOwner());
+			location = (Location) ret[1];
+			Helper.assertTrue((Boolean) ret[0]);
+		}
+
+		return location;
+	}
+
+	private boolean isInTree() {
+		return this.getOwner() != null;
 	}
 }

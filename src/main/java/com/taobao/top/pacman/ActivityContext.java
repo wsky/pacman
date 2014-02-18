@@ -5,6 +5,8 @@ public class ActivityContext {
 	protected ActivityExecutor executor;
 	private Activity activity;
 
+	private boolean allowChainedEnvironmentAccess;
+
 	protected ActivityContext() {
 	}
 
@@ -32,21 +34,32 @@ public class ActivityContext {
 		return this.activity;
 	}
 
+	protected void setActivity(Activity activity) {
+		this.activity = activity;
+	}
+
+	protected boolean allowChainedEnvironmentAccess() {
+		return this.allowChainedEnvironmentAccess;
+	}
+
+	protected void setAllowChainedEnvironmentAccess(boolean value) {
+		this.allowChainedEnvironmentAccess = value;
+	}
+
 	protected LocationEnvironment getEnvironment() {
 		return this.currentInstance.getEnvironment();
 	}
 
 	public Location getLocation(LocationReference locationReference) {
-		return this.getEnvironment().getLocation(locationReference.getId());
+		return locationReference.getLocation(this);
 	}
 
 	public Object getValue(LocationReference locationReference) {
-		// FIXME maybe chained access, AllowChainedEnvironmentAccess
-		return this.getLocation(locationReference).getValue();
+		return locationReference.getLocation(this).getValue();
 	}
 
 	public void setValue(LocationReference locationReference, Object value) {
-		this.getLocation(locationReference).setValue(value);
+		locationReference.getLocation(this).setValue(value);
 	}
 
 	public Object get(Argument argument) {

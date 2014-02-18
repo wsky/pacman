@@ -10,7 +10,12 @@ public class FunctionValue extends CodeActivityWithResult {
 	}
 
 	@Override
+	protected Object[] tryGetValue(ActivityContext context) {
+		return new Object[] { true, this.func.execute(context) };
+	}
+
+	@Override
 	protected Object execute(CodeActivityContext context) {
-		return this.func.execute(context);
+		return this.executeWithTryGetValue(context);
 	}
 }

@@ -19,6 +19,8 @@ public abstract class LocationReference {
 	protected void setType(Class<?> type) {
 		this.type = type;
 	}
-	
+
 	protected abstract String getName();
+
+	protected abstract Location getLocation(ActivityContext context);
 }

@@ -41,7 +41,7 @@ public abstract class ActivityWithResult extends Activity {
 				return;
 			}
 		}
-		
+
 		if (this.result == null)
 			this.result = new OutArgument();
 		this.resultRuntimeArgument = new RuntimeArgument("Result", this.getType(), ArgumentDirection.Out);
@@ -51,5 +51,17 @@ public abstract class ActivityWithResult extends Activity {
 
 	protected void internalCacheMetadataExceptResult() {
 		super.internalCacheMetadata();
+	}
+
+	// fast-path for expressions that can be resolved synchronously
+	// use array as missing multi-return in java
+	protected Object[] tryGetValue(ActivityContext context) {
+		return new Object[] { false, null };
+	}
+
+	protected Object executeWithTryGetValue(ActivityContext context) {
+		Object[] ret = this.tryGetValue(context);
+		Helper.assertTrue((Boolean) ret[0]);
+		return ret[1];
 	}
 }

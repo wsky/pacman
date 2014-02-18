@@ -10,7 +10,12 @@ public class Literal extends CodeActivityWithResult {
 	}
 
 	@Override
+	protected Object[] tryGetValue(ActivityContext context) {
+		return new Object[] { true, this.constValue };
+	}
+
+	@Override
 	protected Object execute(CodeActivityContext context) {
-		return this.constValue;
+		return this.executeWithTryGetValue(context);
 	}
 }

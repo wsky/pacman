@@ -32,8 +32,8 @@ public class ScheduleTest {
 			this.result2 = new OutArgument();
 			this.var = new Variable();
 			WriteLine writeLine = new WriteLine();
-			// writeLine.Text = new InArgument(this.var);
-			writeLine.Text = new InArgument();
+			writeLine.Text = new InArgument(this.var);
+			// writeLine.Text = new InArgument();
 			this.body = writeLine;
 		}
 
@@ -42,6 +42,7 @@ public class ScheduleTest {
 			this.var.set(context, this.name.get(context));
 			this.result1.set(context, "1");
 			this.result2.set(context, "2");
+			// context.abort(new Exception("error"));
 			context.scheduleActivity(this.body);
 			// FIXME test callback
 			// context.scheduleActivity(this.body, new CompletionCallback() {
