@@ -14,13 +14,14 @@ public abstract class WorkItem {
 
 	protected WorkItem(ActivityInstance activityInstance) {
 		this.activityInstance = activityInstance;
+		this.activityInstance.incrementBusyCount();
 	}
 
 	public void reinitialize(ActivityInstance activityInstance) {
 		this.activityInstance = activityInstance;
 		this.activityInstance.incrementBusyCount();
 	}
-	
+
 	public ActivityInstance getActivityInstance() {
 		return this.activityInstance;
 	}

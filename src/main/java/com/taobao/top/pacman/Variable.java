@@ -9,6 +9,7 @@ public class Variable extends LocationReference {
 	private boolean isPublic;
 	private Activity owner;
 
+	// TODO support unnamed variable
 	public Variable() {
 	}
 

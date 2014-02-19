@@ -43,10 +43,12 @@ public class WorkflowInstance {
 	}
 
 	protected void notifyPaused() {
+		System.out.println("paused");
 		// TODO raise some eventhanles or trace
 	}
 
 	protected void notifyUnhandledException(Exception exception, Activity activity, int id) {
+		System.err.println("unhandleException");
 		// TODO raise some eventhanles or trace
 	}
 

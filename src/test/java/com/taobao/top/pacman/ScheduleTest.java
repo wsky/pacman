@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
+import com.taobao.top.pacman.statements.Sequence;
 import com.taobao.top.pacman.statements.WriteLine;
 
 public class ScheduleTest {
@@ -35,10 +36,16 @@ public class ScheduleTest {
 
 		public Workflow() {
 			this.name = new InArgument();
+
 			this.result1 = new OutArgument();
 			this.result2 = new OutArgument();
-			// TODO support unnamed variable
-			this.var = new Variable("var");
+
+			this.var = new Variable("var", new Function<ActivityContext, Object>() {
+				@Override
+				public Object execute(ActivityContext context) {
+					return "var:" + name.get(context);
+				}
+			});
 			this.inner = new Variable("inner");
 
 			WriteLine writeLine1 = new WriteLine();
@@ -48,15 +55,21 @@ public class ScheduleTest {
 			WriteLine writeLine2 = new WriteLine();
 			writeLine2.Text = new InArgument(this.var);
 			this.body = writeLine2;
+
+			// Sequence sequence=new Sequence();
+			// sequence.getActivities().add(writeLine2);
+			//
+			// this.body = sequence;
 		}
 
 		@Override
 		protected void execute(NativeActivityContext context) {
-			this.var.set(context, this.name.get(context));
+			this.inner.set(context, "inner:" + this.name.get(context));
+
 			this.result1.set(context, "1");
 			this.result2.set(context, "2");
 
-			// context.scheduleActivity(this.nest);
+			context.scheduleActivity(this.nest);
 			context.scheduleActivity(this.body);
 
 			// FIXME test callback

@@ -225,7 +225,7 @@ public class ActivityInstance {
 
 		for (int i = startIndex; i < argumentCount; i++) {
 			RuntimeArgument argument = runtimeArguments.get(i);
-			
+
 			Object value = null;
 			if (argumentValues != null)
 				value = argumentValues.get(argument.getName());
@@ -270,8 +270,6 @@ public class ActivityInstance {
 
 		for (int i = 0; i < implementationVariables.size(); i++) {
 			Variable variable = implementationVariables.get(i);
-
-			System.out.println("resolve variable:" + variable.getName());
 
 			if (!variable.tryPopulateLocation(executor, context)) {
 				Helper.assertNotNull(variable.getDefault());
@@ -354,18 +352,23 @@ public class ActivityInstance {
 			// }
 		}
 
-		System.out.println(String.format("update state: %s, %s, %s", activityCompleted, this.getState(), this.subState));
+		System.out.println(String.format("update: instance#%s|%s, completed=%s, stete=%s, substate=%s",
+				this.getId(),
+				this.getActivity().getClass().getSimpleName(),
+				activityCompleted, this.getState(), this.subState));
 
 		return activityCompleted;
 	}
 
 	public void incrementBusyCount() {
 		this.busyCount++;
+		System.out.println("increment, " + this.id + ",busy=" + this.busyCount);
 	}
 
 	public void decrementBusyCount() {
 		Helper.assertTrue(this.busyCount > 0);
 		this.busyCount--;
+		System.out.println("decrement, " + this.id + ",busy=" + this.busyCount);
 	}
 
 	private void tryCancelParent() {

@@ -1,17 +1,17 @@
 package com.taobao.top.pacman;
 
-public class VariableValue extends CodeActivityWithResult {
-	private Variable variable;
+public class ArgumentValue extends CodeActivityWithResult {
+	private Argument argument;
 
-	public VariableValue(Variable variable) {
-		this.variable = variable;
+	public ArgumentValue(Argument argument) {
+		this.argument = argument;
 	}
 
 	@Override
 	protected Object[] tryGetValue(ActivityContext context) {
 		try {
 			context.setAllowChainedEnvironmentAccess(true);
-			return new Object[] { true, context.getValue(this.variable) };
+			return new Object[] { true, context.getValue(this.argument.getRuntimeArgument()) };
 		} finally {
 			context.setAllowChainedEnvironmentAccess(false);
 		}
@@ -24,7 +24,6 @@ public class VariableValue extends CodeActivityWithResult {
 
 	@Override
 	protected void cacheMetadata(ActivityMetadata metadata) {
-		Helper.assertTrue(this.variable.isInTree());
-		Helper.assertTrue(metadata.getEnvironment().isVisible(this.variable));
+		// TODO check argument exist
 	}
 }

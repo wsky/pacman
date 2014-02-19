@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 
 @SuppressWarnings("unchecked")
-public class Quack<T> {
+public abstract class Quack<T> {
 	private Class<T> type;
 
 	T[] items;

@@ -7,6 +7,7 @@ public class CompletionBookmark {
 	private CompletionCallbackWrapper callbackWrapper;
 
 	public CompletionBookmark(CompletionCallbackWrapper callbackWrapper) {
+		this.callbackWrapper = callbackWrapper;
 	}
 
 	public CompletionBookmark() {

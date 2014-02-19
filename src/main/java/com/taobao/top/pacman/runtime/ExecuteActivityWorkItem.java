@@ -18,7 +18,6 @@ public class ExecuteActivityWorkItem extends ActivityExecutionWorkItem {
 	protected ExecuteActivityWorkItem(ActivityInstance activityInstance,
 			boolean requiresSymbolResolution,
 			Map<String, Object> argumentValues) {
-		super(activityInstance);
 		this.initialize(activityInstance, requiresSymbolResolution, argumentValues);
 	}
 

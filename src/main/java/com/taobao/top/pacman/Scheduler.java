@@ -49,7 +49,8 @@ public class Scheduler {
 			this.firstWorkItem = workItem;
 		else {
 			if (this.workItemQueue == null)
-				this.workItemQueue = new Quack<WorkItem>();
+				this.workItemQueue = new Quack<WorkItem>() {
+				};
 			this.workItemQueue.pushFront(this.firstWorkItem);
 			this.firstWorkItem = workItem;
 		}
@@ -60,7 +61,8 @@ public class Scheduler {
 			this.firstWorkItem = workItem;
 		else {
 			if (this.workItemQueue == null)
-				this.workItemQueue = new Quack<WorkItem>();
+				this.workItemQueue = new Quack<WorkItem>() {
+				};
 			this.workItemQueue.enqueue(workItem);
 		}
 	}
@@ -68,7 +70,7 @@ public class Scheduler {
 	private RequestedAction executeWorkItem(WorkItem workItem) throws Exception {
 		RequestedAction action = this.executor.onExecuteWorkItem(workItem);
 		System.out.println("nextAction: " + action.getClass().getSimpleName());
-		
+
 		// NOTE if yields, item still active and the callback should to dispose it
 		if (action == YIELD_SILENTLY_ACTION)
 			return action;
@@ -111,7 +113,7 @@ public class Scheduler {
 
 			nextAction = scheduler.executeWorkItem(currentWorkItem);
 
-			System.out.println("nextAction: " + nextAction.getClass().getSimpleName());
+			System.out.println("nextAction real: " + nextAction.getClass().getSimpleName());
 		}
 
 		// we must process events or dispose workflow resources until idle or paused

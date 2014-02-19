@@ -64,7 +64,10 @@ public class ActivityExecutor {
 	}
 
 	protected RequestedAction onExecuteWorkItem(WorkItem workItem) throws Exception {
-		System.out.println("execute: " + workItem);
+		System.out.println(String.format("execute: %s, instance#%s, %s",
+				workItem.getClass().getSimpleName(),
+				workItem.getActivityInstance().getId(),
+				workItem.getActivityInstance().getActivity().getClass().getSimpleName()));
 		workItem.release();
 
 		if (!workItem.isValid())
@@ -335,6 +338,12 @@ public class ActivityExecutor {
 			@Override
 			protected ResolveNextArgumentWorkItem createNew() {
 				return new ResolveNextArgumentWorkItem();
+			}
+		};
+		this.CompletionWorkItemPool = new Pool<CompletionWorkItem>() {
+			@Override
+			protected CompletionWorkItem createNew() {
+				return new CompletionWorkItem();
 			}
 		};
 	}
