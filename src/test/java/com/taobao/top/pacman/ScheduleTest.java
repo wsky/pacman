@@ -11,7 +11,14 @@ import com.taobao.top.pacman.statements.WriteLine;
 
 public class ScheduleTest {
 	@Test
-	public void schedule() throws Exception {
+	public void single_test() throws Exception {
+		WorkflowInstance.invoke(new Activity() {
+
+		}, null);
+	}
+
+	@Test
+	public void workflow_test() throws Exception {
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("name", "--------------- print test_name");
 		Activity workflow = new Workflow();

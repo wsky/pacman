@@ -1,7 +1,8 @@
 package com.taobao.top.pacman;
 
 public class LocationEnvironment {
-	private Location singleLocation;
+	// TODO improve mem usage if only one symbol
+	// private Location singleLocation;
 	private Location[] locations;
 	private LocationEnvironment parent;
 	private Activity activity;
