@@ -71,6 +71,7 @@ public class ActivityLocationReferenceEnvironment extends LocationReferenceEnvir
 
 	public void declare(LocationReference locationReference, Activity owner) {
 		// TODO check duplicate name
+		// System.out.println("declare: " + locationReference.getName() + ", " + locationReference.getClass().getSimpleName() + ", " + owner.getClass().getSimpleName());
 		this.getDeclarations().put(locationReference.getName(), locationReference);
 	}
 

@@ -7,12 +7,13 @@ import com.taobao.top.pacman.*;
 
 public class Sequence extends NativeActivity {
 	private List<Activity> activities;
+	private List<Variable> variables;
 	private Variable lastIndexHint;
 	private CompletionCallback onChildComplete;
 
 	public Sequence() {
 		super();
-		this.lastIndexHint = new Variable();
+		this.lastIndexHint = new Variable("_lastIndexHint");
 
 	}
 
@@ -22,10 +23,18 @@ public class Sequence extends NativeActivity {
 		return this.activities;
 	}
 
+	public List<Variable> getVariables() {
+		if (this.variables == null)
+			this.variables = new ArrayList<Variable>();
+		return this.variables;
+	}
+
 	@Override
 	protected void cacheMetadata(ActivityMetadata metadata) {
 		for (Activity activity : this.getActivities())
 			metadata.addChild(activity);
+		for (Variable variable : this.getVariables())
+			metadata.addRuntimeVariable(variable);
 		metadata.addImplementationVariable(this.lastIndexHint);
 	}
 

@@ -49,6 +49,7 @@ public class Variable extends LocationReference {
 	}
 
 	public void initializeRelationship(Activity parent, boolean isPublic) {
+		// TODO check variable already in use
 		this.owner = parent;
 		this.isPublic = isPublic;
 		if (this._default != null)
@@ -67,7 +68,7 @@ public class Variable extends LocationReference {
 		boolean sync = true;
 		Location variableLocation = new Location();
 		context.getEnvironment().declare(this, variableLocation, context.getCurrentInstance());
-		
+
 		if (this.getDefault() == null)
 			return sync;
 

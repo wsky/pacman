@@ -158,13 +158,12 @@ public abstract class Activity {
 				parentEnvironment = this.getRoot().getRootProperties().HostEnvironment;
 			break;
 		case Child:
-			// isolate
+			// not break, same as VariableDefault
+		case VariableDefault:
+			parentEnvironment = this.getParent().getPublicEnvironment();
 			break;
 		case ImplementationChild:
 			parentEnvironment = this.getParent().getImplementationEnvironment();
-			break;
-		case VariableDefault:
-			parentEnvironment = this.getParent().getPublicEnvironment();
 			break;
 		default:
 			break;

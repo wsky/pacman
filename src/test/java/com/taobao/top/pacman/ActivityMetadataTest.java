@@ -29,6 +29,7 @@ public class ActivityMetadataTest {
 		inner = new Variable("inner", false);
 
 		childChild = new WriteLine();
+		((WriteLine) childChild).Text = new InArgument(var);
 		childChild.setDisplayName("writeLine");
 
 		If _if = new If();
@@ -37,7 +38,6 @@ public class ActivityMetadataTest {
 		child = _if;
 
 		nest = new Activity() {
-			// private InArgument nestIn = new InArgument();
 			private InArgument nestIn = new InArgument(inner);
 
 			@Override
@@ -143,12 +143,10 @@ public class ActivityMetadataTest {
 
 		assertNotSame(parent.getPublicEnvironment(), current.getPublicEnvironment());
 		switch (type) {
-		case Child:
-			assertEquals(null, current.getParentEnvironment());
-			break;
 		case ArgumentExpression:
 			assertEquals(parent.getPublicEnvironment().getParent(), current.getParentEnvironment());
 			break;
+		case Child:
 		case VariableDefault:
 			assertEquals(parent.getPublicEnvironment(), current.getParentEnvironment());
 			break;

@@ -50,7 +50,6 @@ public class ActivityInstance {
 		int symbolCount = this.getActivity().getSymbolCount();
 
 		if (symbolCount > 0) {
-			System.err.println("parentEnv: " + this.activity.getClass().getSimpleName() + parentEnvironment);
 			this.environment = new LocationEnvironment(this.getActivity(), parentEnvironment, symbolCount);
 			this.subState = SubState.ResolvingArguments;
 			return true;
@@ -214,8 +213,6 @@ public class ActivityInstance {
 			Map<String, Object> argumentValues,
 			Location resultLocation,
 			int startIndex) {
-		System.out.println("overrideValues: " + argumentValues);
-
 		boolean sync = true;
 
 		List<RuntimeArgument> runtimeArguments = this.getActivity().getRuntimeArguments();
@@ -228,23 +225,19 @@ public class ActivityInstance {
 
 		for (int i = startIndex; i < argumentCount; i++) {
 			RuntimeArgument argument = runtimeArguments.get(i);
-
-			System.out.println("resolve argument:" + argument.getName());
-
+			
 			Object value = null;
-
 			if (argumentValues != null)
 				value = argumentValues.get(argument.getName());
 
-			// some types of argument not need schedule, just reference to another argument value
-			// argumentReference
+			// try fast-path
 			if (!argument.tryPopuateValue(this.getEnvironment(), this, resolutionContext, value, resultLocation)) {
 				sync = false;
 				int next = i + 1;
 				// if have one more argument, should resume argument resolution after current expression scheduled
 				if (next < runtimeArguments.size()) {
 					ResolveNextArgumentWorkItem workItem = executor.ResolveNextArgumentWorkItemPool.acquire();
-					// looks confused that still pass resultLocation,
+					// NOTE looks confused that still pass resultLocation,
 					// but only used when resultArgument and the activtiy must be activityWithResult
 					workItem.initialize(this, next, argumentValues, resultLocation);
 					executor.scheduleItem(workItem);
@@ -294,9 +287,7 @@ public class ActivityInstance {
 		for (int i = 0; i < runtimevaVariables.size(); i++) {
 			Variable variable = runtimevaVariables.get(i);
 
-			System.out.println("resolve variable:" + variable.getName());
-
-			// some types of varibale not need schedule, just reference to another varibale value
+			// try fast-path
 			if (!variable.tryPopulateLocation(executor, context)) {
 				Helper.assertNotNull(variable.getDefault());
 				executor.scheduleExpression(

@@ -65,6 +65,7 @@ public class RuntimeArgument extends LocationReference {
 
 		if (resultLocation != null && this.getOwner().isResultArgument(this)) {
 			// NOTE here only works for resultArgument
+			// FIXME resultLocation should be referenceLocation, not direct
 			environment.declare(this, resultLocation, activityInstance);
 			return true;
 		}
