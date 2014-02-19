@@ -14,7 +14,6 @@ public class Sequence extends NativeActivity {
 	public Sequence() {
 		super();
 		this.lastIndexHint = new Variable("_lastIndexHint", 0);
-
 	}
 
 	public List<Activity> getActivities() {

@@ -23,7 +23,9 @@ public class WorkflowInstance {
 		// TODO check isRuntimeReady
 		ActivityUtilities.cacheRootMetadata(
 				this.workflowDefinition,
-				new ActivityLocationReferenceEnvironment(null), null);
+				new ActivityLocationReferenceEnvironment(null),
+				// FIXME support handle
+				new RenderProcessActivityCallback());
 
 	}
 

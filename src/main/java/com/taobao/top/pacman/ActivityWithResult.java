@@ -31,14 +31,16 @@ public abstract class ActivityWithResult extends Activity {
 	}
 
 	@Override
-	protected final void internalCacheMetadata() {
+	protected final void onInternalCacheMetadata() {
 		this.internalCacheMetadataExceptResult();
 
 		List<RuntimeArgument> runtimeArguments = this.getRuntimeArguments();
-		for (RuntimeArgument runtimeArgument : runtimeArguments) {
-			if (runtimeArgument.getName().equals("Result")) {
-				this.resultRuntimeArgument = runtimeArgument;
-				return;
+		if (runtimeArguments != null) {
+			for (RuntimeArgument runtimeArgument : runtimeArguments) {
+				if (runtimeArgument.getName().equals("Result")) {
+					this.resultRuntimeArgument = runtimeArgument;
+					return;
+				}
 			}
 		}
 
@@ -47,10 +49,11 @@ public abstract class ActivityWithResult extends Activity {
 		this.resultRuntimeArgument = new RuntimeArgument("Result", this.getType(), ArgumentDirection.Out);
 		ActivityMetadata.bindArgument(this.result, this.resultRuntimeArgument);
 		this.addRuntimeArgument(this.resultRuntimeArgument);
+
 	}
 
 	protected void internalCacheMetadataExceptResult() {
-		super.internalCacheMetadata();
+		super.onInternalCacheMetadata();
 	}
 
 	// fast-path for expressions that can be resolved synchronously

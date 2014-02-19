@@ -54,12 +54,12 @@ public class ScheduleTest {
 
 			WriteLine writeLine2 = new WriteLine();
 			writeLine2.Text = new InArgument(this.var);
-			this.body = writeLine2;
+			// this.body = writeLine2;
 
-			// Sequence sequence=new Sequence();
-			// sequence.getActivities().add(writeLine2);
-			//
-			// this.body = sequence;
+			Sequence sequence = new Sequence();
+			sequence.getActivities().add(writeLine2);
+
+			this.body = sequence;
 		}
 
 		@Override
