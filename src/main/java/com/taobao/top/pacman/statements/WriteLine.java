@@ -20,6 +20,6 @@ public class WriteLine extends NativeActivity {
 	@Override
 	protected void execute(NativeActivityContext context) {
 		if (this.Text != null)
-			System.out.println("println: " + this.Text.get(context));
+			System.err.println("println: " + this.Text.get(context));
 	}
 }

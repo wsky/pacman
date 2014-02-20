@@ -15,8 +15,10 @@ public class RenderProcessActivityCallback implements ProcessActivityCallback {
 			blank = "    " + blank;
 
 		String id = getId(activity);
-		// activity.getMemberOf().getOwner() == null ?
-		// activity.getId() + "" : getId(activity);
+		id = activity.getMemberOf().getOwner() == null ?
+				getId(activity) :
+				// private memeber
+				activity.getMemberOf().getOwner().getId() + "." + activity.getId() + "";
 
 		System.out.println(String.format("%s%s %s, displayName=%s",
 				depth >= 1 ? blank + "- " : blank,

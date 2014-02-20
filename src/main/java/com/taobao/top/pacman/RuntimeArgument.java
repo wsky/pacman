@@ -89,7 +89,7 @@ public class RuntimeArgument extends LocationReference {
 			Helper.assertTrue((Boolean) ret[0]);
 		} else {
 			Helper.assertTrue(this.getOwner() == context.getActivity() ||
-					// maybe chained access parent
+					// check activity visiable, as argument's immutability
 					this.getOwner() == context.getActivity().getMemberOf().getOwner());
 
 			Object[] ret = context.getEnvironment().tryGetLocation(this.getId(), this.getOwner());

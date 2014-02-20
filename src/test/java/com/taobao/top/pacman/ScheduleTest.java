@@ -13,7 +13,6 @@ public class ScheduleTest {
 	@Test
 	public void single_test() throws Exception {
 		WorkflowInstance.invoke(new Activity() {
-
 		}, null);
 	}
 
@@ -28,7 +27,7 @@ public class ScheduleTest {
 	}
 
 	// TODO test activityWithResult not fast-path
-	// TODO test schedule with callback
+	// TODO test scheudleActivityWithResult
 	// TODO test abort and error
 	// TODO test cancel
 
@@ -55,38 +54,47 @@ public class ScheduleTest {
 			});
 			this.inner = new Variable("inner");
 
+			// nest
 			WriteLine writeLine1 = new WriteLine();
 			writeLine1.Text = new InArgument(this.inner);
-			this.nest = writeLine1;
-
 			WriteLine writeLine2 = new WriteLine();
-			writeLine2.Text = new InArgument(this.var);
-			// this.body = writeLine2;
-
+			writeLine2.Text = new InArgument(new ArgumentValue(this.name));
 			Sequence sequence = new Sequence();
+			sequence.getActivities().add(writeLine1);
 			sequence.getActivities().add(writeLine2);
+			this.nest = sequence;
+
+			// TODO functionValue should be compiled to inlined function and chained access
+			// writeLine2.Text = new InArgument(new Function<ActivityContext, Object>() {
+			// @Override
+			// public Object execute(ActivityContext context) {
+			// return name.get(context);
+			// }
+			// });
+
+			// body
+			WriteLine writeLine3 = new WriteLine();
+			writeLine3.Text = new InArgument(this.var);
+			WriteLine writeLine4 = new WriteLine();
+			writeLine4.Text = new InArgument("constValue");
+			sequence = new Sequence();
+			sequence.getActivities().add(writeLine3);
+			sequence.getActivities().add(writeLine4);
 
 			this.body = sequence;
 		}
 
 		@Override
 		protected void execute(NativeActivityContext context) {
-			this.inner.set(context, "inner:" + this.name.get(context));
-
-			this.result1.set(context, "1");
-			this.result2.set(context, "2");
-
 			context.scheduleActivity(this.nest);
-			context.scheduleActivity(this.body);
-
-			// FIXME test callback
-			// context.scheduleActivity(this.body, new CompletionCallback() {
-			// @Override
-			// public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
-			// result1.set(context, "1");
-			// result2.set(context, "2");
-			// }
-			// });
+			context.scheduleActivity(this.body, new CompletionCallback() {
+				@Override
+				public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+					inner.set(context, "inner:" + name.get(context));
+					result1.set(context, "1");
+					result2.set(context, "2");
+				}
+			});
 		}
 
 		@Override

@@ -63,7 +63,9 @@ public class ActivityUtilities {
 
 	private static void processChildren(Activity parent, List<Activity> children, RelationshipType relationshipType, Stack<Activity> stack) {
 		for (Activity activity : children) {
-			activity.initializeRelationship(parent, relationshipType, true);
+			activity.initializeRelationship(parent, 
+					relationshipType, 
+					relationshipType != RelationshipType.ImplementationChild);
 			stack.push(activity);
 		}
 	}

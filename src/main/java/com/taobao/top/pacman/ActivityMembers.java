@@ -11,7 +11,6 @@ public class ActivityMembers {
 	private int parentId;
 
 	public ActivityMembers() {
-
 	}
 
 	public ActivityMembers(ActivityMembers parent, int parentId) {
