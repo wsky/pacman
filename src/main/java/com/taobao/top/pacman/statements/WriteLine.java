@@ -10,6 +10,13 @@ import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 public class WriteLine extends NativeActivity {
 	public InArgument Text;
 
+	public WriteLine() {
+	}
+
+	public WriteLine(Object text) {
+		this.Text = new InArgument(text);
+	}
+
 	@Override
 	protected void cacheMetadata(ActivityMetadata metadata) {
 		if (this.Text == null)

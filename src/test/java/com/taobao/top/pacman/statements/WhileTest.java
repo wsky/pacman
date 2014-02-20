@@ -3,13 +3,15 @@ package com.taobao.top.pacman.statements;
 import java.util.Map;
 
 import com.taobao.top.pacman.Activity;
+import com.taobao.top.pacman.InArgument;
 
-public class SequenceTest extends StatementTestBase {
+public class WhileTest extends StatementTestBase {
+	@Override
 	protected Activity createActivity() {
-		Sequence sequence = new Sequence();
-		sequence.getActivities().add(new WriteLine());
-		sequence.getActivities().add(new WriteLine());
-		return sequence;
+		While while1=new While();
+		while1.Body=new WriteLine("");
+		while1.Condition=new InArgument();
+		return null;
 	}
 
 	@Override
