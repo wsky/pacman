@@ -31,8 +31,9 @@ public class InArgument extends Argument {
 			ActivityInstance activityInstance,
 			ActivityContext resolutionContext) {
 		Location location = new Location();
+		// declare first, differecnt from outArgument, no temp location
 		environment.declare(this.getRuntimeArgument(), location, activityInstance);
-		
+
 		Object[] ret = this.getExpression().tryGetValue(resolutionContext);
 		if ((Boolean) ret[0]) {
 			location.setValue(ret[1]);

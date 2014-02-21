@@ -26,7 +26,8 @@ public class OutArgument extends Argument {
 					activityInstance);
 			return true;
 		} else {
-			// FIXME temp location
+			// FIXME if outargument can not resolve in fast-path,
+			// should declare temp location for later result and collapse in final
 			// environment.declareTemporaryLocation<Location<T>>(this.RuntimeArgument, targetActivityInstance, true);
 			return false;
 		}
