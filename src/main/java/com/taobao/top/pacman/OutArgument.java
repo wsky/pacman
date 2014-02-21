@@ -1,7 +1,6 @@
 package com.taobao.top.pacman;
 
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
-import com.taobao.top.pacman.expressions.VariableReference;
 
 public class OutArgument extends Argument {
 	public OutArgument() {
@@ -21,6 +20,7 @@ public class OutArgument extends Argument {
 			environment.declare(
 					this.getRuntimeArgument(),
 					// FIXME create referenceLocation for outArgument
+					// if not, the location maybe disposed after instance closed
 					// ((Location)ret[1]).CreateReference(true),
 					(Location) ret[1],
 					activityInstance);
