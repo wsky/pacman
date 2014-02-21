@@ -47,7 +47,7 @@ public class WhileTest extends StatementTestBase {
 				metadata.bindAndAddArgument(this.count, new RuntimeArgument("count", Boolean.class, ArgumentDirection.Out));
 			}
 		};
-
+		
 		return while1;
 	}
 

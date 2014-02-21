@@ -20,7 +20,7 @@ public abstract class StatementTestBase {
 
 	@Test
 	public void invoke_test() throws Exception {
-		WorkflowInstance.invoke(this.createActivity(), this.createInputs());
+		System.out.println(WorkflowInstance.invoke(this.createActivity(), this.createInputs()));
 	}
 
 	protected abstract Activity createActivity();
