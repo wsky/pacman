@@ -5,7 +5,6 @@ import com.taobao.top.pacman.InArgument;
 import com.taobao.top.pacman.NativeActivity;
 import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.OutArgument;
-import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.statements.If;
 import com.taobao.top.pacman.statements.While;
 import com.taobao.top.pacman.statements.WriteLine;
@@ -22,7 +21,7 @@ public class FindMyPhone extends NativeActivity {
 		_if.Then = new WriteLine();
 
 		While _while = new While();
-		_while.Condition = new InArgument(new Variable("isOnline", true));
+		// _while.Condition =
 		_while.Body = new WriteLine();
 		_if.Else = _while;
 	}

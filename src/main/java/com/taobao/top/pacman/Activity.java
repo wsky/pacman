@@ -102,6 +102,10 @@ public abstract class Activity {
 		return this.runtimeVariables;
 	}
 
+	protected void setRuntimeVariables(List<Variable> variables) {
+		this.runtimeVariables = variables;
+	}
+
 	protected void addRuntimeVariable(Variable variable) {
 		if (this.runtimeVariables == null)
 			this.runtimeVariables = new ArrayList<Variable>();
@@ -256,7 +260,7 @@ public abstract class Activity {
 			executor.NativeActivityContextPool.release(context);
 		}
 	}
-	
+
 	protected void onInternalCacheMetadata() {
 		this.cacheMetadata(new ActivityMetadata(this, this.getParentEnvironment()));
 	}

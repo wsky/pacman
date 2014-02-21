@@ -31,6 +31,11 @@ public class ActivityMetadata {
 			this.activity.addRuntimeVariable(variable);
 	}
 
+	public void setRuntimeVariables(List<Variable> variables) {
+		if (variables != null)
+			this.activity.setRuntimeVariables(variables);
+	}
+
 	public void addImplementationVariable(Variable variable) {
 		if (variable != null)
 			this.activity.addImplementationVariable(variable);

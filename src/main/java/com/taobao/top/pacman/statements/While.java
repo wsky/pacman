@@ -1,40 +1,76 @@
 package com.taobao.top.pacman.statements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.taobao.top.pacman.*;
-import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
+import com.taobao.top.pacman.expressions.FunctionValue;
 
 public class While extends NativeActivity {
+	private List<Variable> variables;
 	private CompletionCallback onBodyComplete;
+	private CompletionWithResultCallback<Boolean> onConditionComplete;
 
-	// FIXME while.Condition should use activty<T>, not static argument
-	public InArgument Condition;
+	public ActivityWithResult Condition;
 	public Activity Body;
 
 	public While() {
 		super();
-		this.onBodyComplete = new CompletionCallback() {
-			@Override
-			public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
-				onBodyComplete(context, completedInstance);
-			}
-		};
+	}
+
+	// FIXME should be Function<ActivityContext, Boolean>
+	// see https://github.com/wsky/pacman/issues/6
+	public While(Function<ActivityContext, Object> condition) {
+		this();
+		this.Condition = new FunctionValue(condition);
+	}
+
+	public List<Variable> getVariables() {
+		if (this.variables == null)
+			this.variables = new ArrayList<Variable>();
+		return this.variables;
 	}
 
 	@Override
 	protected void cacheMetadata(ActivityMetadata metadata) {
-		metadata.bindAndAddArgument(this.Condition,
-				new RuntimeArgument("Condition", Boolean.class, ArgumentDirection.In));
+		metadata.setRuntimeVariables(this.getVariables());
 		metadata.addChild(this.Body);
+		metadata.addChild(this.Condition);
 	}
 
 	@Override
 	protected void execute(NativeActivityContext context) {
-		this.onBodyComplete(context, null);
+		this.scheduleCondition(context);
 	}
 
-	private void onBodyComplete(NativeActivityContext context, ActivityInstance completedInstance) {
-		if (this.Body != null && (Boolean) this.Condition.get(context))
-			context.scheduleActivity(this.Body, this.onBodyComplete);
+	private void scheduleCondition(NativeActivityContext context) {
+		if (this.onConditionComplete == null) {
+			this.onConditionComplete = new CompletionWithResultCallback<Boolean>() {
+				@Override
+				public void execute(NativeActivityContext context, ActivityInstance completedInstance, Boolean result) {
+					onConditionComplete(context, completedInstance, result);
+				}
+			};
+		}
+		context.scheduleActivityWithResult(this.Condition, this.onConditionComplete);
+	}
+
+	private void onConditionComplete(NativeActivityContext context, ActivityInstance completedInstance, Boolean result) {
+		if (!result)
+			return;
+		if (Body == null) {
+			scheduleCondition(context);
+			return;
+		}
+		if (onBodyComplete == null) {
+			onBodyComplete = new CompletionCallback() {
+				@Override
+				public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+					scheduleCondition(context);
+				}
+			};
+		}
+		context.scheduleActivity(Body, onBodyComplete);
 	}
 
 }
