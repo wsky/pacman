@@ -320,6 +320,7 @@ public class ActivityInstance {
 				boolean scheduleBody = false;
 				if (this.subState == SubState.ResolvingArguments) {
 					// NOTE 4.2.1 finish async resolution of arguments now and continue variables resolution
+					// outArgument in async resolution will render to target location here
 					this.getEnvironment().collapseTemporaryResolutionLocations();
 					this.subState = SubState.ResolvingVariables;
 					scheduleBody = this.resolveVariables(executor);
