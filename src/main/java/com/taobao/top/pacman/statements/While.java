@@ -6,6 +6,7 @@ import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 public class While extends NativeActivity {
 	private CompletionCallback onBodyComplete;
 
+	// FIXME while.Condition should use activty<T>, not static argument
 	public InArgument Condition;
 	public Activity Body;
 
