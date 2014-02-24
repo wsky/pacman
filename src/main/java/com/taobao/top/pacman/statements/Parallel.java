@@ -15,11 +15,6 @@ public class Parallel extends NativeActivity {
 
 	public ActivityWithResult CompletionCondition;
 
-	public Parallel() {
-		super();
-		this.hasCompleted = new Variable();
-	}
-
 	public List<Activity> getBranches() {
 		if (this.branches == null)
 			this.branches = new ArrayList<Activity>();
@@ -36,11 +31,16 @@ public class Parallel extends NativeActivity {
 	protected void cacheMetadata(ActivityMetadata metadata) {
 		for (Activity branch : this.getBranches())
 			metadata.addChild(branch);
-		if (this.CompletionCondition != null)
+
+		metadata.setRuntimeVariables(this.getVariables());
+
+		if (this.CompletionCondition != null) {
 			metadata.addChild(this.CompletionCondition);
-		for (Variable variable : this.getVariables())
-			metadata.addRuntimeVariable(variable);
-		metadata.addImplementationVariable(this.hasCompleted);
+
+			if (this.hasCompleted == null)
+				this.hasCompleted = new Variable("_hasCompleted", false);
+			metadata.addImplementationVariable(this.hasCompleted);
+		}
 	}
 
 	@Override
@@ -73,6 +73,8 @@ public class Parallel extends NativeActivity {
 			return;
 
 		if (completedInstance.getState() != ActivityInstanceState.Closed && context.isCancellationRequested()) {
+			// maybe fault and catched
+			System.err.println("child in non-closed state! cancel ourselves");
 			context.markCanceled();
 			this.hasCompleted.set(context, true);
 			return;

@@ -64,10 +64,13 @@ public class ActivityExecutor {
 	}
 
 	protected RequestedAction onExecuteWorkItem(WorkItem workItem) throws Exception {
-		System.out.println(String.format("execute: %s, instance#%s, %s",
+		System.out.println(String.format("execute: %s, isValid=%s, isEmpty=%s, instance#%s, %s#%s",
 				workItem.getClass().getSimpleName(),
+				workItem.isValid(),
+				workItem.isEmpty(),
 				workItem.getActivityInstance().getId(),
-				workItem.getActivityInstance().getActivity().getClass().getSimpleName()));
+				workItem.getActivityInstance().getActivity().getClass().getSimpleName(),
+				workItem.getActivityInstance().getActivity().getDisplayName()));
 		workItem.release();
 
 		if (!workItem.isValid())
@@ -130,6 +133,7 @@ public class ActivityExecutor {
 		// ...
 
 		instance.markAsComplete();
+		instance.finalize(exception != null);
 
 		return exception;
 	}
@@ -250,9 +254,23 @@ public class ActivityExecutor {
 		}
 	}
 
-	private boolean propagateException(WorkItem workItem) {
-		// TODO impl propagete exception for try/cathch statement
-		return false;
+	private void propagateException(WorkItem workItem) {
+		// FIXME impl propagete exception for faultCallback and try/cathch statement
+		// System.out.println("propagate exception to " + workItem.getActivityInstance().getId());
+		// this.scheduler.pushWork(new FaultCallbackWrapper(
+		// new FaultCallback() {
+		// @Override
+		// public void execute(NativeActivityFaultContext faultContext, Exception propagatedException, ActivityInstance propagatedFrom) {
+		// // faultContext.handleFault();
+		// //faultContext.cancelChild(propagatedFrom);
+		// System.out.println("fault callback");
+		// }
+		// },
+		// workItem.getActivityInstance()).createWorkItem(
+		// workItem.getExceptionToPropagate(),
+		// workItem.getActivityInstance(),
+		// workItem.getActivityInstance()));
+		workItem.exceptionPropagated();
 	}
 
 	// NOTE 4.3.1 gather root activity outputs

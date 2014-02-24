@@ -5,17 +5,17 @@ import com.taobao.top.pacman.*;
 public class FaultWorkItem extends ActivityExecutionWorkItem {
 	private FaultCallbackWrapper callbackWrapper;
 	private Exception propagatedException;
-	private ActivityInstance propagateFrom;
+	private ActivityInstance propagatedFrom;
 	private ActivityInstance originalExceptionSource;
 
 	public FaultWorkItem(FaultCallbackWrapper callbackWrapper,
 			Exception propagatedException,
-			ActivityInstance propagateFrom,
+			ActivityInstance propagatedFrom,
 			ActivityInstance originalExceptionSource) {
 		super(callbackWrapper.getActivityInstance());
 		this.callbackWrapper = callbackWrapper;
 		this.propagatedException = propagatedException;
-		this.propagateFrom = propagateFrom;
+		this.propagatedFrom = propagatedFrom;
 		this.originalExceptionSource = originalExceptionSource;
 	}
 
@@ -34,7 +34,7 @@ public class FaultWorkItem extends ActivityExecutionWorkItem {
 					bookmarkManager,
 					this.propagatedException,
 					this.originalExceptionSource);
-			this.callbackWrapper.invoke(faultContext, this.propagatedException, this.propagateFrom);
+			this.callbackWrapper.invoke(faultContext, this.propagatedException, this.propagatedFrom);
 
 			// NOTE if fault not handled, propagate but skip abort current activityInstance
 			if (!faultContext.isFaultHandled())

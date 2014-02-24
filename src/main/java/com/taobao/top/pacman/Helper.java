@@ -50,6 +50,6 @@ public class Helper {
 
 	public static boolean isFatal(Exception e) {
 		// FIXME default false and fix execetion propagate
-		return true;
+		return false;
 	}
 }

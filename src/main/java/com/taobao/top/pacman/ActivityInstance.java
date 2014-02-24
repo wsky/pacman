@@ -161,6 +161,8 @@ public class ActivityInstance {
 			BookmarkManager bookmarkManager,
 			Exception reason,
 			boolean isTerminate) {
+		// FIXME instance.abort, mark tree instance faulted
+		// finalize()
 	}
 
 	public boolean isPerformingDefaultCancelation() {

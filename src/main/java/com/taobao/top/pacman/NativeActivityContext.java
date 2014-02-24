@@ -53,7 +53,8 @@ public class NativeActivityContext extends ActivityContext {
 		this.currentInstance.markCanceled();
 	}
 
-	public void cancel() {
+	// only called from internalCancel
+	protected void cancel() {
 		this.currentInstance.baseCancel(this);
 	}
 
@@ -68,7 +69,7 @@ public class NativeActivityContext extends ActivityContext {
 		if (activityInstance.isCompleted())
 			return;
 
-		if (activityInstance.getParent().equals(this.currentInstance))
+		if (activityInstance.getParent() != this.currentInstance)
 			throw new SecurityException("can only cancel direct children");
 
 		this.executor.cancelActivity(activityInstance);

@@ -51,6 +51,7 @@ public class WorkflowInstance {
 
 	protected void notifyUnhandledException(Exception exception, Activity activity, int id) {
 		System.err.println("unhandleException");
+		this.abort(exception);
 		// TODO raise some eventhanles or trace
 	}
 
