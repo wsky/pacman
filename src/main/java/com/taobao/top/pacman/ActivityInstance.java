@@ -379,7 +379,7 @@ public class ActivityInstance {
 				this.setClosed();
 			// transaction maybe check here
 		} else if (this.isPerformingDefaultCancelation()) {
-			// TODO impl bookmark cleanup
+			// TODO impl bookmark cleanup while cancel
 			// if (this.onlyHasOutstandingBookmarks()) {
 			// executor.getBookmarkManager().removeAll(this);
 			// RemoveAllBookmarks(executor.RawBookmarkScopeManager, executor.RawBookmarkManager);

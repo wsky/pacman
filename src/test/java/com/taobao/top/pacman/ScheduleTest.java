@@ -1,7 +1,10 @@
 package com.taobao.top.pacman;
 
+import static org.junit.Assert.*;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
@@ -26,10 +29,74 @@ public class ScheduleTest {
 		System.out.println(outputs);
 	}
 
-	// TODO test activityWithResult not fast-path
-	// TODO test scheudleActivityWithResult
-	// TODO test abort and error
-	// TODO test cancel
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void error_and_abort_test() throws Exception {
+		final AtomicInteger internalAbort = new AtomicInteger();
+		WorkflowInstance.invoke(new NativeActivity() {
+			private Activity activity1;
+			private Activity activity2;
+
+			@Override
+			protected void cacheMetadata(ActivityMetadata metadata) {
+				activity1 = new WriteLine("write1") {
+					@Override
+					protected void abort(NativeActivityAbortContext context) {
+						System.err.println("abort");
+						internalAbort.incrementAndGet();
+					}
+				};
+				activity2 = new WriteLine("write2");
+				metadata.addChild(activity1);
+				metadata.addChild(activity2);
+			}
+
+			@Override
+			protected void execute(NativeActivityContext context) {
+				context.scheduleActivity(activity1);
+				context.scheduleActivity(activity2);
+				throw new IndexOutOfBoundsException();
+			}
+		}, null);
+		assertEquals(1, internalAbort.get());
+	}
+
+	@Test
+	public void cancel_test() throws Exception {
+		WorkflowInstance.invoke(new NativeActivity() {
+			private Activity activity1;
+			private Activity activity2;
+
+			@Override
+			protected void cacheMetadata(ActivityMetadata metadata) {
+				activity1 = new WriteLine("write1") {
+				};
+				activity1.setDisplayName("activity1");
+				activity2 = new WriteLine("write2");
+				activity2.setDisplayName("activity2");
+				metadata.addChild(activity1);
+				metadata.addChild(activity2);
+			}
+
+			@Override
+			protected void execute(NativeActivityContext context) {
+				context.scheduleActivity(activity2);
+				context.scheduleActivity(activity1, new CompletionCallback() {
+					@Override
+					public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+						context.cancelChildren();
+						System.out.println("======== cancel children");
+					}
+				});
+			}
+		}, null);
+	}
+
+	@Test
+	public void fault_callback_test() {
+
+	}
+
+	// TODO test activityWithResult not fast-path, async
 
 	class Workflow extends NativeActivity {
 		private InArgument name;

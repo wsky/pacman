@@ -101,6 +101,8 @@ public class ActivityExecutor {
 	}
 
 	protected void onSchedulerIdle() throws Exception {
+		// if (!this.scheduler.isIdle())
+		// return;
 		try {
 			this.host.notifyPaused();
 		} catch (Exception e) {
@@ -279,7 +281,8 @@ public class ActivityExecutor {
 		if (completedInstance.getParent() != null)
 			return;
 		if (completedInstance == this.rootInstance)
-			this.gatherRootOutputs(this.rootInstance.getEnvironment());
+			if (this.rootInstance.getState() != ActivityInstanceState.Executing)
+				this.gatherRootOutputs(this.rootInstance.getEnvironment());
 	}
 
 	private void gatherRootOutputs(LocationEnvironment rootEnvironment) {
