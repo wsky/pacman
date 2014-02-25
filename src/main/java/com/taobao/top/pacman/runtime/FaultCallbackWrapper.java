@@ -8,9 +8,9 @@ public class FaultCallbackWrapper {
 	private FaultCallback callback;
 	private ActivityInstance activityInstance;
 
-	public FaultCallbackWrapper(FaultCallback onFault, ActivityInstance currentInstance) {
-		this.callback = onFault;
-		this.activityInstance = currentInstance;
+	public FaultCallbackWrapper(FaultCallback callback, ActivityInstance activityInstance) {
+		this.callback = callback;
+		this.activityInstance = activityInstance;
 	}
 
 	public ActivityInstance getActivityInstance() {

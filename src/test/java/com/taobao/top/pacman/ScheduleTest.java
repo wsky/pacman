@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
+import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 import com.taobao.top.pacman.statements.Sequence;
 import com.taobao.top.pacman.statements.WriteLine;
@@ -91,9 +92,55 @@ public class ScheduleTest {
 		}, null);
 	}
 
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void fault_test() throws Exception {
+		fault_callback_test(false);
+	}
+
 	@Test
-	public void fault_callback_test() {
-		// FIXME onFaulted
+	public void fault_handled_test() throws Exception {
+		fault_callback_test(true);
+	}
+
+	private void fault_callback_test(final boolean handle) throws Exception {
+		WorkflowInstance.invoke(new NativeActivity() {
+			private Activity body;
+
+			@Override
+			protected void cacheMetadata(ActivityMetadata metadata) {
+				this.body = new NativeActivity() {
+					@Override
+					protected void execute(NativeActivityContext context) {
+						throw new IndexOutOfBoundsException("error");
+					}
+				};
+				metadata.addChild(this.body);
+			}
+
+			@Override
+			protected void execute(NativeActivityContext context) {
+				context.scheduleActivity(this.body,
+						new CompletionCallback() {
+							@Override
+							public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+								System.out.println("========== completion callback");
+								assertEquals(ActivityInstanceState.Faulted, completedInstance.getState());
+							}
+						},
+						new FaultCallback() {
+							@Override
+							public void execute(
+									NativeActivityFaultContext faultContext,
+									Exception propagatedException,
+									ActivityInstance propagatedFrom) {
+								System.out.println("========== fault callback");
+								propagatedException.printStackTrace();
+								if (handle)
+									faultContext.handleFault();
+							}
+						});
+			}
+		}, null);
 	}
 
 	// TODO test activityWithResult not fast-path, async

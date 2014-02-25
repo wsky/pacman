@@ -4,7 +4,7 @@ import com.taobao.top.pacman.runtime.*;
 
 // wrapper executor usage, add more log and assert here
 public class NativeActivityContext extends ActivityContext {
-	private BookmarkManager bookmarkManager;
+	// private BookmarkManager bookmarkManager;
 
 	protected NativeActivityContext() {
 		super();
@@ -17,21 +17,21 @@ public class NativeActivityContext extends ActivityContext {
 
 	public void initialize(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
 		super.reinitialize(instance, executor);
-		this.bookmarkManager = bookmarkManager;
+		// this.bookmarkManager = bookmarkManager;
 	}
 
 	@Override
 	public void dispose() {
 		super.dispose();
-		this.bookmarkManager = null;
+		// this.bookmarkManager = null;
 	}
 
 	public boolean isCancellationRequested() {
-		return this.currentInstance.isCancellationRequested();
+		return this.getCurrentInstance().isCancellationRequested();
 	}
 
 	public Iterable<ActivityInstance> getChildren() {
-		return this.currentInstance.getChildren();
+		return this.getCurrentInstance().getChildren();
 	}
 
 	public void abort(Exception reason) {
@@ -48,19 +48,19 @@ public class NativeActivityContext extends ActivityContext {
 	}
 
 	public void markCanceled() {
-		if (!this.currentInstance.isCancellationRequested())
+		if (!this.getCurrentInstance().isCancellationRequested())
 			throw new SecurityException("markCanceledOnlyCallableIfCancelRequested");
-		this.currentInstance.markCanceled();
-		System.out.println("set canceling for " + this.currentInstance + " in context");
+		this.getCurrentInstance().markCanceled();
+		System.out.println("set canceling for " + this.getCurrentInstance() + " in context");
 	}
 
 	// only called from internalCancel
 	protected void cancel() {
-		this.currentInstance.baseCancel(this);
+		this.getCurrentInstance().baseCancel(this);
 	}
 
 	public void cancelChildren() {
-		this.currentInstance.cancelChildren(this);
+		this.getCurrentInstance().cancelChildren(this);
 	}
 
 	public void cancelChild(ActivityInstance activityInstance) {
@@ -70,43 +70,43 @@ public class NativeActivityContext extends ActivityContext {
 		if (activityInstance.isCompleted())
 			return;
 
-		if (activityInstance.getParent() != this.currentInstance)
+		if (activityInstance.getParent() != this.getCurrentInstance())
 			throw new SecurityException("can only cancel direct children");
 
 		this.executor.cancelActivity(activityInstance);
 	}
 
-	public Bookmark createBookmark(String name) {
-		return this.createBookmark(name, null);
-	}
-
-	public Bookmark createBookmark(String name, BookmarkCallback callback) {
-		return this.bookmarkManager.createBookmark(name, callback, this.currentInstance);
-	}
-
-	public Bookmark createBookmark() {
-		return this.createBookmark((BookmarkCallback) null);
-	}
-
-	public Bookmark createBookmark(BookmarkCallback callback) {
-		return this.bookmarkManager.createBookmark(callback, this.currentInstance);
-	}
-
-	public boolean removeBookmark(String name) {
-		return removeBookmark(new Bookmark(name));
-	}
-
-	public boolean removeBookmark(Bookmark bookmark) {
-		return this.bookmarkManager.remove(bookmark, this.currentInstance);
-	}
-
-	public void RemoveAllBookmarks() {
-		this.bookmarkManager.removeAll(this.currentInstance);
-	}
-
-	public void resumeBookmark(Bookmark bookmark, Object value) {
-		this.executor.scheduleCompletionBookmark(bookmark, value);
-	}
+	// public Bookmark createBookmark(String name) {
+	// return this.createBookmark(name, null);
+	// }
+	//
+	// public Bookmark createBookmark(String name, BookmarkCallback callback) {
+	// return this.bookmarkManager.createBookmark(name, callback, this.getCurrentInstance());
+	// }
+	//
+	// public Bookmark createBookmark() {
+	// return this.createBookmark((BookmarkCallback) null);
+	// }
+	//
+	// public Bookmark createBookmark(BookmarkCallback callback) {
+	// return this.bookmarkManager.createBookmark(callback, this.getCurrentInstance());
+	// }
+	//
+	// public boolean removeBookmark(String name) {
+	// return removeBookmark(new Bookmark(name));
+	// }
+	//
+	// public boolean removeBookmark(Bookmark bookmark) {
+	// return this.bookmarkManager.remove(bookmark, this.getCurrentInstance());
+	// }
+	//
+	// public void RemoveAllBookmarks() {
+	// this.bookmarkManager.removeAll(this.getCurrentInstance());
+	// }
+	//
+	// public void resumeBookmark(Bookmark bookmark, Object value) {
+	// this.executor.scheduleCompletionBookmark(bookmark, value);
+	// }
 
 	public ActivityInstance scheduleActivity(Activity activity) {
 		return this.scheduleActivity(activity, null, null);
@@ -127,10 +127,10 @@ public class NativeActivityContext extends ActivityContext {
 			completionBookmark = new CompletionBookmark(
 					new ActivityCompletionCallbackWrapper(
 							onCompleted,
-							this.currentInstance));
+							this.getCurrentInstance()));
 		}
 		if (onFaulted != null)
-			faultBookmark = new FaultBookmark(onFaulted, this.currentInstance);
+			faultBookmark = new FaultBookmark(new FaultCallbackWrapper(onFaulted, this.getCurrentInstance()));
 		return this.internalScheduleActivity(activity, completionBookmark, faultBookmark);
 	}
 
@@ -147,9 +147,9 @@ public class NativeActivityContext extends ActivityContext {
 		FaultBookmark faultBookmark = null;
 		if (onCompleted != null)
 			completionBookmark = new CompletionBookmark(
-					new FuncCompletionCallbackWrapper<T>(onCompleted, this.currentInstance));
+					new FuncCompletionCallbackWrapper<T>(onCompleted, this.getCurrentInstance()));
 		if (onFaulted != null)
-			faultBookmark = new FaultBookmark(onFaulted, this.currentInstance);
+			faultBookmark = new FaultBookmark(new FaultCallbackWrapper(onFaulted, this.getCurrentInstance()));
 		return this.internalScheduleActivity(activity, completionBookmark, faultBookmark);
 	}
 
@@ -157,11 +157,11 @@ public class NativeActivityContext extends ActivityContext {
 			CompletionBookmark onCompleted,
 			FaultBookmark onFaulted) {
 		// maybe schedule in callback but cancelation performing now
-		if (this.currentInstance.isPerformingDefaultCancelation()) {
-			this.currentInstance.markCanceled();
-			System.out.println("set canceling for " + this.currentInstance + " while schedule");
+		if (this.getCurrentInstance().isPerformingDefaultCancelation()) {
+			this.getCurrentInstance().markCanceled();
+			System.out.println("set canceling for " + this.getCurrentInstance() + " while schedule");
 			return ActivityInstance.createCanceledActivityInstance(activity);
 		}
-		return this.executor.scheduleActivity(activity, this.currentInstance, onCompleted, onFaulted);
+		return this.executor.scheduleActivity(activity, this.getCurrentInstance(), onCompleted, onFaulted);
 	}
 }

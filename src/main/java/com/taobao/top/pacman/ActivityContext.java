@@ -1,10 +1,10 @@
 package com.taobao.top.pacman;
 
 public class ActivityContext {
-	protected ActivityInstance currentInstance;
-	protected ActivityExecutor executor;
+	private ActivityInstance currentInstance;
 	private Activity activity;
-
+	protected ActivityExecutor executor;
+	
 	private boolean allowChainedEnvironmentAccess;
 
 	protected ActivityContext() {

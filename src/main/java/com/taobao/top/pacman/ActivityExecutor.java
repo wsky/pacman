@@ -243,12 +243,12 @@ public class ActivityExecutor {
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
 		if (completedInstance.getCompletionBookmark() != null) {
-			System.out.println("schedule completion bookmark");
+			System.out.println("push completion bookmark");
 			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}
 		if (completedInstance.getParent() != null) {
-			System.out.println("complate and raise parent");
+			System.out.println("push empty to raise parent");
 			// for variable.default and arugment.expression
 			// if resovle failed, it's state not equal to closed, should tell parent init incomplete
 			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().hasNotExecuted())
@@ -258,22 +258,36 @@ public class ActivityExecutor {
 	}
 
 	private void propagateException(WorkItem workItem) {
-		// FIXME impl propagete exception for faultCallback and try/cathch statement
-		// System.out.println("propagate exception to " + workItem.getActivityInstance().getId());
-		// this.scheduler.pushWork(new FaultCallbackWrapper(
-		// new FaultCallback() {
-		// @Override
-		// public void execute(NativeActivityFaultContext faultContext, Exception propagatedException, ActivityInstance propagatedFrom) {
-		// // faultContext.handleFault();
-		// //faultContext.cancelChild(propagatedFrom);
-		// System.out.println("fault callback");
-		// }
-		// },
-		// workItem.getActivityInstance()).createWorkItem(
-		// workItem.getExceptionToPropagate(),
-		// workItem.getActivityInstance(),
-		// workItem.getActivityInstance()));
-		// workItem.exceptionPropagated();
+		ActivityInstance exceptionSource = workItem.getActivityInstance();
+		Exception exception = workItem.getExceptionToPropagate();
+
+		ActivityInstance exceptionPropagator = exceptionSource;
+		FaultBookmark targetBookmark = null;
+
+		while (exceptionPropagator != null && targetBookmark == null) {
+			if (!exceptionPropagator.isCompleted()) {
+				// transaction abort here
+			}
+
+			// check canceling
+			if (exceptionPropagator.isCancellationRequested()) {
+				this.abortWorkflowInstance(new Exception("CannotPropagateExceptionWhileCanceling", exception));
+				workItem.exceptionPropagated();
+				return;
+			}
+
+			if (exceptionPropagator.getFaultBookmark() != null)
+				targetBookmark = exceptionPropagator.getFaultBookmark();
+			else
+				exceptionPropagator = exceptionPropagator.getParent();
+		}
+
+		if (targetBookmark != null) {
+			this.scheduler.pushWork(targetBookmark.generateWorkItem(
+					exception, exceptionPropagator, workItem.getOriginalExceptionSource()));
+			workItem.exceptionPropagated();
+			System.out.println("exception propagated from " + exceptionPropagator + " to " + exceptionPropagator.getParent());
+		}
 	}
 
 	// NOTE 4.3.1 gather root activity outputs
