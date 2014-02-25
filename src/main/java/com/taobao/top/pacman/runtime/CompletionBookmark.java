@@ -21,7 +21,7 @@ public class CompletionBookmark {
 		// for variable.default and arugment.expression
 		if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().hasNotExecuted())
 			completedInstance.getParent().setInitializationIncomplete();
-		// some one call abort()
+
 		return new EmptyWithCancelationCheckWorkItem(completedInstance.getParent(), completedInstance);
 	}
 
