@@ -15,6 +15,7 @@ public class CompletionWithCancelationCheckWorkItem extends CompletionWorkItem {
 			this.getActivityInstance().markCanceled();
 			System.out.println("set canceling for " + this.getActivityInstance() + " in completion");
 		}
+		// NOTE still execute completionCallback for cancelaton
 		return super.execute(executor, bookmarkManager);
 	}
 }

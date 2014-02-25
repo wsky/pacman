@@ -156,6 +156,7 @@ public class NativeActivityContext extends ActivityContext {
 	private ActivityInstance internalScheduleActivity(Activity activity,
 			CompletionBookmark onCompleted,
 			FaultBookmark onFaulted) {
+		// maybe schedule in callback but cancelation performing now
 		if (this.currentInstance.isPerformingDefaultCancelation()) {
 			this.currentInstance.markCanceled();
 			System.out.println("set canceling for " + this.currentInstance + " while schedule");
