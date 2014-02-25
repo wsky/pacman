@@ -93,7 +93,7 @@ public class ScheduleTest {
 
 	@Test
 	public void fault_callback_test() {
-
+		// FIXME onFaulted
 	}
 
 	// TODO test activityWithResult not fast-path, async

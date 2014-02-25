@@ -25,7 +25,7 @@ public class ActivityMetadataTest {
 	public void before() {
 		in = new InArgument(true);
 		var = new Variable("var", true);
-		out = new OutArgument(var);
+		out = new OutArgument();
 		inner = new Variable("inner", false);
 
 		childChild = new WriteLine();
