@@ -48,7 +48,7 @@ public class ParallelTest extends StatementTestBase {
 		parallel.getBranches().add(new WriteLine("parallel-cancel-2") {
 			@Override
 			protected void execute(NativeActivityContext context) {
-				throw new NullPointerException();
+				throw new NullPointerException("make faulted");
 			}
 
 			@Override

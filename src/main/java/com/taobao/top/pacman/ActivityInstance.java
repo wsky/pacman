@@ -157,19 +157,11 @@ public class ActivityInstance {
 				context.cancelChild(child);
 	}
 
-	protected void abort(ActivityExecutor activityExecutor,
-			BookmarkManager bookmarkManager,
-			Exception reason,
-			boolean isTerminate) {
-		// FIXME instance.abort, mark tree instance faulted
-		// finalize()
-	}
-
 	public boolean isPerformingDefaultCancelation() {
 		return this.isPerformingDefaultCancelation;
 	}
 
-	public boolean haveNotExecuted() {
+	public boolean hasNotExecuted() {
 		return this.subState != SubState.Executing;
 	}
 
@@ -209,6 +201,49 @@ public class ActivityInstance {
 
 	public void cancel(ActivityExecutor executor, BookmarkManager bookmarkManager) {
 		this.getActivity().internalCancel(this, executor, bookmarkManager);
+	}
+
+	// only abort itself tree, not to it's parent
+	protected void abort(ActivityExecutor executor,
+			BookmarkManager bookmarkManager,
+			Exception reason,
+			boolean isTerminate) {
+		ActivityInstance root = this;
+		ActivityInstance current = this;
+
+		// depth first and avoid recursion
+		while (current.hasChildren())
+			current = current.children.get(0);
+
+		while (true) {
+			// maybe arugment resovle error or branch not executed
+			if (current.hasNotExecuted())
+				current.getActivity().internalAbort(current, executor, reason);
+
+			// transaction can be rollback here
+			// ...
+
+			// maybe root
+			executor.handleRootCompletion(current);
+			// must remove self from parent
+			current.markAsComplete();
+			current.state = ActivityInstanceState.Faulted;
+
+			System.out.println(String.format("---- abort: instance#%s|%s|%s, completed=%s, state=%s, substate=%s",
+					current.getId(),
+					current.getActivity().getClass().getSimpleName(),
+					this.getActivity().getDisplayName(),
+					true,
+					current.getState(),
+					current.subState));
+
+			if (current == root)
+				break;
+			current = current.getParent();
+			while (current.hasChildren())
+				current = current.children.get(0);
+
+		}
 	}
 
 	public boolean resolveArguments(ActivityExecutor executor,
@@ -305,7 +340,7 @@ public class ActivityInstance {
 	public boolean updateState(ActivityExecutor executor) {
 		boolean activityCompleted = false;
 
-		if (this.haveNotExecuted()) {
+		if (this.hasNotExecuted()) {
 			if (this.isCancellationRequested()) {
 				if (this.hasChildren()) {
 					for (ActivityInstance child : this.getChildren()) {
@@ -355,9 +390,10 @@ public class ActivityInstance {
 			// }
 		}
 
-		System.out.println(String.format("update: instance#%s|%s, completed=%s, stete=%s, substate=%s",
+		System.out.println(String.format("---- update: instance#%s|%s|%s, completed=%s, state=%s, substate=%s",
 				this.getId(),
 				this.getActivity().getClass().getSimpleName(),
+				this.getActivity().getDisplayName(),
 				activityCompleted, this.getState(), this.subState));
 
 		return activityCompleted;

@@ -35,6 +35,7 @@ public abstract class ActivityExecutionWorkItem extends WorkItem {
 		// NOTE 4.1 check exception, abort activityInstance if exception not handled in faultCallback
 		if (this.getExceptionToPropagate() != null && !this.skipAbort) {
 			System.out.println("--------- [ERROR] abort activityInstance in postProcess()");
+			// NOTE 4.1.1 abort activityInstance and its tree ,set faulted
 			executor.abortActivityInstance(this.getActivityInstance(), this.getExceptionToPropagate());
 			return;
 		}

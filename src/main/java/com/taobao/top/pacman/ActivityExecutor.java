@@ -140,6 +140,7 @@ public class ActivityExecutor {
 
 	// called from onExecuteWorkItem() or user calling context.abort()
 	protected void abortWorkflowInstance(Exception reason) {
+		// tell scheduler
 		this.isAbortPending = true;
 		this.host.abort(reason);
 		System.out.println("-- abortWorkflowInstance: " + reason.getMessage());
@@ -163,7 +164,7 @@ public class ActivityExecutor {
 
 		instance.setCancellationRequested();
 
-		this.scheduler.pushWork(instance.haveNotExecuted() ?
+		this.scheduler.pushWork(instance.hasNotExecuted() ?
 				this.createEmptyWorkItem(instance) :
 				new CancelActivityWorkItem(instance));
 	}
@@ -248,7 +249,7 @@ public class ActivityExecutor {
 			System.out.println("complate and raise parent");
 			// for variable.default and arugment.expression
 			// if resovle failed, it's state not equal to closed, should tell parent init incomplete
-			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().haveNotExecuted())
+			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().hasNotExecuted())
 				completedInstance.getParent().setInitializationIncomplete();
 			this.scheduler.pushWork(this.createEmptyWorkItem(completedInstance.getParent()));
 		}
@@ -270,11 +271,11 @@ public class ActivityExecutor {
 		// workItem.getExceptionToPropagate(),
 		// workItem.getActivityInstance(),
 		// workItem.getActivityInstance()));
-		workItem.exceptionPropagated();
+		// workItem.exceptionPropagated();
 	}
 
 	// NOTE 4.3.1 gather root activity outputs
-	private void handleRootCompletion(ActivityInstance completedInstance) {
+	protected void handleRootCompletion(ActivityInstance completedInstance) {
 		if (completedInstance.getParent() != null)
 			return;
 		if (completedInstance == this.rootInstance)
