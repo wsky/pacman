@@ -3,14 +3,9 @@ package com.taobao.top.pacman.statements;
 import java.util.Map;
 
 import org.junit.Ignore;
-import org.junit.Test;
 
-import com.sun.tools.internal.ws.wsdl.document.jaxws.Exception;
 import com.taobao.top.pacman.Activity;
-import com.taobao.top.pacman.ActivityContext;
 import com.taobao.top.pacman.ActivityMetadata;
-import com.taobao.top.pacman.Function;
-import com.taobao.top.pacman.InArgument;
 import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.VariableValue;
@@ -20,6 +15,7 @@ public class ParallelTest extends StatementTestBase {
 	@Override
 	protected Activity createActivity() {
 		Parallel parallel = new Parallel();
+		parallel.setDisplayName("parallel_test");
 
 		Variable completed = new Variable("completed", true);
 		parallel.getVariables().add(completed);
@@ -39,7 +35,7 @@ public class ParallelTest extends StatementTestBase {
 
 	@Ignore
 	public void cancel_test() throws java.lang.Exception {
-		//TODO parallel should have parent, and call cancel while fault 
+		// TODO parallel should have parent, and call cancel while fault
 		Parallel parallel = new Parallel();
 
 		Variable completed = new Variable("completed", false);

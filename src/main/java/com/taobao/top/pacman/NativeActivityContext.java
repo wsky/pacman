@@ -51,6 +51,7 @@ public class NativeActivityContext extends ActivityContext {
 		if (!this.currentInstance.isCancellationRequested())
 			throw new SecurityException("markCanceledOnlyCallableIfCancelRequested");
 		this.currentInstance.markCanceled();
+		System.out.println("set canceling for " + this.currentInstance + " in context");
 	}
 
 	// only called from internalCancel
@@ -157,6 +158,7 @@ public class NativeActivityContext extends ActivityContext {
 			FaultBookmark onFaulted) {
 		if (this.currentInstance.isPerformingDefaultCancelation()) {
 			this.currentInstance.markCanceled();
+			System.out.println("set canceling for " + this.currentInstance + " while schedule");
 			return ActivityInstance.createCanceledActivityInstance(activity);
 		}
 		return this.executor.scheduleActivity(activity, this.currentInstance, onCompleted, onFaulted);

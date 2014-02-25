@@ -411,8 +411,10 @@ public class ActivityInstance {
 	}
 
 	private void tryCancelParent() {
-		if (this.getParent() != null && this.getParent().isPerformingDefaultCancelation())
+		if (this.getParent() != null && this.getParent().isPerformingDefaultCancelation()) {
 			this.getParent().markCanceled();
+			System.out.println("try parent.markCanceled");
+		}
 	}
 
 	protected static ActivityInstance createCanceledActivityInstance(Activity activity) {
@@ -427,6 +429,14 @@ public class ActivityInstance {
 
 	private boolean hasChildren() {
 		return this.children != null && this.children.size() > 0;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("instance#%s|%s|%s",
+				this.getId(),
+				this.getActivity().getClass().getSimpleName(),
+				this.getActivity().getDisplayName());
 	}
 
 	public enum ActivityInstanceState {

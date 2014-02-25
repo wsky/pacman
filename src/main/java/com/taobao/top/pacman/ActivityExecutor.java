@@ -241,7 +241,7 @@ public class ActivityExecutor {
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
 		if (completedInstance.getCompletionBookmark() != null) {
-			System.out.println("complate bookmark");
+			System.out.println("schedule completion bookmark");
 			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}

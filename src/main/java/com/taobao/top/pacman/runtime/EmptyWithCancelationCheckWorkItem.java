@@ -23,8 +23,10 @@ public class EmptyWithCancelationCheckWorkItem extends ActivityExecutionWorkItem
 	@Override
 	public void postProcess(ActivityExecutor executor) {
 		if (this.completedInstance.getState() != ActivityInstanceState.Closed &&
-				this.getActivityInstance().isPerformingDefaultCancelation())
+				this.getActivityInstance().isPerformingDefaultCancelation()) {
 			this.getActivityInstance().markCanceled();
+			System.out.println("set canceling for " + this.getActivityInstance() + " in emptyWorkItem");
+		}
 		super.postProcess(executor);
 	}
 }
