@@ -8,6 +8,7 @@ public class OutArgument extends Argument {
 	}
 
 	public OutArgument(Variable variable) {
+		this();
 		this.setExpression(new VariableReference(variable));
 	}
 

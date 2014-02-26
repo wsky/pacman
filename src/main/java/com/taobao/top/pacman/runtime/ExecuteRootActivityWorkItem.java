@@ -15,7 +15,7 @@ public class ExecuteRootActivityWorkItem extends ExecuteActivityWorkItem {
 
 	@Override
 	public boolean execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
-		return super.execute(executor, bookmarkManager);
+		return this.executeBody(executor, bookmarkManager, null);
 	}
 
 }
