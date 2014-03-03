@@ -5,14 +5,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.taobao.top.pacman.Activity;
+import com.taobao.top.pacman.ActivityInstance;
 import com.taobao.top.pacman.ActivityMetadata;
 import com.taobao.top.pacman.Argument;
+import com.taobao.top.pacman.CompletionCallback;
 import com.taobao.top.pacman.InArgument;
 import com.taobao.top.pacman.NativeActivity;
 import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.OutArgument;
 import com.taobao.top.pacman.RuntimeArgument;
 import com.taobao.top.pacman.Variable;
+import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 
 public class WorkflowDefinition extends ActivityContainerDefinition {
@@ -49,6 +52,7 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 	protected Activity toActivity() {
 		return new NativeActivity() {
 			private Activity body;
+			private CompletionCallback onCompleted;
 
 			@Override
 			protected void cacheMetadata(ActivityMetadata metadata) {
@@ -57,7 +61,7 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 					for (Variable var : map.values())
 						metadata.addRuntimeVariable(var);
 
-				if (inArguments != null)
+				if (inArguments != null) {
 					for (Entry<String, Object> e : inArguments.entrySet()) {
 						if (arguments == null)
 							arguments = new HashMap<String, Argument>();
@@ -66,12 +70,18 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 								arguments.get(e.getKey()),
 								new RuntimeArgument(e.getKey(), Object.class, ArgumentDirection.In));
 					}
+				}
 
-				if (outArguments != null)
-					for (Entry<String, Object> e : outArguments.entrySet())
+				if (outArguments != null) {
+					for (Entry<String, Object> e : outArguments.entrySet()) {
+						if (arguments == null)
+							arguments = new HashMap<String, Argument>();
+						arguments.put(e.getKey(), new OutArgument());
 						metadata.bindAndAddArgument(
-								new OutArgument(),
+								arguments.get(e.getKey()),
 								new RuntimeArgument(e.getKey(), Object.class, ArgumentDirection.Out));
+					}
+				}
 
 				this.body = WorkflowDefinition.this.body.toActivity();
 				metadata.addChild(this.body);
@@ -79,13 +89,33 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 
 			@Override
 			protected void execute(NativeActivityContext context) {
+				// init variable from inputs
 				Map<String, Variable> map = getVariables();
 				if (map != null && arguments != null)
 					for (Entry<String, Variable> e : map.entrySet())
 						if (arguments.containsKey(e.getKey()))
 							e.getValue().set(context, arguments.get(e.getKey()).get(context));
 
-				context.scheduleActivity(this.body);
+				if (this.onCompleted == null) {
+					this.onCompleted = new CompletionCallback() {
+						@Override
+						public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
+							onCompleted(context, completedInstance);
+						}
+					};
+				}
+
+				context.scheduleActivity(this.body, this.onCompleted);
+			}
+
+			protected void onCompleted(NativeActivityContext context, ActivityInstance completedInstance) {
+				if (completedInstance.getState() != ActivityInstanceState.Closed)
+					return;
+
+				// pick variables render to outArguments
+				// as arugmentReference not support currently
+				for (String var : outArguments.keySet())
+					arguments.get(var).set(context, getVariable(var).get(context));
 			}
 		};
 	}

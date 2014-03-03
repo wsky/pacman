@@ -16,6 +16,7 @@ public class WorkflowDefinitionTest {
 				out("result").
 				sequence().
 				var("var").
+				activity(new AssignDefinition().fromVar("arg").toVar("result")).
 				If().
 				condition().
 				then(new WriteLineDefinition().fromVar("arg")).

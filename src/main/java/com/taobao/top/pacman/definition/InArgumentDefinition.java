@@ -22,6 +22,5 @@ public class InArgumentDefinition {
 		return this.fromVariable != null ?
 				new InArgument(parent.getVariable(this.fromVariable)) :
 				new InArgument(this.constValue);
-
 	}
 }

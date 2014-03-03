@@ -12,6 +12,11 @@ public class SequenceDefinition extends ActivityContainerDefinition {
 		return (SequenceDefinition) super.var(name);
 	}
 
+	public SequenceDefinition activity(ActivityDefinition activity) {
+		this.addActivity(activity);
+		return this;
+	}
+
 	@Override
 	protected Activity toActivity() {
 		Sequence sequence = new Sequence();
