@@ -15,22 +15,22 @@ public class AssignDefinition extends ActivityDefinition {
 		super(displayName);
 	}
 
-	public AssignDefinition value(InArgumentDefinition value) {
+	public AssignDefinition Value(InArgumentDefinition value) {
 		this.value = value;
 		return this;
 	}
 
-	public AssignDefinition fromVar(String name) {
-		return this.value(new InArgumentDefinition().fromVariable(name));
+	public AssignDefinition From(String name) {
+		return this.Value(new InArgumentDefinition().FromVariable(name));
 	}
 
-	public AssignDefinition to(OutArgumentDefinition to) {
+	public AssignDefinition To(OutArgumentDefinition to) {
 		this.to = to;
 		return this;
 	}
 
-	public AssignDefinition toVar(String name) {
-		return this.to(new OutArgumentDefinition().toVariable(name));
+	public AssignDefinition To(String name) {
+		return this.To(new OutArgumentDefinition().ToVariable(name));
 	}
 
 	@Override

@@ -30,11 +30,11 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 		super(displayName, parent);
 	}
 
-	public WorkflowDefinition in(String name) {
-		return this.in(name, null);
+	public WorkflowDefinition In(String name) {
+		return this.In(name, null);
 	}
 
-	public WorkflowDefinition in(String name, Object defaultValue) {
+	public WorkflowDefinition In(String name, Object defaultValue) {
 		if (this.inArguments == null)
 			this.inArguments = new HashMap<String, Object>();
 		this.inArguments.put(name, defaultValue);
@@ -42,7 +42,7 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 		return this;
 	}
 
-	public WorkflowDefinition out(String name) {
+	public WorkflowDefinition Out(String name) {
 		if (this.outArguments == null)
 			this.outArguments = new HashMap<String, Object>();
 		this.outArguments.put(name, null);
@@ -51,8 +51,8 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 	}
 
 	@Override
-	public WorkflowDefinition var(String name) {
-		return (WorkflowDefinition) super.var(name);
+	public WorkflowDefinition Var(String name) {
+		return (WorkflowDefinition) super.Var(name);
 	}
 
 	@Override
@@ -163,11 +163,11 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 			this.body = activity;
 	}
 
-	public static WorkflowDefinition create() {
+	public static WorkflowDefinition Create() {
 		return new WorkflowDefinition("Workflow", null);
 	}
 
-	public static WorkflowDefinition create(String displayName) {
+	public static WorkflowDefinition Create(String displayName) {
 		return new WorkflowDefinition(displayName, null);
 	}
 }

@@ -8,7 +8,7 @@ public class OutArgumentDefinition {
 	public OutArgumentDefinition() {
 	}
 
-	public OutArgumentDefinition toVariable(String name) {
+	public OutArgumentDefinition ToVariable(String name) {
 		this.toVariable = name;
 		return this;
 	}

@@ -17,16 +17,16 @@ public abstract class ActivityContainerDefinition extends ActivityDefinition {
 		this.variables = new ArrayList<VariableDefinition>();
 	}
 
-	public ActivityContainerDefinition var(String name) {
+	public ActivityContainerDefinition Var(String name) {
 		this.variables.add(new VariableDefinition(name));
 		return this;
 	}
 
-	public SequenceDefinition sequence() {
-		return this.sequence("Sequence");
+	public SequenceDefinition Sequence() {
+		return this.Sequence("Sequence");
 	}
 
-	public SequenceDefinition sequence(String displayName) {
+	public SequenceDefinition Sequence(String displayName) {
 		SequenceDefinition sequence = new SequenceDefinition(displayName);
 		this.addActivity(sequence);
 		return sequence;
@@ -42,21 +42,21 @@ public abstract class ActivityContainerDefinition extends ActivityDefinition {
 		return _if;
 	}
 
-	public WriteLineDefinition writeLine() {
-		return this.writeLine("WriteLine");
+	public WriteLineDefinition WriteLine() {
+		return this.WriteLine("WriteLine");
 	}
 
-	public WriteLineDefinition writeLine(String displayName) {
+	public WriteLineDefinition WriteLine(String displayName) {
 		WriteLineDefinition writeLine = new WriteLineDefinition(displayName);
 		this.addActivity(writeLine);
 		return writeLine;
 	}
 
-	public AssignDefinition assign() {
-		return this.assign("Assign");
+	public AssignDefinition Assign() {
+		return this.Assign("Assign");
 	}
 
-	public AssignDefinition assign(String displayName) {
+	public AssignDefinition Assign(String displayName) {
 		AssignDefinition assign = new AssignDefinition(displayName);
 		this.addActivity(assign);
 		return assign;

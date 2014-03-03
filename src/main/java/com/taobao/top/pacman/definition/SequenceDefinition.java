@@ -9,11 +9,12 @@ public class SequenceDefinition extends ActivityContainerDefinition {
 		super(displayName);
 	}
 
-	public SequenceDefinition var(String name) {
-		return (SequenceDefinition) super.var(name);
+	@Override
+	public SequenceDefinition Var(String name) {
+		return (SequenceDefinition) super.Var(name);
 	}
 
-	public SequenceDefinition activity(ActivityDefinition activity) {
+	public SequenceDefinition Activity(ActivityDefinition activity) {
 		this.addActivity(activity);
 		return this;
 	}

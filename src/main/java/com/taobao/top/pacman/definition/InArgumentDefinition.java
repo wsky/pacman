@@ -13,7 +13,7 @@ public class InArgumentDefinition {
 		this.constValue = constValue;
 	}
 
-	public InArgumentDefinition fromVariable(String name) {
+	public InArgumentDefinition FromVariable(String name) {
 		this.fromVariable = name;
 		return this;
 	}

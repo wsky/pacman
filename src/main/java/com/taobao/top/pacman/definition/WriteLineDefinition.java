@@ -18,17 +18,17 @@ public class WriteLineDefinition extends ActivityDefinition {
 		super(displayName, parent);
 	}
 
-	public WriteLineDefinition text(Object constValue) {
-		return this.text(new InArgumentDefinition(constValue));
+	public WriteLineDefinition Text(Object constValue) {
+		return this.Text(new InArgumentDefinition(constValue));
 	}
 
-	public WriteLineDefinition text(InArgumentDefinition text) {
+	public WriteLineDefinition Text(InArgumentDefinition text) {
 		this.text = text;
 		return this;
 	}
 
-	public WriteLineDefinition fromVar(String name) {
-		return this.text(new InArgumentDefinition().fromVariable(name));
+	public WriteLineDefinition From(String name) {
+		return this.Text(new InArgumentDefinition().FromVariable(name));
 	}
 
 	@Override

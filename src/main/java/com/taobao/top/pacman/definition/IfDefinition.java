@@ -12,25 +12,31 @@ public class IfDefinition extends ActivityDefinition {
 		super(displayName);
 	}
 
-	public ActivityContainerDefinition endIf() {
-		return (ActivityContainerDefinition) super.end();
+	public ActivityContainerDefinition EndIf() {
+		return (ActivityContainerDefinition) super.End();
 	}
 
-	public IfDefinition condition() {
-		return this.condition(new InArgumentDefinition(true));
+	public IfDefinition Condition() {
+		return this.Condition(new InArgumentDefinition(true));
 	}
 
-	public IfDefinition condition(InArgumentDefinition condition) {
+	public IfDefinition Condition(String name) {
+		return this.Condition(new InArgumentDefinition().FromVariable(name));
+	}
+
+	// TODO how to use function from js?
+
+	public IfDefinition Condition(InArgumentDefinition condition) {
 		this.condition = condition;
 		return this;
 	}
 
-	public ThenDefinition then() {
+	public ThenDefinition Then() {
 		this.then = new ThenDefinition(null, this);
 		return this.then;
 	}
 
-	public IfDefinition then(ActivityDefinition activity) {
+	public IfDefinition Then(ActivityDefinition activity) {
 		this.then = new ThenDefinition(null, this);
 		this.then.addActivity(activity);
 		return this;
@@ -63,8 +69,8 @@ public class IfDefinition extends ActivityDefinition {
 			super(displayName, parent);
 		}
 
-		public IfDefinition endThen() {
-			return (IfDefinition) this.end();
+		public IfDefinition EndThen() {
+			return (IfDefinition) this.End();
 		}
 
 		@Override
@@ -86,8 +92,8 @@ public class IfDefinition extends ActivityDefinition {
 			super(displayName, parent);
 		}
 
-		public IfDefinition endElse() {
-			return (IfDefinition) this.end();
+		public IfDefinition EndElse() {
+			return (IfDefinition) this.End();
 		}
 
 		@Override

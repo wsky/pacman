@@ -21,7 +21,7 @@ public abstract class ActivityDefinition {
 		this.setParent(parent);
 	}
 
-	public ActivityDefinition end() {
+	public ActivityDefinition End() {
 		return this.parent;
 	}
 

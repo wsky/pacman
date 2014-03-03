@@ -13,28 +13,28 @@ import com.taobao.top.pacman.WorkflowInstance;
 public class WorkflowDefinitionTest {
 	@Test
 	public void create_test() throws Exception {
-		Activity workflow = WorkflowDefinition.create().
-				in("arg").
-				out("result").
-				var("var").
-				sequence().
-				activity(new AssignDefinition().fromVar("arg").toVar("var")).
-				activity(new AssignDefinition().fromVar("var").toVar("result")).
+		Activity workflow = WorkflowDefinition.Create().
+				In("arg").
+				Out("result").
+				Var("var").
+				Sequence().
+				Activity(new AssignDefinition().From("arg").To("var")).
+				Activity(new AssignDefinition().From("var").To("result")).
 				If().
-				condition().
-				then(new WriteLineDefinition().fromVar("arg")).
+				Condition().
+				Then(new WriteLineDefinition().From("arg")).
 				// in dynamic language
 				// then()
 				// writeLine().text("then").end().
 				// endThen().
-				Else(new WriteLineDefinition().text("else")).
+				Else(new WriteLineDefinition().Text("else")).
 				// writeLine().text("else").end().
 				// endElse().
-				endIf().
-				writeLine().
-				text("end").
-				end().
-				end().
+				EndIf().
+				WriteLine().
+				Text("end").
+				End().
+				End().
 				toActivity();
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("arg", "hello");
@@ -44,9 +44,9 @@ public class WorkflowDefinitionTest {
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void exception_test() throws Exception {
-		Activity workflow = WorkflowDefinition.create().
-				sequence().
-				activity(new ActivityDefinition("error") {
+		Activity workflow = WorkflowDefinition.Create().
+				Sequence().
+				Activity(new ActivityDefinition("error") {
 					@Override
 					public Activity toActivity() {
 						return new NativeActivity() {
@@ -57,7 +57,7 @@ public class WorkflowDefinitionTest {
 						};
 					}
 				}).
-				end().
+				End().
 				toActivity();
 		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, null);
 		System.out.println(outputs);
