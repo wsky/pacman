@@ -6,6 +6,8 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.taobao.top.pacman.Activity;
+import com.taobao.top.pacman.NativeActivity;
+import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.WorkflowInstance;
 
 public class WorkflowDefinitionTest {
@@ -38,5 +40,27 @@ public class WorkflowDefinitionTest {
 		inputs.put("arg", "hello");
 		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, inputs);
 		System.out.println(outputs);
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void exception_test() throws Exception {
+		Activity workflow = WorkflowDefinition.create().
+				sequence().
+				activity(new ActivityDefinition("error") {
+					@Override
+					public Activity toActivity() {
+						return new NativeActivity() {
+							@Override
+							protected void execute(NativeActivityContext context) {
+								throw new IndexOutOfBoundsException();
+							}
+						};
+					}
+				}).
+				end().
+				toActivity();
+		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, null);
+		System.out.println(outputs);
+		throw (IndexOutOfBoundsException) outputs.get("exception");
 	}
 }

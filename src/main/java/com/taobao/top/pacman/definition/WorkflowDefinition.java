@@ -9,9 +9,11 @@ import com.taobao.top.pacman.ActivityInstance;
 import com.taobao.top.pacman.ActivityMetadata;
 import com.taobao.top.pacman.Argument;
 import com.taobao.top.pacman.CompletionCallback;
+import com.taobao.top.pacman.FaultCallback;
 import com.taobao.top.pacman.InArgument;
 import com.taobao.top.pacman.NativeActivity;
 import com.taobao.top.pacman.NativeActivityContext;
+import com.taobao.top.pacman.NativeActivityFaultContext;
 import com.taobao.top.pacman.OutArgument;
 import com.taobao.top.pacman.RuntimeArgument;
 import com.taobao.top.pacman.Variable;
@@ -60,8 +62,10 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 				this.addVariable(var.getName(), var.toVariable());
 
 		Activity workflow = new NativeActivity() {
+			private OutArgument exception;
 			private Activity body;
 			private CompletionCallback onCompleted;
+			private FaultCallback onFaulted;
 
 			@Override
 			protected void cacheMetadata(ActivityMetadata metadata) {
@@ -92,6 +96,9 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 					}
 				}
 
+				metadata.bindAndAddArgument(this.exception = new OutArgument(),
+						new RuntimeArgument("exception", Exception.class, ArgumentDirection.Out));
+
 				this.body = WorkflowDefinition.this.body.toActivity();
 				metadata.addChild(this.body);
 			}
@@ -114,7 +121,16 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 					};
 				}
 
-				context.scheduleActivity(this.body, this.onCompleted);
+				if (this.onFaulted == null) {
+					this.onFaulted = new FaultCallback() {
+						@Override
+						public void execute(NativeActivityFaultContext faultContext, Exception propagatedException, ActivityInstance propagatedFrom) {
+							onFaulted(faultContext, propagatedException, propagatedFrom);
+						}
+					};
+				}
+
+				context.scheduleActivity(this.body, this.onCompleted, this.onFaulted);
 			}
 
 			protected void onCompleted(NativeActivityContext context, ActivityInstance completedInstance) {
@@ -123,12 +139,28 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 
 				// pick variables render to outArguments
 				// as arugmentReference not support currently
-				for (String var : outArguments.keySet())
-					arguments.get(var).set(context, getVariable(var).get(context));
+				if (outArguments != null)
+					for (String var : outArguments.keySet())
+						arguments.get(var).set(context, getVariable(var).get(context));
+			}
+
+			protected void onFaulted(
+					NativeActivityFaultContext faultContext,
+					Exception propagatedException,
+					ActivityInstance propagatedFrom) {
+				this.exception.set(faultContext, propagatedException);
+				faultContext.handleFault();
 			}
 		};
 		workflow.setDisplayName(this.displayName);
 		return workflow;
+	}
+
+	@Override
+	protected void addActivity(ActivityDefinition activity) {
+		super.addActivity(activity);
+		if (body == null)
+			this.body = activity;
 	}
 
 	public static WorkflowDefinition create() {
@@ -137,12 +169,5 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 
 	public static WorkflowDefinition create(String displayName) {
 		return new WorkflowDefinition(displayName, null);
-	}
-
-	@Override
-	protected void addActivity(ActivityDefinition activity) {
-		super.addActivity(activity);
-		if (body == null)
-			this.body = activity;
 	}
 }
