@@ -19,10 +19,10 @@ import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 
 public class WorkflowDefinition extends ActivityContainerDefinition {
-	private Map<String, Object> inArguments;
-	private Map<String, Object> outArguments;
-	private Map<String, Argument> arguments;
-	private ActivityDefinition body;
+	protected Map<String, Object> inArguments;
+	protected Map<String, Object> outArguments;
+	protected Map<String, Argument> arguments;
+	protected ActivityDefinition body;
 
 	public WorkflowDefinition(String displayName, ActivityContainerDefinition parent) {
 		super(displayName, parent);
@@ -49,8 +49,17 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 	}
 
 	@Override
-	protected Activity toActivity() {
-		return new NativeActivity() {
+	public WorkflowDefinition var(String name) {
+		return (WorkflowDefinition) super.var(name);
+	}
+
+	@Override
+	public Activity toActivity() {
+		if (this.variables != null)
+			for (VariableDefinition var : this.variables)
+				this.addVariable(var.getName(), var.toVariable());
+
+		Activity workflow = new NativeActivity() {
 			private Activity body;
 			private CompletionCallback onCompleted;
 
@@ -118,10 +127,12 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 					arguments.get(var).set(context, getVariable(var).get(context));
 			}
 		};
+		workflow.setDisplayName(this.displayName);
+		return workflow;
 	}
 
 	public static WorkflowDefinition create() {
-		return new WorkflowDefinition("workflow", null);
+		return new WorkflowDefinition("Workflow", null);
 	}
 
 	public static WorkflowDefinition create(String displayName) {

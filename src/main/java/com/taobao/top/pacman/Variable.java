@@ -33,7 +33,7 @@ public class Variable extends LocationReference {
 	}
 
 	@Override
-	protected String getName() {
+	public String getName() {
 		return this.name;
 	}
 

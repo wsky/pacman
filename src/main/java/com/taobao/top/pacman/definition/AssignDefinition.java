@@ -34,10 +34,11 @@ public class AssignDefinition extends ActivityDefinition {
 	}
 
 	@Override
-	protected Activity toActivity() {
+	public Activity toActivity() {
 		Assign assign = new Assign();
 		assign.Value = this.value.toArgument(this.getParent());
 		assign.To = this.to.toArgument(this.getParent());
+		assign.setDisplayName(this.displayName);
 		return assign;
 	}
 

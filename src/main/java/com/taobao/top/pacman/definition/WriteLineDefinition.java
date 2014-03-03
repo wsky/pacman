@@ -32,9 +32,10 @@ public class WriteLineDefinition extends ActivityDefinition {
 	}
 
 	@Override
-	protected Activity toActivity() {
+	public Activity toActivity() {
 		WriteLine writeLine = new WriteLine();
 		writeLine.Text = this.text.toArgument(this.getParent());
+		writeLine.setDisplayName(this.displayName);
 		return writeLine;
 	}
 }

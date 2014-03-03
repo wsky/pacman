@@ -9,6 +9,10 @@ public class VariableDefinition {
 		this.name = name;
 	}
 
+	public String getName() {
+		return this.name;
+	}
+
 	public Variable toVariable() {
 		return new Variable(this.name);
 	}

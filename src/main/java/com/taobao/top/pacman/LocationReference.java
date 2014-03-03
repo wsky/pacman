@@ -20,7 +20,7 @@ public abstract class LocationReference {
 		this.type = type;
 	}
 
-	protected abstract String getName();
+	public abstract String getName();
 
 	protected abstract Location getLocation(ActivityContext context);
 }

@@ -4,9 +4,9 @@ import com.taobao.top.pacman.Activity;
 import com.taobao.top.pacman.statements.If;
 
 public class IfDefinition extends ActivityDefinition {
-	private InArgumentDefinition condition;
-	private ThenDefinition then;
-	private ElseDefinition _else;
+	protected InArgumentDefinition condition;
+	protected ThenDefinition then;
+	protected ElseDefinition _else;
 
 	public IfDefinition(String displayName) {
 		super(displayName);
@@ -48,7 +48,7 @@ public class IfDefinition extends ActivityDefinition {
 	}
 
 	@Override
-	protected Activity toActivity() {
+	public Activity toActivity() {
 		If _if = new If();
 		_if.Condition = this.condition.toArgument(this.getParent());
 		_if.Then = this.then.toActivity();
@@ -68,7 +68,7 @@ public class IfDefinition extends ActivityDefinition {
 		}
 
 		@Override
-		protected Activity toActivity() {
+		public Activity toActivity() {
 			return this.activity.toActivity();
 		}
 
@@ -91,7 +91,7 @@ public class IfDefinition extends ActivityDefinition {
 		}
 
 		@Override
-		protected Activity toActivity() {
+		public Activity toActivity() {
 			return this.activity.toActivity();
 		}
 

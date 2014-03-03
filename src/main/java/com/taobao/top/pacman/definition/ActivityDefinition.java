@@ -50,5 +50,5 @@ public abstract class ActivityDefinition {
 		return this.variables;
 	}
 
-	protected abstract Activity toActivity();
+	public abstract Activity toActivity();
 }

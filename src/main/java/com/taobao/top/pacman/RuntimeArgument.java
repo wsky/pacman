@@ -13,7 +13,7 @@ public class RuntimeArgument extends LocationReference {
 	}
 
 	@Override
-	protected String getName() {
+	public String getName() {
 		return this.name;
 	}
 
