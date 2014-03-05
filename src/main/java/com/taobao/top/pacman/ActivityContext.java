@@ -4,7 +4,7 @@ public class ActivityContext {
 	private ActivityInstance currentInstance;
 	private Activity activity;
 	protected ActivityExecutor executor;
-	
+
 	private boolean allowChainedEnvironmentAccess;
 
 	protected ActivityContext() {
@@ -76,5 +76,9 @@ public class ActivityContext {
 
 	public void set(Variable variable, Object value) {
 		this.setValue(variable, value);
+	}
+
+	protected <T> T getExtension(Class<T> type) {
+		return this.executor.getExtension(type);
 	}
 }

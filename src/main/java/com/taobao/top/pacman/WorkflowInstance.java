@@ -12,6 +12,8 @@ public class WorkflowInstance {
 	private boolean isAborted;
 	private Exception abortedException;
 
+	private WorkflowExtensionManager extensionManager;
+
 	public WorkflowInstance(Activity workflowDefinition) {
 		this(workflowDefinition, new HashMap<String, Object>());
 	}
@@ -27,6 +29,10 @@ public class WorkflowInstance {
 				// FIXME support handle
 				new RenderProcessActivityCallback());
 
+	}
+
+	protected <T> T getExtension(Class<T> type) {
+		return this.extensionManager != null ? this.extensionManager.getExtension(type) : null;// type.newInstance();
 	}
 
 	// TODO impl bookmark resume
@@ -76,7 +82,15 @@ public class WorkflowInstance {
 	}
 
 	public static Map<String, Object> invoke(Activity activity, Map<String, Object> inputs) throws Exception {
+		return invoke(activity, inputs, null);
+	}
+
+	public static Map<String, Object> invoke(
+			Activity activity,
+			Map<String, Object> inputs,
+			WorkflowExtensionManager extensionManager) throws Exception {
 		WorkflowInstance instance = new WorkflowInstance(activity, inputs);
+		instance.extensionManager = extensionManager;
 		instance.ensureInitialized();
 		instance.runScheduler();
 

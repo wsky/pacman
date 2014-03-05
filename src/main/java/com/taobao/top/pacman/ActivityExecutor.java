@@ -39,6 +39,10 @@ public class ActivityExecutor {
 		this.initialize();
 	}
 
+	protected <T> T getExtension(Class<T> type) {
+		return this.host.getExtension(type);
+	}
+
 	protected Map<String, Object> getWorkflowOutputs() {
 		return this.workflowOutputs;
 	}
