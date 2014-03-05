@@ -78,7 +78,7 @@ public class ActivityContext {
 		this.setValue(variable, value);
 	}
 
-	protected <T> T getExtension(Class<T> type) {
+	public <T> T getExtension(Class<T> type) {
 		return this.executor.getExtension(type);
 	}
 }
