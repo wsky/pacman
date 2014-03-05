@@ -56,14 +56,15 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 	}
 
 	@Override
-	public Activity toActivity() {
+	protected Activity internalToActivity(final DefinitionValidator validator) {
 		if (this.variables != null)
 			for (VariableDefinition var : this.variables)
 				this.addVariable(var.getName(), var.toVariable());
 
+		final Activity body = this.body.toActivity(validator);
+
 		Activity workflow = new NativeActivity() {
 			private OutArgument exception;
-			private Activity body;
 			private CompletionCallback onCompleted;
 			private FaultCallback onFaulted;
 
@@ -99,8 +100,7 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 				metadata.bindAndAddArgument(this.exception = new OutArgument(),
 						new RuntimeArgument("exception", Exception.class, ArgumentDirection.Out));
 
-				this.body = WorkflowDefinition.this.body.toActivity();
-				metadata.addChild(this.body);
+				metadata.addChild(body);
 			}
 
 			@Override
@@ -130,7 +130,7 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 					};
 				}
 
-				context.scheduleActivity(this.body, this.onCompleted, this.onFaulted);
+				context.scheduleActivity(body, this.onCompleted, this.onFaulted);
 			}
 
 			protected void onCompleted(NativeActivityContext context, ActivityInstance completedInstance) {

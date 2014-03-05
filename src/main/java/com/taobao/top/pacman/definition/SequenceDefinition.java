@@ -20,7 +20,7 @@ public class SequenceDefinition extends ActivityContainerDefinition {
 	}
 
 	@Override
-	public Activity toActivity() {
+	protected Activity internalToActivity(DefinitionValidator validator) {
 		Sequence sequence = new Sequence();
 		sequence.setDisplayName(this.displayName);
 		for (VariableDefinition variable : this.variables) {
@@ -29,7 +29,7 @@ public class SequenceDefinition extends ActivityContainerDefinition {
 			sequence.getVariables().add(var);
 		}
 		for (ActivityDefinition activity : this.activities)
-			sequence.getActivities().add(activity.toActivity());
+			sequence.getActivities().add(activity.toActivity(validator));
 		return sequence;
 	}
 }

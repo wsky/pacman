@@ -21,6 +21,10 @@ public abstract class ActivityDefinition {
 		this.setParent(parent);
 	}
 
+	public String getDisplayName() {
+		return this.displayName;
+	}
+
 	public ActivityDefinition End() {
 		return this.parent;
 	}
@@ -50,5 +54,10 @@ public abstract class ActivityDefinition {
 		return this.variables;
 	}
 
-	public abstract Activity toActivity();
+	public final Activity toActivity(DefinitionValidator validator) {
+		validator.setCurrent(this);
+		return this.internalToActivity(validator);
+	}
+
+	protected abstract Activity internalToActivity(DefinitionValidator validator);
 }

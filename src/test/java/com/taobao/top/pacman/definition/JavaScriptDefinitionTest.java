@@ -45,7 +45,7 @@ public class JavaScriptDefinitionTest {
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("arg", "test");
 		inputs.put("isThen", false);
-		Map<String, Object> outputs = WorkflowInstance.invoke(workflow.toActivity(), inputs);
+		Map<String, Object> outputs = WorkflowInstance.invoke(workflow.toActivity(new DefinitionValidator()), inputs);
 		System.out.println(outputs);
 	}
 }

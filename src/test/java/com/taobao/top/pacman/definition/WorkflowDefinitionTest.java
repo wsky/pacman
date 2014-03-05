@@ -1,18 +1,22 @@
 package com.taobao.top.pacman.definition;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
 import com.taobao.top.pacman.Activity;
-import com.taobao.top.pacman.NativeActivity;
-import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.WorkflowInstance;
 
 public class WorkflowDefinitionTest {
 	@Test
 	public void create_test() throws Exception {
+		DefinitionValidator validator = new DefinitionValidator();
 		Activity workflow = WorkflowDefinition.Create().
 				In("arg").
 				Out("result").
@@ -35,32 +39,29 @@ public class WorkflowDefinitionTest {
 				Text("end").
 				End().
 				End().
-				toActivity();
+				toActivity(validator);
+		assertFalse(validator.hasAnyError());
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("arg", "hello");
 		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, inputs);
 		System.out.println(outputs);
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void exception_test() throws Exception {
-		Activity workflow = WorkflowDefinition.Create().
+	@Test
+	public void validate_test() throws Exception {
+		DefinitionValidator validator = new DefinitionValidator();
+		WorkflowDefinition.Create().
 				Sequence().
-				Activity(new ActivityDefinition("error") {
-					@Override
-					public Activity toActivity() {
-						return new NativeActivity() {
-							@Override
-							protected void execute(NativeActivityContext context) {
-								throw new IndexOutOfBoundsException();
-							}
-						};
-					}
-				}).
+				Activity(new WriteLineDefinition()).
+				Activity(new IfDefinition()).
+				Activity(new AssignDefinition()).
+				Activity(new AssignDefinition().From("var").To("var")).
 				End().
-				toActivity();
-		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, null);
-		System.out.println(outputs);
-		throw (IndexOutOfBoundsException) outputs.get("exception");
+				toActivity(validator);
+		assertTrue(validator.hasAnyError());
+		for (Entry<ActivityDefinition, List<String>> e : validator.getErrors().entrySet()) {
+			System.err.println(e.getKey().getDisplayName());
+			System.err.println(Arrays.toString(e.getValue().toArray()));
+		}
 	}
 }

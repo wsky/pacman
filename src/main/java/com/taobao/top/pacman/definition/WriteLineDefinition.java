@@ -32,9 +32,14 @@ public class WriteLineDefinition extends ActivityDefinition {
 	}
 
 	@Override
-	public Activity toActivity() {
+	protected Activity internalToActivity(DefinitionValidator validator) {
+		if (this.text == null)
+			validator.addError("Text not set");
+		if (validator.hasError())
+			return null;
+		
 		WriteLine writeLine = new WriteLine();
-		writeLine.Text = this.text.toArgument(this.getParent());
+		writeLine.Text = this.text.toArgument(this.getParent(), validator);
 		writeLine.setDisplayName(this.displayName);
 		return writeLine;
 	}

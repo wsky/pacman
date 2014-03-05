@@ -8,6 +8,10 @@ public class IfDefinition extends ActivityDefinition {
 	protected ThenDefinition then;
 	protected ElseDefinition _else;
 
+	public IfDefinition() {
+		super("If");
+	}
+	
 	public IfDefinition(String displayName) {
 		super(displayName);
 	}
@@ -54,11 +58,18 @@ public class IfDefinition extends ActivityDefinition {
 	}
 
 	@Override
-	public Activity toActivity() {
+	protected Activity internalToActivity(DefinitionValidator validator) {
+		if (this.condition == null)
+			validator.addError("Condition not set");
+		if (validator.hasError())
+			return null;
+
 		If _if = new If();
-		_if.Condition = this.condition.toArgument(this.getParent());
-		_if.Then = this.then.toActivity();
-		_if.Else = this._else.toActivity();
+		_if.Condition = this.condition.toArgument(this.getParent(), validator);
+		if (this.then != null)
+			_if.Then = this.then.toActivity(validator);
+		if (this._else != null)
+			_if.Else = this._else.toActivity(validator);
 		return _if;
 	}
 
@@ -74,8 +85,8 @@ public class IfDefinition extends ActivityDefinition {
 		}
 
 		@Override
-		public Activity toActivity() {
-			return this.activity.toActivity();
+		protected Activity internalToActivity(DefinitionValidator validator) {
+			return this.activity != null ? this.activity.toActivity(validator) : null;
 		}
 
 		@Override
@@ -97,8 +108,8 @@ public class IfDefinition extends ActivityDefinition {
 		}
 
 		@Override
-		public Activity toActivity() {
-			return this.activity.toActivity();
+		protected Activity internalToActivity(DefinitionValidator validator) {
+			return this.activity != null ? this.activity.toActivity(validator) : null;
 		}
 
 		@Override

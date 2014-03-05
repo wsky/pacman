@@ -34,12 +34,19 @@ public class AssignDefinition extends ActivityDefinition {
 	}
 
 	@Override
-	public Activity toActivity() {
+	protected Activity internalToActivity(DefinitionValidator validator) {
+		if (this.value == null)
+			validator.addError("Value not set");
+		if (this.to == null)
+			validator.addError("To not set");
+
+		if (validator.hasError())
+			return null;
+
 		Assign assign = new Assign();
-		assign.Value = this.value.toArgument(this.getParent());
-		assign.To = this.to.toArgument(this.getParent());
+		assign.Value = this.value.toArgument(this.getParent(), validator);
+		assign.To = this.to.toArgument(this.getParent(), validator);
 		assign.setDisplayName(this.displayName);
 		return assign;
 	}
-
 }
