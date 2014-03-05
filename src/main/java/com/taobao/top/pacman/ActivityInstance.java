@@ -192,7 +192,7 @@ public class ActivityInstance {
 		this.state = ActivityInstanceState.Closed;
 	}
 
-	public void execute(ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	public void execute(ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		Helper.assertFalse(this.isInitializationIncomplete, "init incomplete");
 		this.markExecuted();
 		// NOTE 3.2 internal execute activity

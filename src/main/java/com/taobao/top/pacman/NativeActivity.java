@@ -4,7 +4,7 @@ import com.taobao.top.pacman.runtime.BookmarkManager;
 
 public abstract class NativeActivity extends Activity {
 	@Override
-	protected final void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	protected final void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 		NativeActivityContext context = executor.NativeActivityContextPool.acquire();
 		try {
 			context.initialize(instance, executor, bookmarkManager);
@@ -36,7 +36,7 @@ public abstract class NativeActivity extends Activity {
 		}
 	}
 
-	protected abstract void execute(NativeActivityContext context);
+	protected abstract void execute(NativeActivityContext context) throws Exception;
 
 	protected void abort(NativeActivityAbortContext context) {
 	}

@@ -244,7 +244,7 @@ public abstract class Activity {
 			this.symbolCount += this.implementationVariables.size();
 	}
 
-	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) {
+	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
 	}
 
 	protected void internalAbort(ActivityInstance instance, ActivityExecutor executor, Exception terminationReason) {
