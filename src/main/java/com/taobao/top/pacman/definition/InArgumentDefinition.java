@@ -23,11 +23,11 @@ public class InArgumentDefinition {
 		if (this.fromVariable == null)
 			return new InArgument(this.constValue);
 
-		Variable variable = parent.getVariable(this.fromVariable);
+		Variable variable = parent != null ? parent.getVariable(this.fromVariable) : null;
 		if (variable != null)
 			return new InArgument(variable);
 
-		validator.addError("can not find variable " + this.fromVariable);
+		validator.addError("can not find variable \"" + this.fromVariable + "\"");
 		return null;
 	}
 }
