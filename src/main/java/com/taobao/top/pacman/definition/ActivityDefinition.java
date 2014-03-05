@@ -54,6 +54,11 @@ public abstract class ActivityDefinition {
 		return this.variables;
 	}
 
+	@Override
+	public String toString() {
+		return this.displayName != null ? this.displayName : this.getClass().getSimpleName();
+	}
+
 	public final Activity toActivity(DefinitionValidator validator) {
 		validator.setCurrent(this);
 		return this.internalToActivity(validator);

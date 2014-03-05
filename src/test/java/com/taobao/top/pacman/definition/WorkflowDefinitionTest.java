@@ -59,6 +59,7 @@ public class WorkflowDefinitionTest {
 				End().
 				toActivity(validator);
 		assertTrue(validator.hasAnyError());
+		System.err.println(validator.getErrors());
 		for (Entry<ActivityDefinition, List<String>> e : validator.getErrors().entrySet()) {
 			System.err.println(e.getKey().getDisplayName());
 			System.err.println(Arrays.toString(e.getValue().toArray()));
