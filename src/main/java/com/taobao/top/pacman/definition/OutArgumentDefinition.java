@@ -1,28 +1,20 @@
 package com.taobao.top.pacman.definition;
 
 import com.taobao.top.pacman.OutArgument;
-import com.taobao.top.pacman.Variable;
 
 public class OutArgumentDefinition {
-	private String toVariable;
+	private VariableReferenceDefinition variable;
 
 	public OutArgumentDefinition() {
 	}
 
-	public OutArgumentDefinition ToVariable(String name) {
-		this.toVariable = name;
-		return this;
+	public OutArgumentDefinition(VariableReferenceDefinition variable) {
+		this.variable = variable;
 	}
 
 	public OutArgument toArgument(ActivityDefinition parent, DefinitionValidator validator) {
-		if (this.toVariable == null)
-			return new OutArgument();
-
-		Variable variable = parent != null ? parent.getVariable(this.toVariable) : null;
-		if (variable != null)
-			return new OutArgument(variable);
-
-		validator.addError("can not find variable \"" + this.toVariable + "\"");
-		return null;
+		return this.variable != null ?
+				new OutArgument(this.variable.toVariable(parent, validator)) :
+				new OutArgument();
 	}
 }

@@ -15,13 +15,17 @@ public class AssignDefinition extends ActivityDefinition {
 		super(displayName);
 	}
 
+	public AssignDefinition Value(FunctionDefinition function) {
+		return this.Value(new InArgumentDefinition(function));
+	}
+
+	public AssignDefinition Value(VariableReferenceDefinition variable) {
+		return this.Value(new InArgumentDefinition(variable));
+	}
+
 	public AssignDefinition Value(InArgumentDefinition value) {
 		this.value = value;
 		return this;
-	}
-
-	public AssignDefinition From(String name) {
-		return this.Value(new InArgumentDefinition().FromVariable(name));
 	}
 
 	public AssignDefinition To(OutArgumentDefinition to) {
@@ -29,8 +33,8 @@ public class AssignDefinition extends ActivityDefinition {
 		return this;
 	}
 
-	public AssignDefinition To(String name) {
-		return this.To(new OutArgumentDefinition().ToVariable(name));
+	public AssignDefinition To(VariableReferenceDefinition variable) {
+		return this.To(new OutArgumentDefinition(variable));
 	}
 
 	@Override

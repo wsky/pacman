@@ -22,11 +22,11 @@ public class WorkflowDefinitionTest {
 				Out("result").
 				Var("var").
 				Sequence().
-				Activity(new AssignDefinition().From("arg").To("var")).
-				Activity(new AssignDefinition().From("var").To("result")).
+				Activity(new AssignDefinition().Value(new VariableReferenceDefinition("arg")).To(new VariableReferenceDefinition("var"))).
+				Activity(new AssignDefinition().Value(new VariableReferenceDefinition("var")).To(new VariableReferenceDefinition("result"))).
 				If().
 				Condition().
-				Then(new WriteLineDefinition().From("arg")).
+				Then(new WriteLineDefinition().Text(new VariableReferenceDefinition("arg"))).
 				// in dynamic language
 				// then()
 				// writeLine().text("then").end().
@@ -45,6 +45,7 @@ public class WorkflowDefinitionTest {
 		inputs.put("arg", "hello");
 		Map<String, Object> outputs = WorkflowInstance.invoke(workflow, inputs);
 		System.out.println(outputs);
+		assertEquals("hello", outputs.get("result"));
 	}
 
 	@Test
@@ -55,7 +56,7 @@ public class WorkflowDefinitionTest {
 				Activity(new WriteLineDefinition()).
 				Activity(new IfDefinition()).
 				Activity(new AssignDefinition()).
-				Activity(new AssignDefinition().From("var").To("var")).
+				Activity(new AssignDefinition().Value(new VariableReferenceDefinition("var")).To(new VariableReferenceDefinition("var"))).
 				End().
 				toActivity(validator);
 		assertTrue(validator.hasAnyError());

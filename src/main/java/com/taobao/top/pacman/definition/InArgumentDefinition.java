@@ -1,11 +1,11 @@
 package com.taobao.top.pacman.definition;
 
 import com.taobao.top.pacman.InArgument;
-import com.taobao.top.pacman.Variable;
 
 public class InArgumentDefinition {
 	private Object constValue;
-	private String fromVariable;
+	private VariableReferenceDefinition variable;
+	private FunctionDefinition function;
 
 	public InArgumentDefinition() {
 	}
@@ -14,20 +14,21 @@ public class InArgumentDefinition {
 		this.constValue = constValue;
 	}
 
-	public InArgumentDefinition FromVariable(String name) {
-		this.fromVariable = name;
-		return this;
+	public InArgumentDefinition(FunctionDefinition function) {
+		this.function = function;
+	}
+
+	public InArgumentDefinition(VariableReferenceDefinition variable) {
+		this.variable = variable;
 	}
 
 	public InArgument toArgument(ActivityDefinition parent, DefinitionValidator validator) {
-		if (this.fromVariable == null)
-			return new InArgument(this.constValue);
+		if (this.function != null)
+			return new InArgument(this.function.toFunction(parent, validator));
 
-		Variable variable = parent != null ? parent.getVariable(this.fromVariable) : null;
-		if (variable != null)
-			return new InArgument(variable);
+		if (this.variable != null)
+			return new InArgument(this.variable.toVariable(parent, validator));
 
-		validator.addError("can not find variable \"" + this.fromVariable + "\"");
-		return null;
+		return new InArgument(this.constValue);
 	}
 }

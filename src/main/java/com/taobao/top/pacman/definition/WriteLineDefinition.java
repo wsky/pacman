@@ -22,13 +22,17 @@ public class WriteLineDefinition extends ActivityDefinition {
 		return this.Text(new InArgumentDefinition(constValue));
 	}
 
+	public WriteLineDefinition Text(FunctionDefinition function) {
+		return this.Text(new InArgumentDefinition(function));
+	}
+
 	public WriteLineDefinition Text(InArgumentDefinition text) {
 		this.text = text;
 		return this;
 	}
 
-	public WriteLineDefinition From(String name) {
-		return this.Text(new InArgumentDefinition().FromVariable(name));
+	public WriteLineDefinition Text(VariableReferenceDefinition variable) {
+		return this.Text(new InArgumentDefinition(variable));
 	}
 
 	@Override
@@ -37,7 +41,7 @@ public class WriteLineDefinition extends ActivityDefinition {
 			validator.addError("Text not set");
 		if (validator.hasError())
 			return null;
-		
+
 		WriteLine writeLine = new WriteLine();
 		writeLine.Text = this.text.toArgument(this.getParent(), validator);
 		writeLine.setDisplayName(this.displayName);

@@ -11,7 +11,7 @@ public class IfDefinition extends ActivityDefinition {
 	public IfDefinition() {
 		super("If");
 	}
-	
+
 	public IfDefinition(String displayName) {
 		super(displayName);
 	}
@@ -24,11 +24,13 @@ public class IfDefinition extends ActivityDefinition {
 		return this.Condition(new InArgumentDefinition(true));
 	}
 
-	public IfDefinition Condition(String name) {
-		return this.Condition(new InArgumentDefinition().FromVariable(name));
+	public IfDefinition Condition(VariableReferenceDefinition variable) {
+		return this.Condition(new InArgumentDefinition(variable));
 	}
 
-	// TODO how to use function from js?
+	public IfDefinition Condition(FunctionDefinition function) {
+		return this.Condition(new InArgumentDefinition(function));
+	}
 
 	public IfDefinition Condition(InArgumentDefinition condition) {
 		this.condition = condition;
