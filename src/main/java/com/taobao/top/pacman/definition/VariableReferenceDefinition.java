@@ -9,6 +9,10 @@ public class VariableReferenceDefinition {
 		this.name = name;
 	}
 
+	public String getName() {
+		return this.name;
+	}
+
 	public Variable toVariable(ActivityDefinition parent, DefinitionValidator validator) {
 		Variable variable = parent != null ? parent.getVariable(this.name) : null;
 		if (variable == null)
