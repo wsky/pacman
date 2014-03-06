@@ -64,12 +64,14 @@ public class JavaScriptDefinitionTest {
 		inputs.put("isThen", false);
 		Map<String, Object> outputs = WorkflowInstance.invoke(activity, inputs);
 		System.out.println(outputs);
-		
+
 		Exception exception = (Exception) outputs.get("exception");
 		if (exception != null) {
 			exception.printStackTrace();
 			fail();
 		}
+
+		assertArrayEquals(new String[] { "1", "2", "3" }, (String[]) outputs.get("result"));
 	}
 
 	public class DefinitonScripting {
@@ -77,7 +79,7 @@ public class JavaScriptDefinitionTest {
 			return new VariableReferenceDefinition(name);
 		}
 
-		public FunctionDefinition split(VariableReferenceDefinition variable, String separator) {
+		public InlinedFunctionDefinition split(VariableReferenceDefinition variable, String separator) {
 			return new SplitDefinition(variable, separator);
 		}
 	}

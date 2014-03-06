@@ -22,7 +22,7 @@ public class WriteLineDefinition extends ActivityDefinition {
 		return this.Text(new InArgumentDefinition(constValue));
 	}
 
-	public WriteLineDefinition Text(FunctionDefinition function) {
+	public WriteLineDefinition Text(InlinedFunctionDefinition function) {
 		return this.Text(new InArgumentDefinition(function));
 	}
 

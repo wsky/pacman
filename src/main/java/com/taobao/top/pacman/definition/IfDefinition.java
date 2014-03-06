@@ -28,7 +28,7 @@ public class IfDefinition extends ActivityDefinition {
 		return this.Condition(new InArgumentDefinition(variable));
 	}
 
-	public IfDefinition Condition(FunctionDefinition function) {
+	public IfDefinition Condition(InlinedFunctionDefinition function) {
 		return this.Condition(new InArgumentDefinition(function));
 	}
 

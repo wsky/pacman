@@ -5,7 +5,7 @@ import com.taobao.top.pacman.InArgument;
 public class InArgumentDefinition {
 	private Object constValue;
 	private VariableReferenceDefinition variable;
-	private FunctionDefinition function;
+	private InlinedFunctionDefinition function;
 
 	public InArgumentDefinition() {
 	}
@@ -14,7 +14,7 @@ public class InArgumentDefinition {
 		this.constValue = constValue;
 	}
 
-	public InArgumentDefinition(FunctionDefinition function) {
+	public InArgumentDefinition(InlinedFunctionDefinition function) {
 		this.function = function;
 	}
 

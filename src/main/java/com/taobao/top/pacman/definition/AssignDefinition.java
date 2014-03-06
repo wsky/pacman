@@ -15,7 +15,7 @@ public class AssignDefinition extends ActivityDefinition {
 		super(displayName);
 	}
 
-	public AssignDefinition Value(FunctionDefinition function) {
+	public AssignDefinition Value(InlinedFunctionDefinition function) {
 		return this.Value(new InArgumentDefinition(function));
 	}
 
