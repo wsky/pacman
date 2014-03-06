@@ -32,6 +32,8 @@ public abstract class Activity {
 	// it's private members
 	private ActivityMembers parentOf;
 
+	private MetadataCacheState cacheState;
+
 	public String getDisplayName() {
 		return this.displayName;
 	}
@@ -180,6 +182,9 @@ public abstract class Activity {
 		this.parent = null;
 		this.parentOf = null;
 
+		// TODO generate cacheId for avoid loop
+		this.clearCachedMetadata();
+		
 		this.root = this;
 		this.rootProperties = new RootProperties();
 		this.rootProperties.HostEnvironment = hostEnvironment;
@@ -200,6 +205,8 @@ public abstract class Activity {
 		this.root = parent.getRoot();
 		this.relationshipToParent = relationshipType;
 
+		this.clearCachedMetadata();
+
 		// set activity visibility
 		if (isPublic)
 			this.memberOf = parent.memberOf;
@@ -217,6 +224,23 @@ public abstract class Activity {
 		this.runtimeArguments = null;
 		this.runtimeVariables = null;
 		this.implementationVariables = null;
+		this.cacheState = MetadataCacheState.Uncached;
+	}
+
+	protected void setCached() {
+		this.cacheState = MetadataCacheState.Full;
+	}
+
+	protected void setRuntimeReady() {
+		this.cacheState = MetadataCacheState.RuntimeReady;
+	}
+
+	protected boolean isMetadataCached() {
+		return this.cacheState != MetadataCacheState.Uncached;
+	}
+
+	protected boolean isRuntimeReady() {
+		return this.cacheState == MetadataCacheState.RuntimeReady;
 	}
 
 	protected final void internalCacheMetadata() {
@@ -242,6 +266,8 @@ public abstract class Activity {
 			this.implementationVariables = emptyVariables;
 		else
 			this.symbolCount += this.implementationVariables.size();
+
+		this.cacheState = MetadataCacheState.Partial;
 	}
 
 	protected void internalExecute(ActivityInstance instance, ActivityExecutor executor, BookmarkManager bookmarkManager) throws Exception {
@@ -275,5 +301,12 @@ public abstract class Activity {
 
 	public class RootProperties {
 		public LocationReferenceEnvironment HostEnvironment;
+	}
+
+	public enum MetadataCacheState {
+		Uncached,
+		Partial,
+		Full,
+		RuntimeReady
 	}
 }

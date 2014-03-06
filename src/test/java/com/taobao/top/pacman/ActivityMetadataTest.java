@@ -128,6 +128,8 @@ public class ActivityMetadataTest {
 	}
 
 	private void assertRoot() {
+		assertTrue(root.isMetadataCached());
+		assertTrue(root.isRuntimeReady());
 		assertEquals(If.class, root.getChildren().get(0).getClass());
 		assertEquals("in", root.getRuntimeArguments().get(0).getName());
 		assertEquals("out", root.getRuntimeArguments().get(1).getName());
@@ -138,6 +140,7 @@ public class ActivityMetadataTest {
 	private void assertActivity(Activity root, Activity parent, Activity current, RelationshipType type, boolean isPublic) {
 		assertEquals(root, current.getRoot());
 		assertEquals(parent, current.getParent());
+		assertTrue(current.isMetadataCached());
 		if (type == null)
 			return;
 

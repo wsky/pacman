@@ -10,6 +10,7 @@ public class ActivityUtilities {
 			ProcessActivityCallback callback) {
 		activity.initializeAsRoot(hostEnvironment);
 		processActivityTree(activity, callback);
+		activity.setRuntimeReady();
 		// TODO support error validator
 	}
 
@@ -19,7 +20,15 @@ public class ActivityUtilities {
 		Activity currentActivity;
 		do {
 			currentActivity = stack.pop();
+
+			// here cacheState was partial
+			if (currentActivity.isMetadataCached()) {
+				currentActivity.setCached();
+				continue;
+			}
+
 			processActivity(currentActivity, stack);
+
 			if (callback != null)
 				callback.execute(currentActivity);
 		} while (!stack.isEmpty());
@@ -29,6 +38,10 @@ public class ActivityUtilities {
 		// add itself frist so that having a id
 		activity.getMemberOf().add(activity);
 		activity.internalCacheMetadata();
+
+		// push again for cacheState
+		stack.push(activity);
+
 		processChildren(activity, activity.getChildren(), RelationshipType.Child, stack);
 		processChildren(activity, activity.getImplementationChildren(), RelationshipType.ImplementationChild, stack);
 
@@ -63,8 +76,8 @@ public class ActivityUtilities {
 
 	private static void processChildren(Activity parent, List<Activity> children, RelationshipType relationshipType, Stack<Activity> stack) {
 		for (Activity activity : children) {
-			activity.initializeRelationship(parent, 
-					relationshipType, 
+			activity.initializeRelationship(parent,
+					relationshipType,
 					relationshipType != RelationshipType.ImplementationChild);
 			stack.push(activity);
 		}
