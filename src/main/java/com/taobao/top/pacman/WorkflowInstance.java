@@ -21,14 +21,6 @@ public class WorkflowInstance {
 	public WorkflowInstance(Activity workflowDefinition, Map<String, Object> inputs) {
 		this.workflowDefinition = workflowDefinition;
 		this.initialArguments = inputs;
-
-		// TODO check isRuntimeReady
-		ActivityUtilities.cacheRootMetadata(
-				this.workflowDefinition,
-				new ActivityLocationReferenceEnvironment(null),
-				// FIXME support handle
-				new RenderProcessActivityCallback());
-
 	}
 
 	protected <T> T getExtension(Class<T> type) {
@@ -69,6 +61,13 @@ public class WorkflowInstance {
 	}
 
 	private void initialize(Map<String, Object> inputs) {
+		if (!workflowDefinition.isRuntimeReady()) {
+			ActivityUtilities.cacheRootMetadata(
+					this.workflowDefinition,
+					new ActivityLocationReferenceEnvironment(null),
+					// FIXME just for test
+					new RenderProcessActivityCallback());
+		}
 		// if (inputs == null)
 		// inputs = ActivityUtilities.EmptyParameters;
 		// NOTE 1 prepare root schedule, first workItem

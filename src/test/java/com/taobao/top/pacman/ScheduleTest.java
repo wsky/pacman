@@ -21,6 +21,15 @@ public class ScheduleTest {
 	}
 
 	@Test
+	public void runtime_ready_test() throws Exception {
+		Activity workflow = new Workflow();
+		WorkflowInstance.invoke(workflow, null);
+		assertTrue(workflow.isRuntimeReady());
+		WorkflowInstance.invoke(workflow, null);
+		assertTrue(workflow.isRuntimeReady());
+	}
+
+	@Test
 	public void workflow_test() throws Exception {
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("name", "--------------- print test_name");

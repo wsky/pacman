@@ -77,6 +77,7 @@ public class ActivityMetadataTest {
 	public void cache_metadata_test() {
 		root.initializeAsRoot(new ActivityLocationReferenceEnvironment(null));
 		root.cacheMetadata(new ActivityMetadata(root, root.getParentEnvironment()));
+		root.setRuntimeReady();
 		assertRoot();
 	}
 
