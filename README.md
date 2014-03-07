@@ -12,13 +12,13 @@ var wf = Workflow.
     Out('result').
     Var('temp').
     Sequence().
-        Assign().From('arg1').To('temp').End().
-        If().Condition('temp').
+        Assign().From(Var('arg1')).To(Var('temp').End().
+        If().Condition(Var('temp').
             Then().
-                Assign().From('arg1').To('Result').End().
+                Assign().Value(Var('arg1').To(Var('Result')).End().
             End().
             Else().
-                Assign().From('arg2').To('Result').End().
+                Assign().Value(Var('arg2').To(Var('Result')).End().
             End().
         End().
         WriteLine().Text('end').End().
