@@ -8,6 +8,7 @@ import java.util.Map;
 public class DefinitionValidator {
 	private Map<ActivityDefinition, List<String>> errors;
 	private ActivityDefinition current;
+	private Map<Class<?>, Object> extensions;
 
 	public void setCurrent(ActivityDefinition current) {
 		this.current = current;
@@ -33,4 +34,16 @@ public class DefinitionValidator {
 			this.getErrors().put(this.current, errors = new ArrayList<String>());
 		errors.add(error);
 	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getExtension(Class<T> type) {
+		return this.extensions != null ? (T) this.extensions.get(type) : null;
+	}
+
+	public <T> void addExtension(Class<T> type, Object extension) {
+		if (this.extensions == null)
+			this.extensions = new HashMap<Class<?>, Object>();
+		this.extensions.put(type, extension);
+	}
+
 }
