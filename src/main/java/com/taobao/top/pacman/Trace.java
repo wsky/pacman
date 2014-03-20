@@ -74,7 +74,7 @@ public class Trace {
 					"[TRACE] exception propagated from %s to %s",
 					parse(exceptionSource),
 					parse(activityInstance)));
-			exception.printStackTrace();
+			//exception.printStackTrace();
 		} else
 			System.out.println(String.format(
 					"[TRACE] exception(%s) propagated from %s can not be catched",

@@ -141,7 +141,6 @@ public class ActivityExecutor {
 		// tell scheduler
 		this.isAbortPending = true;
 		this.host.abort(reason);
-		System.err.println("-- abortWorkflowInstance: " + reason.getMessage());
 	}
 
 	// called from context.abortChildInstance() or postProcess()
