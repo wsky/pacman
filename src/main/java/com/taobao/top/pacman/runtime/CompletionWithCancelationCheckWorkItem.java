@@ -13,7 +13,6 @@ public class CompletionWithCancelationCheckWorkItem extends CompletionWorkItem {
 		if (this.completedInstance.getState() != ActivityInstanceState.Closed &&
 				this.getActivityInstance().isPerformingDefaultCancelation()) {
 			this.getActivityInstance().markCanceled();
-			System.out.println("set canceling for " + this.getActivityInstance() + " in completion");
 		}
 		// NOTE still execute completionCallback for cancelaton
 		return super.execute(executor, bookmarkManager);

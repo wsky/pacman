@@ -175,10 +175,15 @@ public class ActivityInstance {
 	}
 
 	public void finalize(boolean fault) {
-		if (!fault)
-			return;
-		this.tryCancelParent();
-		this.state = ActivityInstanceState.Faulted;
+		if (fault) {
+			this.tryCancelParent();
+			this.state = ActivityInstanceState.Faulted;
+		}
+
+		// TODO can trace more type of trace record here
+
+		if (Trace.isEnabled())
+			Trace.traceActivityCompleted(this);
 	}
 
 	public void setCanceled() {
@@ -228,14 +233,7 @@ public class ActivityInstance {
 			// must remove self from parent
 			current.markAsComplete();
 			current.state = ActivityInstanceState.Faulted;
-
-			System.out.println(String.format("---- abort: instance#%s|%s|%s, completed=%s, state=%s, substate=%s",
-					current.getId(),
-					current.getActivity().getClass().getSimpleName(),
-					this.getActivity().getDisplayName(),
-					true,
-					current.getState(),
-					current.subState));
+			current.finalize(false);
 
 			if (current == root)
 				break;
@@ -390,30 +388,21 @@ public class ActivityInstance {
 			// }
 		}
 
-		System.out.println(String.format("---- update: instance#%s|%s|%s, completed=%s, state=%s, substate=%s",
-				this.getId(),
-				this.getActivity().getClass().getSimpleName(),
-				this.getActivity().getDisplayName(),
-				activityCompleted, this.getState(), this.subState));
-
 		return activityCompleted;
 	}
 
 	public void incrementBusyCount() {
 		this.busyCount++;
-		System.out.println("increment, " + this.id + ",busy=" + this.busyCount);
 	}
 
 	public void decrementBusyCount() {
 		Helper.assertTrue(this.busyCount > 0);
 		this.busyCount--;
-		System.out.println("decrement, " + this.id + ",busy=" + this.busyCount);
 	}
 
 	private void tryCancelParent() {
 		if (this.getParent() != null && this.getParent().isPerformingDefaultCancelation()) {
 			this.getParent().markCanceled();
-			System.out.println("try parent.markCanceled");
 		}
 	}
 

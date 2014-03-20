@@ -76,7 +76,7 @@ public class Parallel extends NativeActivity {
 		if (completedInstance.getState() != ActivityInstanceState.Closed && context.isCancellationRequested()) {
 			// NOTE how to reach here? parent called cancelChild()?
 			// maybe fault and parent call cancel(this)
-			System.err.println("child in non-closed state! cancel ourselves");
+			// System.err.println("child in non-closed state! cancel ourselves");
 			context.markCanceled();
 			this.hasCompleted.set(context, true);
 			return;

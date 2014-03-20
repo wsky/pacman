@@ -54,6 +54,9 @@ public class Scheduler {
 			this.workItemQueue.pushFront(this.firstWorkItem);
 			this.firstWorkItem = workItem;
 		}
+
+		if (Trace.isEnabled())
+			Trace.traceWorkItemScheduled(workItem);
 	}
 
 	public void enqueueWork(WorkItem workItem) {
@@ -65,11 +68,16 @@ public class Scheduler {
 				};
 			this.workItemQueue.enqueue(workItem);
 		}
+
+		if (Trace.isEnabled())
+			Trace.traceWorkItemScheduled(workItem);
 	}
 
 	private RequestedAction executeWorkItem(WorkItem workItem) throws Exception {
+		if (Trace.isEnabled())
+			Trace.traceWorkItemStarting(workItem);
+
 		RequestedAction action = this.executor.onExecuteWorkItem(workItem);
-		System.out.println("nextAction: " + action.getClass().getSimpleName());
 
 		// NOTE if yields, item still active and the callback should to dispose it
 		if (action == YIELD_SILENTLY_ACTION)
@@ -82,6 +90,9 @@ public class Scheduler {
 
 		// NOTE 5 cleanup and return workItem to pool
 		workItem.dispose(this.executor);
+
+		if (Trace.isEnabled())
+			Trace.traceWorkItemCompleted(workItem);
 
 		return action;
 	}
@@ -112,8 +123,6 @@ public class Scheduler {
 					null;
 
 			nextAction = scheduler.executeWorkItem(currentWorkItem);
-
-			System.out.println("nextAction real: " + nextAction.getClass().getSimpleName());
 		}
 
 		// we must process events or dispose workflow resources until idle or paused

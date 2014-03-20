@@ -43,14 +43,21 @@ public class WorkflowInstance {
 	}
 
 	protected void notifyPaused() {
-		System.out.println("paused");
-		// TODO raise some eventhanles or trace
+		if (Trace.isEnabled())
+			Trace.traceWorkflowCompleted(this);
+		// TODO check shouldRaiseComplte
+		// TODO raise some eventhandlers or trace
 	}
 
 	protected void notifyUnhandledException(Exception exception, Activity activity, int id) {
-		System.err.println("unhandleException");
-		this.abort(exception);
+		if (Trace.isEnabled())
+			Trace.traceWorkflowUnhandledException(this, activity, exception);
+
 		// TODO raise some eventhanles or trace
+
+		this.abort(exception);
+
+		this.notifyPaused();
 	}
 
 	private void ensureInitialized() {
@@ -90,6 +97,10 @@ public class WorkflowInstance {
 			WorkflowExtensionManager extensionManager) throws Exception {
 		WorkflowInstance instance = new WorkflowInstance(activity, inputs);
 		instance.extensionManager = extensionManager;
+
+		if (Trace.isEnabled())
+			Trace.traceWorkflowStart(instance);
+
 		instance.ensureInitialized();
 		instance.runScheduler();
 

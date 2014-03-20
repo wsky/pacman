@@ -68,13 +68,6 @@ public class ActivityExecutor {
 	}
 
 	protected RequestedAction onExecuteWorkItem(WorkItem workItem) throws Exception {
-		System.out.println(String.format("execute: %s, isValid=%s, isEmpty=%s, instance#%s, %s#%s",
-				workItem.getClass().getSimpleName(),
-				workItem.isValid(),
-				workItem.isEmpty(),
-				workItem.getActivityInstance().getId(),
-				workItem.getActivityInstance().getActivity().getClass().getSimpleName(),
-				workItem.getActivityInstance().getActivity().getDisplayName()));
 		workItem.release();
 
 		if (!workItem.isValid())
@@ -127,7 +120,6 @@ public class ActivityExecutor {
 	}
 
 	public Exception completeActivityInstance(ActivityInstance instance) {
-		System.out.println("complate activityInstance: " + instance.getActivity());
 		Exception exception = null;
 
 		this.handleRootCompletion(instance);
@@ -149,7 +141,7 @@ public class ActivityExecutor {
 		// tell scheduler
 		this.isAbortPending = true;
 		this.host.abort(reason);
-		System.out.println("-- abortWorkflowInstance: " + reason.getMessage());
+		System.err.println("-- abortWorkflowInstance: " + reason.getMessage());
 	}
 
 	// called from context.abortChildInstance() or postProcess()
@@ -176,11 +168,16 @@ public class ActivityExecutor {
 	}
 
 	public void scheduleRootActivity(Activity activity, Map<String, Object> argumentValues) {
+		// FIXME trace start here
+
 		this.rootActivity = activity;
 		this.rootInstance = new ActivityInstance(activity);
 		boolean requiresSymbolResolution = this.rootInstance.initialize(null, this.lastInstanceId, null, this);
+
+		if (Trace.isEnabled())
+			Trace.traceActivityScheduled(activity, this.rootInstance, null);
+
 		this.scheduler.pushWork(new ExecuteRootActivityWorkItem(this.rootInstance, requiresSymbolResolution, argumentValues));
-		System.out.println("push root work item");
 	}
 
 	public ActivityInstance scheduleActivity(
@@ -211,6 +208,10 @@ public class ActivityExecutor {
 			Location resultLocation) {
 		ActivityInstance instance = this.createActivityInstance(activity, parent, completionBookmark, faultBookmark);
 		boolean requiresSymbolResolution = instance.initialize(parent, this.lastInstanceId, parentEnvironment, this);
+
+		if (Trace.isEnabled())
+			Trace.traceActivityScheduled(activity, instance, parent);
+
 		this.scheduleBody(instance, requiresSymbolResolution, argumentValues, resultLocation);
 		return instance;
 	}
@@ -247,12 +248,10 @@ public class ActivityExecutor {
 
 	private void scheduleCompletionBookmark(ActivityInstance completedInstance) {
 		if (completedInstance.getCompletionBookmark() != null) {
-			System.out.println("push completion bookmark");
 			this.scheduler.pushWork(completedInstance.getCompletionBookmark().generateWorkItem(completedInstance, this));
 			return;
 		}
 		if (completedInstance.getParent() != null) {
-			System.out.println("push empty to raise parent");
 			// for variable.default and arugment.expression
 			// if resovle failed, it's state not equal to closed, should tell parent init incomplete
 			if (completedInstance.getState() != ActivityInstanceState.Closed && completedInstance.getParent().hasNotExecuted())
@@ -290,8 +289,10 @@ public class ActivityExecutor {
 			this.scheduler.pushWork(targetBookmark.generateWorkItem(
 					exception, exceptionPropagator, workItem.getOriginalExceptionSource()));
 			workItem.exceptionPropagated();
-			System.out.println("exception propagated from " + exceptionPropagator + " to " + exceptionPropagator.getParent());
 		}
+
+		if (Trace.isEnabled())
+			Trace.traceExceptionPropagated(exception, exceptionSource, exceptionPropagator.getParent());
 	}
 
 	// NOTE 4.3.1 gather root activity outputs
@@ -325,8 +326,6 @@ public class ActivityExecutor {
 			Helper.assertNotNull(location);
 			this.workflowOutputs.put(argument.getName(), location.getValue());
 		}
-
-		System.out.println("gather root outputs: " + this.workflowOutputs);
 	}
 
 	private ActivityInstance createActivityInstance(Activity activity,

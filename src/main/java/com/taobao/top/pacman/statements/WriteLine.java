@@ -26,6 +26,7 @@ public class WriteLine extends NativeActivity {
 
 	@Override
 	protected void execute(NativeActivityContext context) {
+		//FIXME support textWriter in writeLine
 		if (this.Text != null)
 			System.out.println("------------ println: " + this.Text.get(context));
 	}
