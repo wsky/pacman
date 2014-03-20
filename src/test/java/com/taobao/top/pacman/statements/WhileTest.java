@@ -11,6 +11,7 @@ import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.OutArgument;
 import com.taobao.top.pacman.RuntimeArgument;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
+import com.taobao.top.pacman.Trace;
 import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.VariableValue;
 
@@ -35,7 +36,8 @@ public class WhileTest extends StatementTestBase {
 				count.set(context, c);
 
 				assertTrue(c < 3);
-				System.err.println("while body execute " + c);
+
+				Trace.write("while body execute " + c);
 
 				if (c == 2)
 					this.condition.set(context, false);
@@ -47,7 +49,7 @@ public class WhileTest extends StatementTestBase {
 				metadata.bindAndAddArgument(this.count, new RuntimeArgument("count", Boolean.class, ArgumentDirection.Out));
 			}
 		};
-		
+
 		return while1;
 	}
 

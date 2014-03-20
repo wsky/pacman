@@ -5,6 +5,7 @@ import com.taobao.top.pacman.InArgument;
 import com.taobao.top.pacman.NativeActivity;
 import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.RuntimeArgument;
+import com.taobao.top.pacman.Trace;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 
 public class WriteLine extends NativeActivity {
@@ -28,6 +29,6 @@ public class WriteLine extends NativeActivity {
 	protected void execute(NativeActivityContext context) {
 		//FIXME support textWriter in writeLine
 		if (this.Text != null)
-			System.out.println("------------ println: " + this.Text.get(context));
+			Trace.write("------------ println: " + this.Text.get(context));
 	}
 }

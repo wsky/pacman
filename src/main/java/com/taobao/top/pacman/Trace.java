@@ -13,15 +13,27 @@ public class Trace {
 		isEnabled = value;
 	}
 
+	public static void write(Object input) {
+		if (!isEnabled)
+			return;
+		System.out.println(input);
+	}
+
 	public static void traceWorkflowStart(WorkflowInstance workflowInstance) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] workflow start"));
 	}
 
 	public static void traceWorkflowCompleted(WorkflowInstance workflowInstance) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] workflow completed"));
 	}
 
 	public static void traceWorkflowUnhandledException(WorkflowInstance workflowInstance, Activity source, Exception exception) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format(
 				"[TRACE] workflow unhandled exception(%s) from %s",
 				exception.getMessage(),
@@ -29,6 +41,8 @@ public class Trace {
 	}
 
 	public static void traceActivityScheduled(Activity activity, ActivityInstance activityInstance, ActivityInstance parent) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] activity scheduled: instance#%s|%s|%s, state=%s",
 				activityInstance.getId(),
 				activityInstance.getActivity().getClass().getSimpleName(),
@@ -37,6 +51,8 @@ public class Trace {
 	}
 
 	public static void traceActivityCompleted(ActivityInstance activityInstance) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] activity completed: instance#%s|%s|%s, state=%s",
 				activityInstance.getId(),
 				activityInstance.getActivity().getClass().getSimpleName(),
@@ -45,6 +61,8 @@ public class Trace {
 	}
 
 	public static void traceWorkItemScheduled(WorkItem workItem) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] workItem scheduled: %s, for instance#%s, %s#%s",
 				workItem.getClass().getSimpleName(),
 				workItem.getActivityInstance().getId(),
@@ -53,6 +71,8 @@ public class Trace {
 	}
 
 	public static void traceWorkItemStarting(WorkItem workItem) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] workItem starting: %s, isValid=%s, isEmpty=%s, for instance#%s, %s#%s",
 				workItem.getClass().getSimpleName(),
 				workItem.isValid(),
@@ -63,18 +83,22 @@ public class Trace {
 	}
 
 	public static void traceWorkItemCompleted(WorkItem workItem) {
+		if (!isEnabled)
+			return;
 		System.out.println(String.format("[TRACE] workItem completed: %s, for %s",
 				workItem.getClass().getSimpleName(),
 				parse(workItem.getActivityInstance())));
 	}
 
 	public static void traceExceptionPropagated(Exception exception, ActivityInstance exceptionSource, ActivityInstance activityInstance) {
+		if (!isEnabled)
+			return;
 		if (activityInstance != null) {
 			System.out.println(String.format(
 					"[TRACE] exception propagated from %s to %s",
 					parse(exceptionSource),
 					parse(activityInstance)));
-			//exception.printStackTrace();
+			// exception.printStackTrace();
 		} else
 			System.out.println(String.format(
 					"[TRACE] exception(%s) propagated from %s can not be catched",
