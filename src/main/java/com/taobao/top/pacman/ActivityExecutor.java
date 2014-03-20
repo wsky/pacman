@@ -292,7 +292,11 @@ public class ActivityExecutor {
 		}
 
 		if (Trace.isEnabled())
-			Trace.traceExceptionPropagated(exception, exceptionSource, exceptionPropagator.getParent());
+			Trace.traceExceptionPropagated(exception,
+					exceptionSource,
+					exceptionPropagator != null ?
+							exceptionPropagator.getParent() :
+							null);
 	}
 
 	// NOTE 4.3.1 gather root activity outputs
