@@ -8,6 +8,10 @@ public class RenderProcessActivityCallback implements ProcessActivityCallback {
 		this.render(activity);
 	}
 
+	protected void write(Object input) {
+		Trace.write(input + "\n");
+	}
+
 	private void render(Activity activity) {
 		int depth = getDepth(activity);
 		String blank = "";
@@ -20,24 +24,24 @@ public class RenderProcessActivityCallback implements ProcessActivityCallback {
 				// private memeber
 				activity.getMemberOf().getOwner().getId() + "." + activity.getId() + "";
 
-		System.out.println(String.format("%s%s %s, displayName=%s",
+		this.write(String.format("%s%s %s, displayName=%s",
 				depth >= 1 ? blank + "- " : blank,
 				id,
 				activity.getClass().getSimpleName(),
 				activity.getDisplayName()));
 
 		for (RuntimeArgument argument : activity.getRuntimeArguments())
-			System.out.println(String.format(
+			this.write(String.format(
 					"%s    * %s#%s argument: %s, direction=%s",
 					blank, id, argument.getId(), argument.getName(), argument.getDirection()));
 
 		for (Variable variable : activity.getRuntimeVariables())
-			System.out.println(String.format(
+			this.write(String.format(
 					"%s    * %s#%s variable: %s, isPublic=%s",
 					blank, id, variable.getId(), variable.getName(), variable.isPublic()));
 
 		for (Variable variable : activity.getImplementationVariables())
-			System.out.println(String.format(
+			this.write(String.format(
 					"%s    * %s#%s implVariable: %s, isPublic=%s",
 					blank, id, variable.getId(), variable.getName(), variable.isPublic()));
 	}

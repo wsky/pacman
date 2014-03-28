@@ -37,7 +37,7 @@ public class WhileTest extends StatementTestBase {
 
 				assertTrue(c < 3);
 
-				Trace.write("while body execute " + c);
+				Trace.writeLine("while body execute " + c);
 
 				if (c == 2)
 					this.condition.set(context, false);

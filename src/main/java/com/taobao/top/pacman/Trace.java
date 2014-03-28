@@ -2,8 +2,10 @@ package com.taobao.top.pacman;
 
 import com.taobao.top.pacman.runtime.WorkItem;
 
+// used for global schedule trace
 public class Trace {
 	private static boolean isEnabled = true;
+	private static Writer writer = new Writer();
 
 	public static boolean isEnabled() {
 		return isEnabled;
@@ -13,29 +15,39 @@ public class Trace {
 		isEnabled = value;
 	}
 
+	public static void setWriter(Writer writer) {
+		Trace.writer = writer;
+	}
+
+	public static void writeLine(Object input) {
+		if (!isEnabled)
+			return;
+		writer.writeLine("[TRACE] " + input);
+	}
+
 	public static void write(Object input) {
 		if (!isEnabled)
 			return;
-		System.out.println(input);
+		writer.write(input);
 	}
 
 	public static void traceWorkflowStart(WorkflowInstance workflowInstance) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] workflow start"));
+		writeLine(String.format("workflow start"));
 	}
 
 	public static void traceWorkflowCompleted(WorkflowInstance workflowInstance) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] workflow completed"));
+		writeLine(String.format("workflow completed"));
 	}
 
 	public static void traceWorkflowUnhandledException(WorkflowInstance workflowInstance, Activity source, Exception exception) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format(
-				"[TRACE] workflow unhandled exception(%s) from %s",
+		writeLine(String.format(
+				"workflow unhandled exception(%s) from %s",
 				exception.getMessage(),
 				parse(source)));
 	}
@@ -43,7 +55,7 @@ public class Trace {
 	public static void traceActivityScheduled(Activity activity, ActivityInstance activityInstance, ActivityInstance parent) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] activity scheduled: instance#%s|%s|%s, state=%s",
+		writeLine(String.format("activity scheduled: instance#%s|%s|%s, state=%s",
 				activityInstance.getId(),
 				activityInstance.getActivity().getClass().getSimpleName(),
 				activityInstance.getActivity().getDisplayName(),
@@ -53,7 +65,7 @@ public class Trace {
 	public static void traceActivityCompleted(ActivityInstance activityInstance) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] activity completed: instance#%s|%s|%s, state=%s",
+		writeLine(String.format("activity completed: instance#%s|%s|%s, state=%s",
 				activityInstance.getId(),
 				activityInstance.getActivity().getClass().getSimpleName(),
 				activityInstance.getActivity().getDisplayName(),
@@ -63,7 +75,7 @@ public class Trace {
 	public static void traceWorkItemScheduled(WorkItem workItem) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] workItem scheduled: %s, for instance#%s, %s#%s",
+		writeLine(String.format("workItem scheduled: %s, for instance#%s, %s#%s",
 				workItem.getClass().getSimpleName(),
 				workItem.getActivityInstance().getId(),
 				workItem.getActivityInstance().getActivity().getClass().getSimpleName(),
@@ -73,7 +85,7 @@ public class Trace {
 	public static void traceWorkItemStarting(WorkItem workItem) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] workItem starting: %s, isValid=%s, isEmpty=%s, for instance#%s, %s#%s",
+		writeLine(String.format("workItem starting: %s, isValid=%s, isEmpty=%s, for instance#%s, %s#%s",
 				workItem.getClass().getSimpleName(),
 				workItem.isValid(),
 				workItem.isEmpty(),
@@ -85,7 +97,7 @@ public class Trace {
 	public static void traceWorkItemCompleted(WorkItem workItem) {
 		if (!isEnabled)
 			return;
-		System.out.println(String.format("[TRACE] workItem completed: %s, for %s",
+		writeLine(String.format("workItem completed: %s, for %s",
 				workItem.getClass().getSimpleName(),
 				parse(workItem.getActivityInstance())));
 	}
@@ -94,14 +106,14 @@ public class Trace {
 		if (!isEnabled)
 			return;
 		if (activityInstance != null) {
-			System.out.println(String.format(
-					"[TRACE] exception propagated from %s to %s",
+			writeLine(String.format(
+					"exception propagated from %s to %s",
 					parse(exceptionSource),
 					parse(activityInstance)));
 			// exception.printStackTrace();
 		} else
-			System.out.println(String.format(
-					"[TRACE] exception(%s) propagated from %s can not be catched",
+			writeLine(String.format(
+					"exception(%s) propagated from %s can not be catched",
 					exception.getMessage(),
 					parse(exceptionSource)));
 	}
@@ -118,5 +130,15 @@ public class Trace {
 				String.format("%s#%s",
 						activity.getClass().getSimpleName(),
 						activity.getDisplayName()) : null;
+	}
+
+	public static class Writer {
+		public void write(Object input) {
+			System.out.print(input);
+		}
+
+		public void writeLine(Object input) {
+			System.out.println(input);
+		}
 	}
 }
