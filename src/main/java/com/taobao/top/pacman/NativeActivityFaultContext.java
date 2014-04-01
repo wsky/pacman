@@ -5,8 +5,8 @@ import com.taobao.top.pacman.runtime.BookmarkManager;
 public class NativeActivityFaultContext extends NativeActivityContext {
 	private boolean isFaultHandled;
 
-	// private Exception exception;
-	// private ActivityInstance source;
+	private Exception exception;
+	private ActivityInstance source;
 
 	public NativeActivityFaultContext(
 			ActivityInstance activityInstance,
@@ -15,8 +15,8 @@ public class NativeActivityFaultContext extends NativeActivityContext {
 			Exception exception,
 			ActivityInstance source) {
 		super(activityInstance, executor, bookmarkManager);
-		// this.exception = exception;
-		// this.source = source;
+		this.exception = exception;
+		this.source = source;
 	}
 
 	public boolean isFaultHandled() {
@@ -25,5 +25,9 @@ public class NativeActivityFaultContext extends NativeActivityContext {
 
 	public void handleFault() {
 		this.isFaultHandled = true;
+	}
+
+	public FaultContext createFaultContext() {
+		return new FaultContext(this.exception, this.source);
 	}
 }

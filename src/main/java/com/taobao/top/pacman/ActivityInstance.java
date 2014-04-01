@@ -119,7 +119,7 @@ public class ActivityInstance {
 		this.subState = SubState.Executing;
 	}
 
-	protected boolean isCancellationRequested() {
+	public boolean isCancellationRequested() {
 		return this.isCancellationRequested;
 	}
 
