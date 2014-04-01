@@ -24,6 +24,10 @@ public class TryCatch extends NativeActivity {
 	public Activity Try;
 	public Activity Finally;
 
+	public TryCatch() {
+		this.state = new Variable();
+	}
+
 	public List<Variable> getVariables() {
 		if (this.variables == null)
 			this.variables = new ArrayList<Variable>();

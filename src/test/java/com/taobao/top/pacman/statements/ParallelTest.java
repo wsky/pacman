@@ -35,7 +35,7 @@ public class ParallelTest extends StatementTestBase {
 
 	@Ignore
 	public void cancel_test() throws java.lang.Exception {
-		// TODO parallel should have parent, and call cancel while fault
+		// FIXME parallel should have parent, and call cancel while fault
 		Parallel parallel = new Parallel();
 
 		Variable completed = new Variable("completed", false);
