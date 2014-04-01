@@ -142,6 +142,23 @@ public class TryCatchTest extends StatementTestBase {
 		}
 	}
 
+	@Test
+	public void error_in_finally_test() throws Exception {
+		TryCatch tryCatch = new TryCatch();
+		tryCatch.Try = new WriteLine("try");
+		tryCatch.Finally = new NativeActivity() {
+			@Override
+			protected void execute(NativeActivityContext context) throws Exception {
+				throw new IndexOutOfBoundsException("error in finally");
+			}
+		};
+		assertEquals(IndexOutOfBoundsException.class,
+				WorkflowInstance.invoke(new ExceptionHandled(tryCatch), null).
+						get("exception").
+						getClass());
+
+	}
+
 	public class ExceptionHandled extends NativeActivity {
 		public OutArgument exception;
 		public Activity body;
