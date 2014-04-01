@@ -106,7 +106,7 @@ public class TryCatch extends NativeActivity {
 							new CompletionCallback() {
 								@Override
 								public void execute(NativeActivityContext context, ActivityInstance completedInstance) {
-									OnCatchComplete(context, completedInstance);
+									onCatchComplete(context, completedInstance);
 								}
 							},
 							this.getExceptionFromCatchOrFinallyHandler());
@@ -115,7 +115,7 @@ public class TryCatch extends NativeActivity {
 			}
 		}
 
-		OnCatchComplete(context, null);
+		onCatchComplete(context, null);
 	}
 
 	private void onExceptionFromTry(
@@ -139,7 +139,7 @@ public class TryCatch extends NativeActivity {
 		faultContext.handleFault();
 	}
 
-	void OnCatchComplete(NativeActivityContext context, ActivityInstance completedInstance) {
+	void onCatchComplete(NativeActivityContext context, ActivityInstance completedInstance) {
 		// Start suppressing cancel for the finally activity
 		State state = (State) this.state.get(context);
 		state.SuppressCancel = true;
@@ -190,7 +190,8 @@ public class TryCatch extends NativeActivity {
 			NativeActivityFaultContext faultContext,
 			Exception propagatedException,
 			ActivityInstance propagatedFrom) {
-		// We allow cancel through if there is an exception from the catch or finally
+		// NOTE if error in catch, finally only executed after parent handle the error
+		// as error not handled, it was treated as runtime crash.
 		State state = (State) this.state.get(faultContext);
 		state.SuppressCancel = false;
 	}
@@ -234,6 +235,10 @@ public class TryCatch extends NativeActivity {
 		public Catch(Class<?> exceptionType, Activity action) {
 			this.exceptionType = exceptionType;
 			this.action = action;
+		}
+
+		public Class<?> getExceptionType() {
+			return this.exceptionType;
 		}
 
 		public Activity getAction() {
