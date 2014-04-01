@@ -11,6 +11,9 @@ import java.util.Map.Entry;
 import org.junit.Test;
 
 import com.taobao.top.pacman.Activity;
+import com.taobao.top.pacman.ActivityContext;
+import com.taobao.top.pacman.Function;
+import com.taobao.top.pacman.InlinedFunctionValue;
 import com.taobao.top.pacman.WorkflowInstance;
 
 public class WorkflowDefinitionTest {
@@ -19,11 +22,25 @@ public class WorkflowDefinitionTest {
 		DefinitionValidator validator = new DefinitionValidator();
 		Activity workflow = WorkflowDefinition.Create().
 				In("arg").
+				In("bool").
 				Out("result").
 				Var("var").
 				Sequence().
 				Activity(new AssignDefinition().Value(new VariableReferenceDefinition("arg")).To(new VariableReferenceDefinition("var"))).
 				Activity(new AssignDefinition().Value(new VariableReferenceDefinition("var")).To(new VariableReferenceDefinition("result"))).
+				Activity(new WhileDefinition().Condition(new InlinedFunctionDefinition() {
+					@Override
+					public InlinedFunctionValue toFunction(ActivityDefinition parent, DefinitionValidator validator) {
+						return new InlinedFunctionValue(new Function<ActivityContext, Object>() {
+							private boolean b = false;
+
+							@Override
+							public Object execute(ActivityContext context) {
+								return b = !b;
+							}
+						});
+					}
+				}).Body(new WriteLineDefinition().Text("while"))).
 				If().
 				Condition().
 				Then(new WriteLineDefinition().Text(new VariableReferenceDefinition("arg"))).

@@ -62,6 +62,16 @@ public abstract class ActivityContainerDefinition extends ActivityDefinition {
 		return assign;
 	}
 
+	public WhileDefinition While() {
+		return this.While("While");
+	}
+
+	public WhileDefinition While(String displayName) {
+		WhileDefinition whileDefinition = new WhileDefinition(displayName);
+		this.addActivity(whileDefinition);
+		return whileDefinition;
+	}
+
 	protected void addActivity(ActivityDefinition activity) {
 		activity.setParent(this);
 		this.activities.add(activity);

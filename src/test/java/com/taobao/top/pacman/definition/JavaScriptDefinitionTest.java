@@ -31,6 +31,7 @@ public class JavaScriptDefinitionTest {
 					"wf." +
 							"	In('arg')." +
 							"	In('isThen')." +
+							"	In('isWhile')." +
 							"	Out('result')." +
 							"	Sequence()." +
 							"		WriteLine().Text('hello').End()." +
@@ -42,6 +43,11 @@ public class JavaScriptDefinitionTest {
 							"			End()." +
 							"			Else()." +
 							"				WriteLine().Text('else').End()." +
+							"			End()." +
+							"		End()." +
+							"		While().Condition(Var('isWhile'))." +
+							"			Body()." +
+							"				Assign().Value(false).To(Var('isWhile')).End()." +
 							"			End()." +
 							"		End()." +
 							"	End()." +
@@ -62,6 +68,7 @@ public class JavaScriptDefinitionTest {
 		Map<String, Object> inputs = new HashMap<String, Object>();
 		inputs.put("arg", "1,2,3");
 		inputs.put("isThen", false);
+		inputs.put("isWhile", true);
 		Map<String, Object> outputs = WorkflowInstance.invoke(activity, inputs);
 		System.out.println(outputs);
 

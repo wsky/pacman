@@ -56,7 +56,7 @@ public class While extends NativeActivity {
 	}
 
 	private void onConditionComplete(NativeActivityContext context, ActivityInstance completedInstance, Boolean result) {
-		if (!result)
+		if (result == null || !result)
 			return;
 		if (Body == null) {
 			scheduleCondition(context);
