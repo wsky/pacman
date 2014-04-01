@@ -139,7 +139,7 @@ public class TryCatch extends NativeActivity {
 		faultContext.handleFault();
 	}
 
-	void onCatchComplete(NativeActivityContext context, ActivityInstance completedInstance) {
+	private void onCatchComplete(NativeActivityContext context, ActivityInstance completedInstance) {
 		// Start suppressing cancel for the finally activity
 		State state = (State) this.state.get(context);
 		state.SuppressCancel = true;
@@ -162,7 +162,7 @@ public class TryCatch extends NativeActivity {
 			onFinallyComplete(context, null);
 	}
 
-	void onFinallyComplete(NativeActivityContext context, ActivityInstance completedInstance) {
+	private void onFinallyComplete(NativeActivityContext context, ActivityInstance completedInstance) {
 		State state = (State) this.state.get(context);
 		if (context.isCancellationRequested() && !state.ExceptionHandled)
 			// maybe error2 in finally and parent handle it,

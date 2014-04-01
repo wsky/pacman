@@ -159,6 +159,36 @@ public class TryCatchTest extends StatementTestBase {
 
 	}
 
+	@Test
+	public void mark_canceled_in_finally_test() throws Exception {
+		TryCatch tryCatch = new TryCatch();
+		tryCatch.setDisplayName("tryCatch");
+		tryCatch.Try = new NativeActivity() {
+			@Override
+			protected void execute(NativeActivityContext context) throws Exception {
+				throw new IndexOutOfBoundsException("error in try");
+			}
+		};
+
+		final AtomicInteger counter = new AtomicInteger();
+		tryCatch.Finally = new NativeActivity() {
+			@Override
+			protected void execute(NativeActivityContext context) throws Exception {
+				counter.incrementAndGet();
+			}
+		};
+
+		try {
+			// parent call cancelChildren() and context.markCanceled() called in onFinallyComplete
+			assertEquals(IndexOutOfBoundsException.class,
+					WorkflowInstance.invoke(new ExceptionCanceled(tryCatch), null).
+							get("exception").
+							getClass());
+		} finally {
+			assertEquals(1, counter.get());
+		}
+	}
+
 	public class ExceptionHandled extends NativeActivity {
 		public OutArgument exception;
 		public Activity body;
@@ -184,6 +214,27 @@ public class TryCatchTest extends StatementTestBase {
 						ActivityInstance propagatedFrom) {
 					exception.set(faultContext, propagatedException);
 					faultContext.handleFault();
+				}
+			});
+		}
+	}
+
+	public class ExceptionCanceled extends ExceptionHandled {
+		public ExceptionCanceled(Activity body) {
+			super(body);
+		}
+
+		@Override
+		protected void execute(NativeActivityContext context) throws Exception {
+			context.scheduleActivity(this.body, new FaultCallback() {
+				@Override
+				public void execute(
+						NativeActivityFaultContext faultContext,
+						Exception propagatedException,
+						ActivityInstance propagatedFrom) {
+					exception.set(faultContext, propagatedException);
+					faultContext.handleFault();
+					faultContext.cancelChildren();
 				}
 			});
 		}
