@@ -16,7 +16,7 @@ public abstract class ActivityContainerDefinition extends ActivityDefinition {
 		this.activities = new ArrayList<ActivityDefinition>();
 		this.variables = new ArrayList<VariableDefinition>();
 	}
-
+	
 	public ActivityContainerDefinition Var(String name) {
 		this.variables.add(new VariableDefinition(name));
 		return this;
