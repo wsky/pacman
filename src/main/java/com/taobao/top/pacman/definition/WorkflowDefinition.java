@@ -152,7 +152,6 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 				faultContext.handleFault();
 			}
 		};
-		workflow.setDisplayName(this.displayName);
 		return workflow;
 	}
 

@@ -67,6 +67,7 @@ public class IfDefinition extends ActivityDefinition {
 			return null;
 
 		If _if = new If();
+		_if.setDisplayName(this.getDisplayName());
 		_if.Condition = this.condition.toArgument(this.getParent(), validator);
 		if (this.then != null)
 			_if.Then = this.then.toActivity(validator);

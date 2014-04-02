@@ -9,8 +9,7 @@ import com.taobao.top.pacman.Variable;
 public abstract class ActivityDefinition {
 	private ActivityDefinition parent;
 	private Map<String, Variable> variables;
-
-	protected String displayName;
+	private String displayName;
 
 	public ActivityDefinition(String displayName) {
 		this(displayName, null);
@@ -56,12 +55,15 @@ public abstract class ActivityDefinition {
 
 	@Override
 	public String toString() {
-		return this.displayName != null ? this.displayName : this.getClass().getSimpleName();
+		return this.getDisplayName() != null ? this.getDisplayName() : this.getClass().getSimpleName();
 	}
 
 	public final Activity toActivity(DefinitionValidator validator) {
 		validator.setCurrent(this);
-		return this.internalToActivity(validator);
+		Activity activity = this.internalToActivity(validator);
+		if (activity != null && activity.getDisplayName() == null)
+			activity.setDisplayName(this.getDisplayName());
+		return activity;
 	}
 
 	protected abstract Activity internalToActivity(DefinitionValidator validator);

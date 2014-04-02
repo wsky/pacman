@@ -44,7 +44,6 @@ public class WriteLineDefinition extends ActivityDefinition {
 
 		WriteLine writeLine = new WriteLine();
 		writeLine.Text = this.text.toArgument(this.getParent(), validator);
-		writeLine.setDisplayName(this.displayName);
 		return writeLine;
 	}
 }

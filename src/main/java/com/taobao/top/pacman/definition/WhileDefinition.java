@@ -47,6 +47,7 @@ public class WhileDefinition extends ActivityDefinition {
 			return null;
 
 		While _while = new While();
+		_while.setDisplayName(this.getDisplayName());
 		_while.Condition = this.condition.toActivity(this.getParent(), validator);
 		if (this.body != null)
 			_while.Body = this.body.toActivity(validator);

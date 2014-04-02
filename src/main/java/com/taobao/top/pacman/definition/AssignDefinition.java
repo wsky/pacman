@@ -54,7 +54,6 @@ public class AssignDefinition extends ActivityDefinition {
 		Assign assign = new Assign();
 		assign.Value = this.value.toArgument(this.getParent(), validator);
 		assign.To = this.to.toArgument(this.getParent(), validator);
-		assign.setDisplayName(this.displayName);
 		return assign;
 	}
 }

@@ -22,7 +22,6 @@ public class SequenceDefinition extends ActivityContainerDefinition {
 	@Override
 	protected Activity internalToActivity(DefinitionValidator validator) {
 		Sequence sequence = new Sequence();
-		sequence.setDisplayName(this.displayName);
 		for (VariableDefinition variable : this.variables) {
 			Variable var = variable.toVariable();
 			this.addVariable(variable.getName(), var);
