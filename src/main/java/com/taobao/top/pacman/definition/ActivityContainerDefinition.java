@@ -16,7 +16,7 @@ public abstract class ActivityContainerDefinition extends ActivityDefinition {
 		this.activities = new ArrayList<ActivityDefinition>();
 		this.variables = new ArrayList<VariableDefinition>();
 	}
-	
+
 	public ActivityContainerDefinition Var(String name) {
 		this.variables.add(new VariableDefinition(name));
 		return this;
@@ -70,6 +70,16 @@ public abstract class ActivityContainerDefinition extends ActivityDefinition {
 		WhileDefinition whileDefinition = new WhileDefinition(displayName);
 		this.addActivity(whileDefinition);
 		return whileDefinition;
+	}
+
+	public TryCatchDefinition TryCatch() {
+		return this.TryCatch("TryCatch");
+	}
+
+	public TryCatchDefinition TryCatch(String displayName) {
+		TryCatchDefinition tryCatch = new TryCatchDefinition(displayName);
+		this.addActivity(tryCatch);
+		return tryCatch;
 	}
 
 	protected void addActivity(ActivityDefinition activity) {

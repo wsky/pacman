@@ -50,6 +50,11 @@ public class JavaScriptDefinitionTest {
 							"				Assign().Value(false).To(Var('isWhile')).End()." +
 							"			End()." +
 							"		End()." +
+							"		TryCatch()." +
+							"			Try().WriteLine().Text('try').End().End()." +
+							"			Catch().WriteLine().Text('catch').End().End()." +
+							"			Finally().WriteLine().Text('finally').End().End()." +
+							"		End()." +
 							"	End()." +
 							"End()",
 					"DSL", 1, null);
