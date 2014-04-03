@@ -169,12 +169,4 @@ public class WorkflowDefinition extends ActivityDefinition {
 		if (body == null)
 			this.body = activity;
 	}
-
-	public static WorkflowDefinition Create() {
-		return new WorkflowDefinition("Workflow", null);
-	}
-
-	public static WorkflowDefinition Create(String displayName) {
-		return new WorkflowDefinition(displayName, null);
-	}
 }

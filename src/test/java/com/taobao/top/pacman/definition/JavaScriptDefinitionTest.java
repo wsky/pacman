@@ -17,7 +17,7 @@ import com.taobao.top.pacman.definition.functions.SplitDefinition;
 public class JavaScriptDefinitionTest {
 	@Test
 	public void parse_test() throws Exception {
-		WorkflowDefinition workflow = WorkflowDefinition.Create();
+		WorkflowDefinition workflow = new WorkflowDefinition();
 		Context ctx = Context.enter();
 		try {
 			Scriptable scope = ctx.initStandardObjects();

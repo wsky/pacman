@@ -20,7 +20,7 @@ public class WorkflowDefinitionTest {
 	@Test
 	public void create_test() throws Exception {
 		DefinitionValidator validator = new DefinitionValidator();
-		Activity workflow = WorkflowDefinition.Create().
+		Activity workflow = new WorkflowDefinition().
 				In("arg").
 				In("bool").
 				Out("result").
@@ -72,7 +72,7 @@ public class WorkflowDefinitionTest {
 	@Test
 	public void validate_test() throws Exception {
 		DefinitionValidator validator = new DefinitionValidator();
-		WorkflowDefinition.Create().
+		new WorkflowDefinition().
 				Activity(
 						new SequenceDefinition().
 								Activity(new WriteLineDefinition()).
