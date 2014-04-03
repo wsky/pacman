@@ -17,6 +17,6 @@ public class WrappedActivityDefinition extends ActivityDefinition {
 
 	@Override
 	protected Activity internalToActivity(DefinitionValidator validator) {
-		return this.activity.toActivity(validator);
+		return this.activity != null ? this.activity.toActivity(validator) : null;
 	}
 }
