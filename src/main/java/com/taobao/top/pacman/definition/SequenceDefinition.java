@@ -4,14 +4,18 @@ import com.taobao.top.pacman.Activity;
 import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.statements.Sequence;
 
-public class SequenceDefinition extends ActivityContainerDefinition {
+public class SequenceDefinition extends ActivityDefinition {
+	public SequenceDefinition() {
+		this("Sequence");
+	}
+
 	public SequenceDefinition(String displayName) {
 		super(displayName);
 	}
 
-	@Override
 	public SequenceDefinition Var(String name) {
-		return (SequenceDefinition) super.Var(name);
+		this.addVariable(name);
+		return this;
 	}
 
 	public SequenceDefinition Activity(ActivityDefinition activity) {

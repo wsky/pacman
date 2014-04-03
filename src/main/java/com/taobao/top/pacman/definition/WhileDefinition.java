@@ -5,7 +5,7 @@ import com.taobao.top.pacman.statements.While;
 
 public class WhileDefinition extends ActivityDefinition {
 	protected ActivityWithResultDefinition condition;
-	protected BodyDefinition body;
+	protected ActivityDefinition body;
 
 	public WhileDefinition() {
 		this("While");
@@ -28,14 +28,9 @@ public class WhileDefinition extends ActivityDefinition {
 		return this;
 	}
 
-	public BodyDefinition Body() {
-		this.body = new BodyDefinition(this);
-		return this.body;
-	}
-
 	public WhileDefinition Body(ActivityDefinition activity) {
-		this.body = new BodyDefinition(this);
-		this.body.addActivity(activity);
+		this.body = activity;
+		this.addActivity(activity);
 		return this;
 	}
 
@@ -54,27 +49,10 @@ public class WhileDefinition extends ActivityDefinition {
 		return _while;
 	}
 
-	public static class BodyDefinition extends ActivityContainerDefinition {
-		private ActivityDefinition activity;
+	// fluent
 
-		public BodyDefinition(WhileDefinition parent) {
-			super("Body", parent);
-		}
-
-		@Override
-		public WhileDefinition End() {
-			return (WhileDefinition) super.End();
-		}
-
-		@Override
-		protected Activity internalToActivity(DefinitionValidator validator) {
-			return this.activity != null ? this.activity.toActivity(validator) : null;
-		}
-
-		@Override
-		protected void addActivity(ActivityDefinition activity) {
-			this.activity = activity;
-			super.addActivity(activity);
-		}
+	public ActivityDefinition Body() {
+		this.Body(new WrappedActivityDefinition("Body"));
+		return this.body;
 	}
 }

@@ -232,7 +232,7 @@ public class TryCatch extends NativeActivity {
 		// FIXME impl ActivityAction
 		private Activity action;
 
-		public Catch(Class<?> exceptionType, Activity action) {
+		public Catch(Class<? extends Exception> exceptionType, Activity action) {
 			this.exceptionType = exceptionType;
 			this.action = action;
 		}

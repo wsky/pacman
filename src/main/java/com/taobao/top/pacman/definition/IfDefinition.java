@@ -5,8 +5,8 @@ import com.taobao.top.pacman.statements.If;
 
 public class IfDefinition extends ActivityDefinition {
 	protected InArgumentDefinition condition;
-	protected ThenDefinition then;
-	protected ElseDefinition _else;
+	protected ActivityDefinition then;
+	protected ActivityDefinition _else;
 
 	public IfDefinition() {
 		super("If");
@@ -14,10 +14,6 @@ public class IfDefinition extends ActivityDefinition {
 
 	public IfDefinition(String displayName) {
 		super(displayName);
-	}
-
-	public ActivityContainerDefinition EndIf() {
-		return (ActivityContainerDefinition) super.End();
 	}
 
 	public IfDefinition Condition() {
@@ -37,25 +33,15 @@ public class IfDefinition extends ActivityDefinition {
 		return this;
 	}
 
-	public ThenDefinition Then() {
-		this.then = new ThenDefinition(null, this);
-		return this.then;
-	}
-
 	public IfDefinition Then(ActivityDefinition activity) {
-		this.then = new ThenDefinition(null, this);
-		this.then.addActivity(activity);
+		this.then = activity;
+		this.addActivity(activity);
 		return this;
 	}
 
-	public ElseDefinition Else() {
-		this._else = new ElseDefinition(null, this);
-		return this._else;
-	}
-
 	public IfDefinition Else(ActivityDefinition activity) {
-		this._else = new ElseDefinition(null, this);
-		this._else.addActivity(activity);
+		this._else = activity;
+		this.addActivity(activity);
 		return this;
 	}
 
@@ -76,49 +62,15 @@ public class IfDefinition extends ActivityDefinition {
 		return _if;
 	}
 
-	public static class ThenDefinition extends ActivityContainerDefinition {
-		private ActivityDefinition activity;
+	// fluent
 
-		public ThenDefinition(String displayName, IfDefinition parent) {
-			super(displayName, parent);
-		}
-
-		public IfDefinition EndThen() {
-			return (IfDefinition) this.End();
-		}
-
-		@Override
-		protected Activity internalToActivity(DefinitionValidator validator) {
-			return this.activity != null ? this.activity.toActivity(validator) : null;
-		}
-
-		@Override
-		protected void addActivity(ActivityDefinition activity) {
-			this.activity = activity;
-			super.addActivity(activity);
-		}
+	public ActivityDefinition Then() {
+		this.Then(new WrappedActivityDefinition("Then"));
+		return this.then;
 	}
 
-	public static class ElseDefinition extends ActivityContainerDefinition {
-		private ActivityDefinition activity;
-
-		public ElseDefinition(String displayName, IfDefinition parent) {
-			super(displayName, parent);
-		}
-
-		public IfDefinition EndElse() {
-			return (IfDefinition) this.End();
-		}
-
-		@Override
-		protected Activity internalToActivity(DefinitionValidator validator) {
-			return this.activity != null ? this.activity.toActivity(validator) : null;
-		}
-
-		@Override
-		protected void addActivity(ActivityDefinition activity) {
-			this.activity = activity;
-			super.addActivity(activity);
-		}
+	public ActivityDefinition Else() {
+		this.Else(new WrappedActivityDefinition("Else"));
+		return this._else;
 	}
 }

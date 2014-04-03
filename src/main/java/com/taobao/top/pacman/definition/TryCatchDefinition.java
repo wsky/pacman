@@ -1,15 +1,16 @@
 package com.taobao.top.pacman.definition;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.taobao.top.pacman.Activity;
 import com.taobao.top.pacman.statements.TryCatch;
 
 public class TryCatchDefinition extends ActivityDefinition {
-	private TryDefinition _try;
-	private List<CatchDefinition> _catches;
-	private FinallyDefinition _finally;
+	private ActivityDefinition _try;
+	private Map<Class<? extends Exception>, ActivityDefinition> _catches;
+	private ActivityDefinition _finally;
 
 	public TryCatchDefinition() {
 		this("TryCatch");
@@ -17,25 +18,25 @@ public class TryCatchDefinition extends ActivityDefinition {
 
 	public TryCatchDefinition(String displayName) {
 		super(displayName);
-		this._catches = new ArrayList<CatchDefinition>();
+		this._catches = new HashMap<Class<? extends Exception>, ActivityDefinition>();
 	}
 
-	public TryDefinition Try() {
-		return this._try = new TryDefinition(this);
+	public TryCatchDefinition Try(ActivityDefinition activity) {
+		this._try = activity;
+		this.addActivity(activity);
+		return this;
 	}
 
-	public CatchDefinition Catch() {
-		return this.Catch(Exception.class);
+	public TryCatchDefinition Catch(Class<? extends Exception> exceptionType, ActivityDefinition activity) {
+		this._catches.put(exceptionType, activity);
+		this.addActivity(activity);
+		return this;
 	}
 
-	public CatchDefinition Catch(Class<?> exceptionType) {
-		CatchDefinition _catch = new CatchDefinition(this, exceptionType);
-		this._catches.add(_catch);
-		return _catch;
-	}
-
-	public FinallyDefinition Finally() {
-		return this._finally = new FinallyDefinition(this);
+	public TryCatchDefinition Finally(ActivityDefinition activity) {
+		this._finally = activity;
+		this.addActivity(activity);
+		return this;
 	}
 
 	@Override
@@ -48,8 +49,11 @@ public class TryCatchDefinition extends ActivityDefinition {
 		TryCatch tryCatch = new TryCatch();
 		tryCatch.Try = this._try.toActivity(validator);
 
-		for (CatchDefinition c : this._catches)
-			tryCatch.getCatches().add(c.toCatch(validator));
+		for (Entry<Class<? extends Exception>, ActivityDefinition> c : this._catches.entrySet())
+			tryCatch.getCatches().add(
+					new TryCatch.Catch(
+							c.getKey(),
+							c.getValue().toActivity(validator)));
 
 		if (this._finally != null)
 			tryCatch.Finally = this._finally.toActivity(validator);
@@ -57,33 +61,21 @@ public class TryCatchDefinition extends ActivityDefinition {
 		return tryCatch;
 	}
 
-	public static class TryDefinition extends SingleActivityContainerDefinition<TryCatchDefinition> {
-		public TryDefinition(TryCatchDefinition parent) {
-			super("Try", parent);
-		}
+	// fluent
 
-		@Override
-		public TryCatchDefinition End() {
-			return (TryCatchDefinition) super.End();
-		}
+	public ActivityDefinition Try() {
+		this.Try(new WrappedActivityDefinition("Try"));
+		return this._try;
 	}
 
-	public static class FinallyDefinition extends SingleActivityContainerDefinition<TryCatchDefinition> {
-		public FinallyDefinition(TryCatchDefinition parent) {
-			super("Finally", parent);
-		}
+	public ActivityDefinition Catch() {
+		ActivityDefinition c = new WrappedActivityDefinition("Catch");
+		this.Catch(Exception.class, c);
+		return c;
 	}
 
-	public static class CatchDefinition extends SingleActivityContainerDefinition<TryCatchDefinition> {
-		private Class<?> exceptionType;
-
-		public CatchDefinition(TryCatchDefinition parent, Class<?> exceptionType) {
-			super("Catch", parent);
-			this.exceptionType = exceptionType;
-		}
-
-		public TryCatch.Catch toCatch(DefinitionValidator validator) {
-			return new TryCatch.Catch(this.exceptionType, this.toActivity(validator));
-		}
+	public ActivityDefinition Finally() {
+		this.Finally(new WrappedActivityDefinition("Finally"));
+		return this._finally;
 	}
 }

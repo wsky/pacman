@@ -20,13 +20,21 @@ import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.ActivityInstance.ActivityInstanceState;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 
-public class WorkflowDefinition extends ActivityContainerDefinition {
+public class WorkflowDefinition extends ActivityDefinition {
 	protected Map<String, Object> inArguments;
 	protected Map<String, Object> outArguments;
 	protected Map<String, Argument> arguments;
 	protected ActivityDefinition body;
 
-	public WorkflowDefinition(String displayName, ActivityContainerDefinition parent) {
+	public WorkflowDefinition() {
+		this("Workflow", null);
+	}
+
+	public WorkflowDefinition(String displayName) {
+		this(displayName, null);
+	}
+
+	public WorkflowDefinition(String displayName, ActivityDefinition parent) {
 		super(displayName, parent);
 	}
 
@@ -50,9 +58,9 @@ public class WorkflowDefinition extends ActivityContainerDefinition {
 		return this;
 	}
 
-	@Override
 	public WorkflowDefinition Var(String name) {
-		return (WorkflowDefinition) super.Var(name);
+		this.addVariable(name);
+		return this;
 	}
 
 	@Override

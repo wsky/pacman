@@ -1,6 +1,8 @@
 package com.taobao.top.pacman.definition;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.taobao.top.pacman.Activity;
@@ -8,8 +10,11 @@ import com.taobao.top.pacman.Variable;
 
 public abstract class ActivityDefinition {
 	private ActivityDefinition parent;
-	private Map<String, Variable> variables;
+	private Map<String, Variable> internalVariables;
 	private String displayName;
+
+	protected List<ActivityDefinition> activities;
+	protected List<VariableDefinition> variables;
 
 	public ActivityDefinition(String displayName) {
 		this(displayName, null);
@@ -18,14 +23,18 @@ public abstract class ActivityDefinition {
 	public ActivityDefinition(String displayName, ActivityDefinition parent) {
 		this.displayName = displayName;
 		this.setParent(parent);
+
+		this.activities = new ArrayList<ActivityDefinition>();
+		this.variables = new ArrayList<VariableDefinition>();
 	}
 
-	public String getDisplayName() {
-		return this.displayName;
+	protected void addVariable(String name) {
+		this.variables.add(new VariableDefinition(name));
 	}
 
-	public ActivityDefinition End() {
-		return this.parent;
+	protected void addActivity(ActivityDefinition activity) {
+		activity.setParent(this);
+		this.activities.add(activity);
 	}
 
 	protected ActivityDefinition getParent() {
@@ -37,21 +46,23 @@ public abstract class ActivityDefinition {
 	}
 
 	protected Variable getVariable(String name) {
-		Variable variable = this.variables != null ? this.variables.get(name) : null;
+		Variable variable = this.internalVariables != null ? this.internalVariables.get(name) : null;
 		return variable == null &&
 				this.parent != null ?
 				this.parent.getVariable(name) : variable;
 	}
 
 	protected void addVariable(String name, Variable variable) {
-		if (this.variables == null)
-			this.variables = new HashMap<String, Variable>();
-		this.variables.put(name, variable);
+		if (this.internalVariables == null)
+			this.internalVariables = new HashMap<String, Variable>();
+		this.internalVariables.put(name, variable);
 	}
 
 	protected Map<String, Variable> getVariables() {
-		return this.variables;
+		return this.internalVariables;
 	}
+
+	protected abstract Activity internalToActivity(DefinitionValidator validator);
 
 	@Override
 	public String toString() {
@@ -66,5 +77,54 @@ public abstract class ActivityDefinition {
 		return activity;
 	}
 
-	protected abstract Activity internalToActivity(DefinitionValidator validator);
+	public String getDisplayName() {
+		return this.displayName;
+	}
+
+	public ActivityDefinition End() {
+		return this.parent;
+	}
+
+	public ActivityDefinition Activity(ActivityDefinition activity) {
+		this.addActivity(activity);
+		return this;
+	}
+
+	// fluent
+
+	public SequenceDefinition Sequence() {
+		SequenceDefinition activity = new SequenceDefinition();
+		this.Activity(activity);
+		return activity;
+	}
+
+	public IfDefinition If() {
+		IfDefinition activity = new IfDefinition();
+		this.Activity(activity);
+		return activity;
+	}
+
+	public WhileDefinition While() {
+		WhileDefinition activity = new WhileDefinition();
+		this.Activity(activity);
+		return activity;
+	}
+
+	public TryCatchDefinition TryCatch() {
+		TryCatchDefinition activity = new TryCatchDefinition();
+		this.Activity(activity);
+		return activity;
+	}
+
+	public WriteLineDefinition WriteLine() {
+		WriteLineDefinition activity = new WriteLineDefinition();
+		this.Activity(activity);
+		return activity;
+	}
+
+	public AssignDefinition Assign() {
+		AssignDefinition activity = new AssignDefinition();
+		this.Activity(activity);
+		return activity;
+	}
 }
