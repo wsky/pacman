@@ -2,10 +2,10 @@ package com.taobao.top.pacman.definition;
 
 import com.taobao.top.pacman.Activity;
 
-public class WrappedActivityDefinition extends ActivityDefinition {
+public class ReferenceActivityDefinition extends ActivityDefinition {
 	private ActivityDefinition activity;
 
-	public WrappedActivityDefinition(String displayName) {
+	public ReferenceActivityDefinition(String displayName) {
 		super(displayName);
 	}
 

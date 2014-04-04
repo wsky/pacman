@@ -52,7 +52,7 @@ public class WhileDefinition extends ActivityDefinition {
 	// fluent
 
 	public ActivityDefinition Body() {
-		this.Body(new WrappedActivityDefinition("Body"));
+		this.Body(new ReferenceActivityDefinition("Body"));
 		return this.body;
 	}
 }

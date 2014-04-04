@@ -64,18 +64,18 @@ public class TryCatchDefinition extends ActivityDefinition {
 	// fluent
 
 	public ActivityDefinition Try() {
-		this.Try(new WrappedActivityDefinition("Try"));
+		this.Try(new ReferenceActivityDefinition("Try"));
 		return this._try;
 	}
 
 	public ActivityDefinition Catch() {
-		ActivityDefinition c = new WrappedActivityDefinition("Catch");
+		ActivityDefinition c = new ReferenceActivityDefinition("Catch");
 		this.Catch(Exception.class, c);
 		return c;
 	}
 
 	public ActivityDefinition Finally() {
-		this.Finally(new WrappedActivityDefinition("Finally"));
+		this.Finally(new ReferenceActivityDefinition("Finally"));
 		return this._finally;
 	}
 }

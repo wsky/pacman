@@ -65,12 +65,12 @@ public class IfDefinition extends ActivityDefinition {
 	// fluent
 
 	public ActivityDefinition Then() {
-		this.Then(new WrappedActivityDefinition("Then"));
+		this.Then(new ReferenceActivityDefinition("Then"));
 		return this.then;
 	}
 
 	public ActivityDefinition Else() {
-		this.Else(new WrappedActivityDefinition("Else"));
+		this.Else(new ReferenceActivityDefinition("Else"));
 		return this._else;
 	}
 }
