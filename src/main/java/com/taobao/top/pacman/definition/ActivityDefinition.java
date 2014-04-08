@@ -37,10 +37,6 @@ public abstract class ActivityDefinition {
 		this.activities.add(activity);
 	}
 
-	protected ActivityDefinition getParent() {
-		return this.parent;
-	}
-
 	protected void setParent(ActivityDefinition parent) {
 		this.parent = parent;
 	}
@@ -91,6 +87,10 @@ public abstract class ActivityDefinition {
 		return this.parent;
 	}
 
+	public ActivityDefinition getParent() {
+		return this.parent;
+	}
+	
 	public ActivityDefinition Activity(ActivityDefinition activity) {
 		this.addActivity(activity);
 		return this;
