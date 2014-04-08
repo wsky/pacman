@@ -40,7 +40,7 @@ public class DefinitionValidator {
 		return this.extensions != null ? (T) this.extensions.get(type) : null;
 	}
 
-	public <T> void addExtension(Class<T> type, Object extension) {
+	public <T> void addExtension(Class<T> type, T extension) {
 		if (this.extensions == null)
 			this.extensions = new HashMap<Class<?>, Object>();
 		this.extensions.put(type, extension);

@@ -71,9 +71,15 @@ public abstract class ActivityDefinition {
 
 	public final Activity toActivity(DefinitionValidator validator) {
 		validator.setCurrent(this);
+		
 		Activity activity = this.internalToActivity(validator);
 		if (activity != null && activity.getDisplayName() == null)
 			activity.setDisplayName(this.getDisplayName());
+
+		ProcessCallback callback = validator.getExtension(ProcessCallback.class);
+		if (callback != null)
+			callback.execute(this, activity);
+
 		return activity;
 	}
 
@@ -126,5 +132,9 @@ public abstract class ActivityDefinition {
 		AssignDefinition activity = new AssignDefinition();
 		this.Activity(activity);
 		return activity;
+	}
+
+	public static interface ProcessCallback {
+		public void execute(ActivityDefinition definition, Activity activity);
 	}
 }
