@@ -40,5 +40,7 @@ public class TraversalTest {
 			}
 		});
 		workflow.toActivity(validator);
+
+		System.err.println(validator.getErrors());
 	}
 }
