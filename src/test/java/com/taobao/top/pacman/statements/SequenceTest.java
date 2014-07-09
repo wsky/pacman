@@ -3,6 +3,7 @@ package com.taobao.top.pacman.statements;
 import java.util.Map;
 
 import com.taobao.top.pacman.Activity;
+import com.taobao.top.pacman.testsuite.StatementTestBase;
 
 public class SequenceTest extends StatementTestBase {
 	protected Activity createActivity() {
@@ -15,5 +16,9 @@ public class SequenceTest extends StatementTestBase {
 	@Override
 	protected Map<String, Object> createInputs() {
 		return null;
+	}
+
+	@Override
+	protected void assertOutputs(Map<String, Object> outputs) {
 	}
 }

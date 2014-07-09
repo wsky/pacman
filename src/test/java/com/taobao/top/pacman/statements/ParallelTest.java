@@ -10,6 +10,7 @@ import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.VariableValue;
 import com.taobao.top.pacman.WorkflowInstance;
+import com.taobao.top.pacman.testsuite.StatementTestBase;
 
 public class ParallelTest extends StatementTestBase {
 	@Override
@@ -31,6 +32,11 @@ public class ParallelTest extends StatementTestBase {
 	@Override
 	protected Map<String, Object> createInputs() {
 		return null;
+	}
+	
+
+	@Override
+	protected void assertOutputs(Map<String, Object> outputs) {
 	}
 
 	@Ignore

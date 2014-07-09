@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.taobao.top.pacman.Activity;
+import com.taobao.top.pacman.testsuite.StatementTestBase;
 
 public class IfTest extends StatementTestBase {
 	@Override
@@ -21,4 +22,7 @@ public class IfTest extends StatementTestBase {
 		return inputs;
 	}
 
+	@Override
+	protected void assertOutputs(Map<String, Object> outputs) {
+	}
 }

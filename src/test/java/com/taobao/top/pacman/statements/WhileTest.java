@@ -11,6 +11,7 @@ import com.taobao.top.pacman.NativeActivityContext;
 import com.taobao.top.pacman.OutArgument;
 import com.taobao.top.pacman.RuntimeArgument;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
+import com.taobao.top.pacman.testsuite.StatementTestBase;
 import com.taobao.top.pacman.Trace;
 import com.taobao.top.pacman.Variable;
 import com.taobao.top.pacman.VariableValue;
@@ -56,5 +57,9 @@ public class WhileTest extends StatementTestBase {
 	@Override
 	protected Map<String, Object> createInputs() {
 		return null;
+	}
+
+	@Override
+	protected void assertOutputs(Map<String, Object> outputs) {	
 	}
 }

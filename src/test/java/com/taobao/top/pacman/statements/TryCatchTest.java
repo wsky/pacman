@@ -19,6 +19,7 @@ import com.taobao.top.pacman.RuntimeArgument;
 import com.taobao.top.pacman.WorkflowInstance;
 import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 import com.taobao.top.pacman.statements.TryCatch.Catch;
+import com.taobao.top.pacman.testsuite.StatementTestBase;
 
 public class TryCatchTest extends StatementTestBase {
 	@Override
@@ -44,6 +45,10 @@ public class TryCatchTest extends StatementTestBase {
 		return null;
 	}
 
+	@Override
+	protected void assertOutputs(Map<String, Object> outputs) {	
+	}
+	
 	@Test
 	public void find_catch_test() {
 		TryCatch tryCatch = new TryCatch();
