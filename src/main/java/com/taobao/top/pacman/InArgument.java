@@ -15,7 +15,7 @@ public class InArgument extends Argument {
 	}
 	
 	public InArgument(Object constValue) {
-		this(constValue.getClass(), constValue);
+		this(constValue != null ? constValue.getClass() : Object.class, constValue);
 	}
 	
 	public InArgument(Class<?> type, Object constValue) {
