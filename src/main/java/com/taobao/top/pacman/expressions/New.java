@@ -33,6 +33,7 @@ public final class New extends CodeActivityWithResult {
 		Class<?>[] types = new Class<?>[this.getArguments().size()];
 		for (int i = 0; i < types.length; i++) {
 			Argument argument = this.getArguments().get(i);
+			types[i] = argument.getArgumentType();
 			metadata.bindAndAddArgument(argument, new RuntimeArgument(
 					"Argument" + i,
 					argument.getArgumentType(),

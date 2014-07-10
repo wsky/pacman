@@ -3,9 +3,9 @@ package com.taobao.top.pacman.expressions;
 import com.taobao.top.pacman.*;
 
 public class FunctionValue extends CodeActivityWithResult {
-	private Function<ActivityContext, Object> func;
+	private Function<ActivityContext, ?> func;
 
-	public FunctionValue(Function<ActivityContext, Object> function) {
+	public FunctionValue(Function<ActivityContext, ?> function) {
 		this.func = function;
 	}
 

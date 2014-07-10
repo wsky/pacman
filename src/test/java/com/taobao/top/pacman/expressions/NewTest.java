@@ -17,20 +17,30 @@ import com.taobao.top.pacman.testsuite.StatementTestBase;
 public class NewTest extends StatementTestBase {
 	@Override
 	protected Activity createActivity() {
+		New newObj = new New(TestObject.class);
+		newObj.getArguments().add(new InArgument("name"));
+		newObj.getArguments().add(new InArgument(int.class, 123));
+		
 		Assign assign = new Assign();
-		assign.Value = new InArgument(new New(Object.class));
+		assign.Value = new InArgument(newObj);
 		assign.To = new OutArgument();
 		return assign;
 	}
 	
 	@Override
 	protected Map<String, Object> createInputs() {
-		return null;
+		Map<String, Object> inputs=new HashMap<String, Object>();
+		// inputs.put("Argument1", "nam1e");
+		// inputs.put("Argument2", 123);
+		return inputs;
 	}
 	
 	@Override
 	protected void assertOutputs(Map<String, Object> outputs) {
-		assertNotNull(outputs.get("To"));
+		TestObject obj = (TestObject) outputs.get("To");
+		assertNotNull(obj);
+		assertEquals(123, obj.id);
+		assertEquals("name", obj.name);
 	}
 	
 	@Test
@@ -38,5 +48,16 @@ public class NewTest extends StatementTestBase {
 		assertEquals(HashMap.class, this.invoke(new New(HashMap.class), null).get("Result").getClass());
 		assertEquals(ArrayList.class, this.invoke(new New(ArrayList.class), null).get("Result").getClass());
 		assertEquals(HashMap.class, this.invoke(new New(HashMap.class), null).get("Result").getClass());
+	}
+	
+	// must be static
+	public static class TestObject {
+		public String name;
+		public int id;
+		
+		public TestObject(String name, int id) {
+			this.name = name;
+			this.id = id;
+		}
 	}
 }

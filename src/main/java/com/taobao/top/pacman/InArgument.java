@@ -6,24 +6,40 @@ import com.taobao.top.pacman.expressions.Literal;
 
 public class InArgument extends Argument {
 	public InArgument() {
-		this.setArgumentType(Object.class);
+		this(Object.class);
+	}
+	
+	public InArgument(Class<?> type) {
+		this.setArgumentType(type);
 		this.setDirection(ArgumentDirection.In);
 	}
 	
 	public InArgument(Object constValue) {
-		this(new Literal(constValue));
+		this(constValue.getClass(), constValue);
+	}
+	
+	public InArgument(Class<?> type, Object constValue) {
+		this(type, new Literal(constValue));
 	}
 	
 	public InArgument(Variable variable) {
-		this(new VariableValue(variable));
+		this(variable.getType(), new VariableValue(variable));
 	}
 	
 	public InArgument(Function<ActivityContext, Object> expression) {
-		this(new FunctionValue(expression));
+		this(Object.class, expression);
+	}
+	
+	public <T> InArgument(Class<T> type, Function<ActivityContext, T> expression) {
+		this(type, new FunctionValue(expression));
 	}
 	
 	public InArgument(ActivityWithResult expression) {
-		this();
+		this(Object.class, expression);
+	}
+	
+	public InArgument(Class<?> type, ActivityWithResult expression) {
+		this(type);
 		this.setExpression(expression);
 	}
 	
