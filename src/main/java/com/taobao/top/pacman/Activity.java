@@ -243,7 +243,7 @@ public abstract class Activity {
 		return this.cacheState == MetadataCacheState.RuntimeReady;
 	}
 
-	protected final void internalCacheMetadata() {
+	protected final void internalCacheMetadata() throws Exception {
 		this.onInternalCacheMetadata();
 
 		if (this.children == null)
@@ -287,11 +287,11 @@ public abstract class Activity {
 		}
 	}
 
-	protected void onInternalCacheMetadata() {
+	protected void onInternalCacheMetadata() throws Exception {
 		this.cacheMetadata(new ActivityMetadata(this, this.getParentEnvironment()));
 	}
 
-	protected void cacheMetadata(ActivityMetadata metadata) {
+	protected void cacheMetadata(ActivityMetadata metadata) throws Exception {
 		// TODO default dynamic scan and prepare
 	}
 

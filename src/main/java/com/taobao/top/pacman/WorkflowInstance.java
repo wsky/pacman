@@ -60,14 +60,14 @@ public class WorkflowInstance {
 		this.notifyPaused();
 	}
 
-	private void ensureInitialized() {
+	private void ensureInitialized() throws Exception {
 		if (!this.isInitialized) {
 			this.executor = new ActivityExecutor(this);
 			this.initialize(this.initialArguments);
 		}
 	}
 
-	private void initialize(Map<String, Object> inputs) {
+	private void initialize(Map<String, Object> inputs) throws Exception {
 		if (!workflowDefinition.isRuntimeReady()) {
 			ActivityUtilities.cacheRootMetadata(
 					this.workflowDefinition,

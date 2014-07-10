@@ -14,7 +14,7 @@ import com.taobao.top.pacman.WorkflowInstance;
 
 public abstract class StatementTestBase {
 	@Test
-	public void metadata_test() {
+	public void metadata_test() throws Exception {
 		ActivityUtilities.cacheRootMetadata(this.createActivity(),
 				new ActivityLocationReferenceEnvironment(null),
 				new RenderProcessActivityCallback());

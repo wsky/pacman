@@ -57,7 +57,7 @@ public class ActivityMetadataTest {
 			private Variable inner = ActivityMetadataTest.this.inner;
 
 			@Override
-			protected void cacheMetadata(ActivityMetadata metadata) {
+			protected void cacheMetadata(ActivityMetadata metadata) throws Exception {
 				super.cacheMetadata(metadata);
 				metadata.bindAndAddArgument(this.in, new RuntimeArgument("in", Integer.class, ArgumentDirection.In));
 				metadata.bindAndAddArgument(this.out, new RuntimeArgument("out", Integer.class, ArgumentDirection.Out));
@@ -74,7 +74,7 @@ public class ActivityMetadataTest {
 	}
 
 	@Test
-	public void cache_metadata_test() {
+	public void cache_metadata_test() throws Exception {
 		root.initializeAsRoot(new ActivityLocationReferenceEnvironment(null));
 		root.cacheMetadata(new ActivityMetadata(root, root.getParentEnvironment()));
 		root.setRuntimeReady();
@@ -82,7 +82,7 @@ public class ActivityMetadataTest {
 	}
 
 	@Test
-	public void activity_tree_process_test() {
+	public void activity_tree_process_test() throws Exception {
 		ActivityLocationReferenceEnvironment hostEnvironment = new ActivityLocationReferenceEnvironment(null);
 		ActivityUtilities.cacheRootMetadata(root, hostEnvironment, callback);
 		assertRoot();

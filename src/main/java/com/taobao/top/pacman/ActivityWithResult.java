@@ -31,7 +31,7 @@ public abstract class ActivityWithResult extends Activity {
 	}
 
 	@Override
-	protected final void onInternalCacheMetadata() {
+	protected final void onInternalCacheMetadata() throws Exception {
 		this.internalCacheMetadataExceptResult();
 
 		List<RuntimeArgument> runtimeArguments = this.getRuntimeArguments();
@@ -52,7 +52,7 @@ public abstract class ActivityWithResult extends Activity {
 
 	}
 
-	protected void internalCacheMetadataExceptResult() {
+	protected void internalCacheMetadataExceptResult() throws Exception {
 		super.onInternalCacheMetadata();
 	}
 

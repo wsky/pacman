@@ -3,13 +3,13 @@ package com.taobao.top.pacman;
 import com.taobao.top.pacman.runtime.BookmarkManager;
 
 public abstract class CodeActivityWithResult extends ActivityWithResult {
-	protected abstract Object execute(CodeActivityContext context);
+	protected abstract Object execute(CodeActivityContext context) throws Exception;
 
 	@Override
 	protected final void internalExecute(
 			ActivityInstance instance, 
 			ActivityExecutor executor, 
-			BookmarkManager bookmarkManager) {
+			BookmarkManager bookmarkManager) throws Exception {
 		CodeActivityContext context = executor.CodeActivityContextPool.acquire();
 		try {
 			context.initialize(instance, executor);
@@ -21,7 +21,7 @@ public abstract class CodeActivityWithResult extends ActivityWithResult {
 	}
 
 	@Override
-	protected final void internalCacheMetadataExceptResult() {
+	protected final void internalCacheMetadataExceptResult() throws Exception {
 		super.internalCacheMetadataExceptResult();
 	}
 }

@@ -7,14 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ActivityUtilities {
 	public static void cacheRootMetadata(Activity activity,
 			LocationReferenceEnvironment hostEnvironment,
-			ProcessActivityCallback callback) {
+			ProcessActivityCallback callback) throws Exception {
 		activity.initializeAsRoot(hostEnvironment);
 		processActivityTree(activity, callback);
 		activity.setRuntimeReady();
 		// TODO support error validator
 	}
 
-	private static void processActivityTree(Activity root, ProcessActivityCallback callback) {
+	private static void processActivityTree(Activity root, ProcessActivityCallback callback) throws Exception {
 		Stack<Activity> stack = new Stack<Activity>();
 		stack.push(root);
 		Activity currentActivity;
@@ -34,7 +34,7 @@ public class ActivityUtilities {
 		} while (!stack.isEmpty());
 	}
 
-	private static void processActivity(Activity activity, Stack<Activity> stack) {
+	private static void processActivity(Activity activity, Stack<Activity> stack) throws Exception {
 		// add itself frist so that having a id
 		activity.getMemberOf().add(activity);
 		activity.internalCacheMetadata();
