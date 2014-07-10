@@ -22,7 +22,7 @@ public abstract class StatementTestBase {
 	
 	@Test
 	public void invoke_test() throws Exception {
-		Map<String, Object> outputs = WorkflowInstance.invoke(
+		Map<String, Object> outputs = this.invoke(
 				this.createActivity(),
 				this.createInputs(),
 				this.createExtensionManager());
@@ -54,6 +54,16 @@ public abstract class StatementTestBase {
 				total, cost, ((float) total / (float) cost) * 1000));
 		
 		Trace.setEnabled(true);
+	}
+	
+	protected Map<String, Object> invoke(Activity activity, Map<String, Object> inputs) throws Exception {
+		return this.invoke(activity, inputs, null);
+	}
+	
+	protected Map<String, Object> invoke(Activity activity,
+			Map<String, Object> inputs,
+			WorkflowExtensionManager extensionManager) throws Exception {
+		return WorkflowInstance.invoke(activity, inputs, extensionManager);
 	}
 	
 	protected abstract Activity createActivity();
