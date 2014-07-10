@@ -1,42 +1,38 @@
 package com.taobao.top.pacman.statements;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.taobao.top.pacman.Activity;
-import com.taobao.top.pacman.ActivityMetadata;
 import com.taobao.top.pacman.InArgument;
-import com.taobao.top.pacman.OutArgument;
-import com.taobao.top.pacman.RuntimeArgument;
 import com.taobao.top.pacman.Variable;
-import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
-import com.taobao.top.pacman.expressions.New;
 import com.taobao.top.pacman.testsuite.StatementTestBase;
 
 public class CollectionTest extends StatementTestBase {
+	private List<Object> list;
+	
 	@Override
 	protected Activity createActivity() {
-		final OutArgument result = new OutArgument();
+		Sequence sequence = new Sequence();
 		
-		Sequence sequence = new Sequence() {
-			@Override
-			protected void cacheMetadata(ActivityMetadata metadata) {
-				super.cacheMetadata(metadata);
-				metadata.bindAndAddArgument(result, new RuntimeArgument("Result", Collection.class, ArgumentDirection.Out));
-			}
-		};
-		
-		Variable collection = new Variable("collection", new New(ArrayList.class));
+		Variable collection = new Variable("collection", list = new ArrayList<Object>());// new New(ArrayList.class)
 		sequence.getVariables().add(collection);
 		
 		Variable item = new Variable("item", new Object());
 		sequence.getVariables().add(item);
 		
-		AddToCollection add = new AddToCollection();
-		add.Collection = new InArgument(collection);
-		add.Item = new InArgument(item);
-		sequence.getActivities().add(add);
+		AddToCollection add1 = new AddToCollection();
+		add1.Collection = new InArgument(collection);
+		add1.Item = new InArgument(item);
+		sequence.getActivities().add(add1);
+		
+		AddToCollection add2 = new AddToCollection();
+		add2.Collection = new InArgument(collection);
+		add2.Item = new InArgument(item);
+		sequence.getActivities().add(add2);
 		
 		RemoveFromCollection remove = new RemoveFromCollection();
 		remove.Collection = new InArgument(collection);
@@ -48,11 +44,6 @@ public class CollectionTest extends StatementTestBase {
 		exists.Item = new InArgument(item);
 		sequence.getActivities().add(exists);
 		
-		// Assign assign=new Assign();
-		// assign.Value=new InArgument(collection);
-		// assign.To=new OutArgument(variable);
-		// sequence.getActivities().add(assign);
-		
 		return sequence;
 	}
 	
@@ -63,6 +54,7 @@ public class CollectionTest extends StatementTestBase {
 	
 	@Override
 	protected void assertOutputs(Map<String, Object> outputs) {
+		assertEquals(1, list.size());
 	}
 	
 }

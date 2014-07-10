@@ -9,8 +9,12 @@ public class OutArgument extends Argument {
 	}
 	
 	public OutArgument(Variable variable) {
+		this(new VariableReference(variable));
+	}
+	
+	public OutArgument(ActivityWithResult expression) {
 		this();
-		this.setExpression(new VariableReference(variable));
+		this.setExpression(expression);
 	}
 	
 	@Override
