@@ -6,26 +6,27 @@ import com.taobao.top.pacman.expressions.Literal;
 
 public class InArgument extends Argument {
 	public InArgument() {
+		this.setArgumentType(Object.class);
 		this.setDirection(ArgumentDirection.In);
 	}
-
+	
 	public InArgument(Object constValue) {
 		this(new Literal(constValue));
 	}
-
+	
 	public InArgument(Variable variable) {
 		this(new VariableValue(variable));
 	}
-
+	
 	public InArgument(Function<ActivityContext, Object> expression) {
 		this(new FunctionValue(expression));
 	}
-
+	
 	public InArgument(ActivityWithResult expression) {
 		this();
 		this.setExpression(expression);
 	}
-
+	
 	@Override
 	protected boolean tryPopulateValue(LocationEnvironment environment,
 			ActivityInstance activityInstance,
@@ -33,7 +34,7 @@ public class InArgument extends Argument {
 		Location location = new Location();
 		// declare first, differecnt from outArgument, no temp location
 		environment.declare(this.getRuntimeArgument(), location, activityInstance);
-
+		
 		Object[] ret = this.getExpression().tryGetValue(resolutionContext);
 		if ((Boolean) ret[0]) {
 			location.setValue(ret[1]);

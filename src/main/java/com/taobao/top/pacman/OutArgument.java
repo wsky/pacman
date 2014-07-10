@@ -4,14 +4,15 @@ import com.taobao.top.pacman.RuntimeArgument.ArgumentDirection;
 
 public class OutArgument extends Argument {
 	public OutArgument() {
+		this.setArgumentType(Object.class);
 		this.setDirection(ArgumentDirection.Out);
 	}
-
+	
 	public OutArgument(Variable variable) {
 		this();
 		this.setExpression(new VariableReference(variable));
 	}
-
+	
 	@Override
 	protected boolean tryPopulateValue(LocationEnvironment environment,
 			ActivityInstance activityInstance,
@@ -34,7 +35,7 @@ public class OutArgument extends Argument {
 		}
 	}
 	// TODO impl more outArgument output reference
-
+	
 	// ActivityWithResult<Location>
 	// public OutArgument(ActivityWithResult expression) {}
 }
